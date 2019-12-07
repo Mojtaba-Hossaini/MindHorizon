@@ -10,14 +10,14 @@ using MindHorizon.Data;
 namespace MindHorizon.Data.Migrations
 {
     [DbContext(typeof(MindHorizonDbContext))]
-    [Migration("20191202060248_InitDb")]
-    partial class InitDb
+    [Migration("20191207075154_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.1")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
