@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{7AFD6DC6-F34E-4940-BC49-8A052012D3E6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{3B59ABB9-40E6-4C32-8933-3FB41CD218A3}"
+	ProjectSection(SolutionItems) = preProject
+		TextFile1.txt = TextFile1.txt
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MindHorizon", "Server\MindHorizon\MindHorizon.csproj", "{77A2DF91-1D25-42D3-95C3-FC68668E0AB1}"
 EndProject
