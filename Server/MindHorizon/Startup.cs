@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MindHorizon.Data;
+using MindHorizon.IocConfig;
 
 namespace MindHorizon
 {
@@ -25,6 +26,7 @@ namespace MindHorizon
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<MindHorizonDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MSSqlServer")));
+            services.AddCustomServices();
             services.AddMvc();
         }
 
@@ -36,17 +38,14 @@ namespace MindHorizon
                 app.UseDeveloperExceptionPage();
             }
 
-            
             app.UseStaticFiles();
-
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "areas",
-                    template: "{area;exists}/{controller=Home}/{action=Index}/{id?}"
-                    );
-            }
-            );
+                  name: "areas",
+                  template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+                );
+            });
         }
     }
 }

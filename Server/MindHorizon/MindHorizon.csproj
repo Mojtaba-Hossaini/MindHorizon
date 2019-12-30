@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MindHorizon.Common\MindHorizon.Common.csproj" />
     <ProjectReference Include="..\MindHorizon.Data\MindHorizon.Data.csproj" />
+    <ProjectReference Include="..\MindHorizon.IocConfig\MindHorizon.IocConfig.csproj" />
   </ItemGroup>
 
   <ItemGroup>

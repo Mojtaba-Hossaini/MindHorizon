@@ -56,6 +56,7 @@ namespace MindHorizon.Data.Repositories
             var Categories = (from c in _context.Categories
                               where (c.ParentCategoryId == null)
                               select new TreeViewCategory { id = c.CategoryId, title = c.CategoryName }).ToList();
+
             foreach (var item in Categories)
             {
                 BindSubCategories(item);
