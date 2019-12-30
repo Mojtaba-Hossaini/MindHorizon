@@ -15,24 +15,20 @@ namespace MindHorizon.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.0")
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("LoginProvider");
 
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("ProviderKey");
 
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ProviderDisplayName");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .IsRequired();
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -43,17 +39,13 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("UserId");
 
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("LoginProvider");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Name");
 
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Value");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -62,11 +54,9 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.Bookmark", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("UserId");
 
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("PostId");
 
                     b.HasKey("UserId", "PostId");
 
@@ -78,16 +68,13 @@ namespace MindHorizon.Data.Migrations
             modelBuilder.Entity("MindHorizon.Entities.Category", b =>
                 {
                     b.Property<string>("CategoryId")
-                        .HasColumnType("nvarchar(450)");
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<string>("CategoryName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("CategoryName");
 
-                    b.Property<string>("ParentCategoryId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("ParentCategoryId");
 
-                    b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Url");
 
                     b.HasKey("CategoryId");
 
@@ -99,28 +86,21 @@ namespace MindHorizon.Data.Migrations
             modelBuilder.Entity("MindHorizon.Entities.Comment", b =>
                 {
                     b.Property<string>("CommentId")
-                        .HasColumnType("nvarchar(450)");
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Desription")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Desription");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Email");
 
-                    b.Property<bool>("IsConfirm")
-                        .HasColumnType("bit");
+                    b.Property<bool>("IsConfirm");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Name");
 
-                    b.Property<string>("ParentCommentId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("ParentCommentId");
 
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("PostId");
 
-                    b.Property<DateTime?>("PostageDateTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("PostageDateTime");
 
                     b.HasKey("CommentId");
 
@@ -134,21 +114,17 @@ namespace MindHorizon.Data.Migrations
             modelBuilder.Entity("MindHorizon.Entities.Identity.Role", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .IsConcurrencyToken();
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Description");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("NormalizedName")
-                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.HasKey("Id");
@@ -165,18 +141,14 @@ namespace MindHorizon.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ClaimType");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ClaimValue");
 
                     b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -188,74 +160,53 @@ namespace MindHorizon.Data.Migrations
             modelBuilder.Entity("MindHorizon.Entities.Identity.User", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
+                    b.Property<int>("AccessFailedCount");
 
-                    b.Property<DateTime?>("BirthDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("BirthDate");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .IsConcurrencyToken();
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                    b.Property<bool>("EmailConfirmed");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("FirstName");
 
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
+                    b.Property<int>("Gender");
 
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Image");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<bool>("IsActive");
 
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("LastName");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
+                    b.Property<bool>("LockoutEnabled");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTimeOffset?>("LockoutEnd");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("PasswordHash");
 
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("PhoneNumber");
 
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
+                    b.Property<bool>("PhoneNumberConfirmed");
 
-                    b.Property<DateTime?>("RegisterDateTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("RegisterDateTime");
 
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("SecurityStamp");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
+                    b.Property<bool>("TwoFactorEnabled");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.HasKey("Id");
@@ -275,18 +226,14 @@ namespace MindHorizon.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ClaimType");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ClaimValue");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -297,11 +244,9 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.Identity.UserRole", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("UserId");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("RoleId");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -312,14 +257,11 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.Like", b =>
                 {
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("PostId");
 
-                    b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("IpAddress");
 
-                    b.Property<bool>("IsLiked")
-                        .HasColumnType("bit");
+                    b.Property<bool>("IsLiked");
 
                     b.HasKey("PostId", "IpAddress");
 
@@ -329,33 +271,25 @@ namespace MindHorizon.Data.Migrations
             modelBuilder.Entity("MindHorizon.Entities.Post", b =>
                 {
                     b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Description");
 
-                    b.Property<string>("ImageName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ImageName");
 
-                    b.Property<bool>("IsInternal")
-                        .HasColumnType("bit");
+                    b.Property<bool>("IsInternal");
 
-                    b.Property<bool>("IsPublish")
-                        .HasColumnType("bit");
+                    b.Property<bool>("IsPublish");
 
                     b.Property<DateTime?>("PublishDateTime")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("CONVERT(datetime,GetDate())");
 
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Title");
 
-                    b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Url");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("UserId");
 
                     b.HasKey("PostId");
 
@@ -366,11 +300,9 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.PostCategory", b =>
                 {
-                    b.Property<string>("CategoryId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("CategoryId");
 
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("PostId");
 
                     b.HasKey("CategoryId", "PostId");
 
@@ -382,13 +314,11 @@ namespace MindHorizon.Data.Migrations
             modelBuilder.Entity("MindHorizon.Entities.PostImage", b =>
                 {
                     b.Property<string>("PostImageId")
-                        .HasColumnType("nvarchar(450)");
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<string>("ImageName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ImageName");
 
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("PostId");
 
                     b.HasKey("PostImageId");
 
@@ -400,13 +330,11 @@ namespace MindHorizon.Data.Migrations
             modelBuilder.Entity("MindHorizon.Entities.PostLetter", b =>
                 {
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(450)");
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<bool>("IsActive");
 
-                    b.Property<DateTime?>("RegisterDateTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("RegisterDateTime");
 
                     b.HasKey("Email");
 
@@ -415,11 +343,9 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.PostTag", b =>
                 {
-                    b.Property<string>("TagId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("TagId");
 
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("PostId");
 
                     b.HasKey("TagId", "PostId");
 
@@ -431,10 +357,9 @@ namespace MindHorizon.Data.Migrations
             modelBuilder.Entity("MindHorizon.Entities.Tag", b =>
                 {
                     b.Property<string>("TagId")
-                        .HasColumnType("nvarchar(450)");
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<string>("TagName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("TagName");
 
                     b.HasKey("TagId");
 
@@ -443,17 +368,13 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.Visit", b =>
                 {
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("PostId");
 
-                    b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("IpAddress");
 
-                    b.Property<DateTime>("LastVisitDateTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("LastVisitDateTime");
 
-                    b.Property<int>("NumberOfVisit")
-                        .HasColumnType("int");
+                    b.Property<int>("NumberOfVisit");
 
                     b.HasKey("PostId", "IpAddress");
 
@@ -462,20 +383,18 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("MindHorizon.Entities.Identity.User", null)
+                    b.HasOne("MindHorizon.Entities.Identity.User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("MindHorizon.Entities.Identity.User", null)
+                    b.HasOne("MindHorizon.Entities.Identity.User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.Bookmark", b =>
@@ -483,14 +402,12 @@ namespace MindHorizon.Data.Migrations
                     b.HasOne("MindHorizon.Entities.Post", "Post")
                         .WithMany("Bookmarks")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("MindHorizon.Entities.Identity.User", "User")
                         .WithMany("Bookmarks")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.Category", b =>
@@ -516,8 +433,7 @@ namespace MindHorizon.Data.Migrations
                     b.HasOne("MindHorizon.Entities.Identity.Role", "Role")
                         .WithMany("Claims")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.Identity.UserClaim", b =>
@@ -525,8 +441,7 @@ namespace MindHorizon.Data.Migrations
                     b.HasOne("MindHorizon.Entities.Identity.User", "User")
                         .WithMany("Claims")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.Identity.UserRole", b =>
@@ -534,14 +449,12 @@ namespace MindHorizon.Data.Migrations
                     b.HasOne("MindHorizon.Entities.Identity.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("MindHorizon.Entities.Identity.User", "User")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.Like", b =>
@@ -549,8 +462,7 @@ namespace MindHorizon.Data.Migrations
                     b.HasOne("MindHorizon.Entities.Post", "Post")
                         .WithMany("Likes")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.Post", b =>
@@ -565,14 +477,12 @@ namespace MindHorizon.Data.Migrations
                     b.HasOne("MindHorizon.Entities.Category", "Category")
                         .WithMany("PostCategories")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("MindHorizon.Entities.Post", "Post")
                         .WithMany("PostCategories")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.PostImage", b =>
@@ -587,14 +497,12 @@ namespace MindHorizon.Data.Migrations
                     b.HasOne("MindHorizon.Entities.Post", "Post")
                         .WithMany("PostTags")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("MindHorizon.Entities.Tag", "Tag")
                         .WithMany("PostTags")
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.Visit", b =>
@@ -602,8 +510,7 @@ namespace MindHorizon.Data.Migrations
                     b.HasOne("MindHorizon.Entities.Post", "Post")
                         .WithMany("Visits")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }
