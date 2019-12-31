@@ -71,11 +71,13 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (categoryId.HasValue())
             {
                 var category = await _uw.BaseRepository<Category>().FindByIdAsync(categoryId);
+                _uw._Context.Entry(category).Reference(c => c.category).Load();
                 if (category != null)
                 {
+                    if (category.category != null)
+                        categoryViewModel.ParentCategoryName = category.category.CategoryName;
                     categoryViewModel.CategoryId = category.CategoryId;
                     categoryViewModel.CategoryName = category.CategoryName;
-                    categoryViewModel.ParentCategoryName = category.ParentCategoryId;
                     categoryViewModel.Url = category.Url;
                 }
                 else
@@ -141,6 +143,44 @@ namespace MindHorizon.Areas.Admin.Controllers
             }
 
             return PartialView("_RenderCategory", viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(string categoryId)
+        {
+            if (!categoryId.HasValue())
+                ModelState.AddModelError(string.Empty, CategoryNotFound);
+            else
+            {
+                var category = await _uw.BaseRepository<Category>().FindByIdAsync(categoryId);
+                if (category == null)
+                    ModelState.AddModelError(string.Empty, CategoryNotFound);
+                else
+                    return PartialView("_DeleteConfirmation", category);
+            }
+            return PartialView("_DeleteConfirmation");
+        }
+
+
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(Category model)
+        {
+            if (model.CategoryId == null)
+                ModelState.AddModelError(string.Empty, CategoryNotFound);
+            else
+            {
+                var category = await _uw.BaseRepository<Category>().FindByIdAsync(model.CategoryId);
+                if (category == null)
+                    ModelState.AddModelError(string.Empty, CategoryNotFound);
+                else
+                {
+                    _uw.BaseRepository<Category>().Delete(category);
+                    await _uw.Commit();
+                    TempData["notification"] = "حذف اطلاعات با موفقیت انجام شد.";
+                    return PartialView("_DeleteConfirmation", category);
+                }
+            }
+            return PartialView("_DeleteConfirmation");
         }
     }
 }

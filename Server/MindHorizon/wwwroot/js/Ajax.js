@@ -25,8 +25,10 @@
             url: actionUrl, type: "post", data: dataToSend, processData: false, contentType: false, error: function () {
                 ShowSweetErrorAlert();
             }}).done(function (data) {
-            var newBody = $(".modal-body", data);
-            placeholder.find(".modal-body").replaceWith(newBody);
+                var newBody = $(".modal-body", data);
+                var newFooter = $(".modal-footer", data);
+                placeholder.find(".modal-body").replaceWith(newBody);
+                placeholder.find(".modal-footer").replaceWith(newFooter);
 
             var IsValid = newBody.find("input[name='IsValid']").val() === "True";
             if (IsValid) {
