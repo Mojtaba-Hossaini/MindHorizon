@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MindHorizon.Common\MindHorizon.Common.csproj" />
     <ProjectReference Include="..\MindHorizon.Entities\MindHorizon.Entities.csproj" />
     <ProjectReference Include="..\MindHorizon.ViewModels\MindHorizon.ViewModels.csproj" />
   </ItemGroup>

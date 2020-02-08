@@ -1,54 +1,57 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MindHorizon.Common;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
 using MindHorizon.ViewModels.Category;
+using NewsWebsite.Common;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace MindHorizon.Data.Repositories
 {
-    
-        public class CategoryRepository : ICategoryRepository
+
+    public class CategoryRepository : ICategoryRepository
+    {
+        private readonly MindHorizonDbContext _context;
+        public CategoryRepository(MindHorizonDbContext context)
         {
-            private readonly MindHorizonDbContext _context;
-            public CategoryRepository(MindHorizonDbContext context)
+            _context = context;
+            _context.CheckArgumentIsNull(nameof(_context));
+        }
+        public async Task<List<CategoryViewModel>> GetPaginateCategoriesAsync(int offset, int limit, bool? categoryNameSortAsc, bool? parentCategoryNameSortAsc, string searchText)
+        {
+            List<CategoryViewModel> categories;
+            if (categoryNameSortAsc != null)
             {
-                _context = context;
+                categories = await _context.Categories.Include(c => c.Parent)
+                                    .Where(c => c.CategoryName.Contains(searchText) || c.Parent.CategoryName.Contains(searchText))
+                                    .Select(c => new CategoryViewModel { CategoryId = c.CategoryId, CategoryName = c.CategoryName, Url = c.Url, ParentCategoryName = c.Parent.CategoryName != null ? c.Parent.CategoryName : "-" })
+                                    .OrderBy(c => (categoryNameSortAsc == true && categoryNameSortAsc != null) ? c.CategoryName : "")
+                                    .OrderByDescending(c => (categoryNameSortAsc == false && categoryNameSortAsc != null) ? c.CategoryName : "").Skip(offset).Take(limit).AsNoTracking().ToListAsync();
             }
-            public async Task<List<CategoryViewModel>> GetPaginateCategoriesAsync(int offset, int limit, bool? categoryNameSortAsc, bool? parentCategoryNameSortAsc, string searchText)
+
+            else if (parentCategoryNameSortAsc != null)
             {
-                List<CategoryViewModel> categories;
-                if (categoryNameSortAsc != null)
-                {
-                    categories = await _context.Categories.Include(c => c.category)
-                                        .Where(c => c.CategoryName.Contains(searchText) || c.category.CategoryName.Contains(searchText))
-                                        .Select(c => new CategoryViewModel { CategoryId = c.CategoryId, CategoryName = c.CategoryName, Url = c.Url, ParentCategoryName = c.category.CategoryName != null ? c.category.CategoryName : "-" })
-                                        .OrderBy(c => (categoryNameSortAsc == true && categoryNameSortAsc != null) ? c.CategoryName : "")
-                                        .OrderByDescending(c => (categoryNameSortAsc == false && categoryNameSortAsc != null) ? c.CategoryName : "").Skip(offset).Take(limit).AsNoTracking().ToListAsync();
-                }
-
-                else if (parentCategoryNameSortAsc != null)
-                {
-                    categories = await _context.Categories.Include(c => c.category)
-                                       .Where(c => c.CategoryName.Contains(searchText) || c.category.CategoryName.Contains(searchText))
-                                       .Select(c => new CategoryViewModel { CategoryId = c.CategoryId, CategoryName = c.CategoryName, Url = c.Url, ParentCategoryName = c.category.CategoryName != null ? c.category.CategoryName : "-" })
-                                       .OrderBy(c => (parentCategoryNameSortAsc == true && parentCategoryNameSortAsc != null) ? c.ParentCategoryName : "")
-                                       .OrderByDescending(c => (parentCategoryNameSortAsc == false && parentCategoryNameSortAsc != null) ? c.ParentCategoryName : "").Skip(offset).Take(limit).AsNoTracking().ToListAsync();
-                }
-                else
-                {
-                    categories = await _context.Categories.Include(c => c.category)
-                                        .Where(c => c.CategoryName.Contains(searchText) || c.category.CategoryName.Contains(searchText))
-                                        .Select(c => new CategoryViewModel { CategoryId = c.CategoryId, CategoryName = c.CategoryName, Url = c.Url, ParentCategoryName = c.category.CategoryName != null ? c.category.CategoryName : "-" })
-                                        .Skip(offset).Take(limit).AsNoTracking().ToListAsync();
-
-                }
-                foreach (var item in categories)
-                    item.Row = ++offset;
-
-                return categories;
+                categories = await _context.Categories.Include(c => c.Parent)
+                                   .Where(c => c.CategoryName.Contains(searchText) || c.Parent.CategoryName.Contains(searchText))
+                                   .Select(c => new CategoryViewModel { CategoryId = c.CategoryId, CategoryName = c.CategoryName, Url = c.Url, ParentCategoryName = c.Parent.CategoryName != null ? c.Parent.CategoryName : "-" })
+                                   .OrderBy(c => (parentCategoryNameSortAsc == true && parentCategoryNameSortAsc != null) ? c.ParentCategoryName : "")
+                                   .OrderByDescending(c => (parentCategoryNameSortAsc == false && parentCategoryNameSortAsc != null) ? c.ParentCategoryName : "").Skip(offset).Take(limit).AsNoTracking().ToListAsync();
             }
+            else
+            {
+                categories = await _context.Categories.Include(c => c.Parent)
+                                    .Where(c => c.CategoryName.Contains(searchText) || c.Parent.CategoryName.Contains(searchText))
+                                    .Select(c => new CategoryViewModel { CategoryId = c.CategoryId, CategoryName = c.CategoryName, Url = c.Url, ParentCategoryName = c.Parent.CategoryName != null ? c.Parent.CategoryName : "-" })
+                                    .Skip(offset).Take(limit).AsNoTracking().ToListAsync();
+
+            }
+            foreach (var item in categories)
+                item.Row = ++offset;
+
+            return categories;
+        }
 
 
         public List<TreeViewCategory> GetAllCategories()
@@ -78,10 +81,29 @@ namespace MindHorizon.Data.Repositories
         }
 
         public Category FindByCategoryName(string categoryName)
-            {
-                return _context.Categories.Where(c => c.CategoryName == categoryName.TrimStart().TrimEnd()).FirstOrDefault();
-            }
-
+        {
+            return _context.Categories.Where(c => c.CategoryName == categoryName.TrimStart().TrimEnd()).FirstOrDefault();
         }
+
+        public bool IsExistCategory(string categoryName, string recentCategoryId = null)
+        {
+            if (!recentCategoryId.HasValue())
+                return _context.Categories.Any(c => c.CategoryName.Trim().Replace(" ", "") == categoryName.Trim().Replace(" ", ""));
+            else
+            {
+                var category = _context.Categories.Where(c => c.CategoryName.Trim().Replace(" ", "") == categoryName.Trim().Replace(" ", "")).FirstOrDefault();
+                if (category == null)
+                    return false;
+                else
+                {
+                    if (category.CategoryId != recentCategoryId)
+                        return true;
+                    else
+                        return false;
+                }
+            }
+        }
+
     }
+}
 

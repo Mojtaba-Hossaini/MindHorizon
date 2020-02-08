@@ -18,6 +18,9 @@ namespace MindHorizon.ViewModels.Category
         [Display(Name = "دسته پدر"), JsonProperty("دسته پدر")]
         public string ParentCategoryName { get; set; }
 
+        [JsonIgnore]
+        public string ParentCategoryId { get; set; }
+
 
         [Display(Name = "آدرس"), JsonProperty("آدرس")]
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]

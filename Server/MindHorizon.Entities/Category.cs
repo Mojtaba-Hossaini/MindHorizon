@@ -15,7 +15,7 @@ namespace MindHorizon.Entities
         public string Url { get; set; }
 
         public ICollection<PostCategory> PostCategories { get; set; }
-        public virtual Category category { get; set; }
+        public virtual Category Parent { get; set; }
         public virtual List<Category> Categories { get; set; }
     }
 }

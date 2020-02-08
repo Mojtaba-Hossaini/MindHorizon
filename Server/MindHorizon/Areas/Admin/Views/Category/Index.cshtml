@@ -36,7 +36,10 @@
                 مدیریت دسته بندی اخبار
             </div>
             <div class="card-body">
-                @await Html.PartialAsync("_CategoryTable")
+                <form asp-area="Admin" asp-controller="Category">
+                    @await Html.PartialAsync("_CategoryTable")
+                </form>
+                
             </div>
         </div>
     </div>

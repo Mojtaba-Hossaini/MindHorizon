@@ -89,10 +89,6 @@ body.pg-loading {
   display: inline-block !important;
   height:90px;
 }
-/* line 91, ../src/please-wait.scss */
-.pg-loading-screen .pg-loading-html {
-  margin-top: 90px;
-}
 /* line 94, ../src/please-wait.scss */
 .pg-loading-screen .pg-loading-html.pg-loaded {
   -webkit-transition: opacity 0.5s cubic-bezier(0.7, 0, 0.3, 1);

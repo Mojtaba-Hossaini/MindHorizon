@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MindHorizon.Data.Contracts;
+using NewsWebsite.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace MindHorizon.Data.Repositories
         public BaseRepository(TContext Context)
         {
             _Context = Context;
+            _Context.CheckArgumentIsNull(nameof(_Context));
             dbSet = _Context.Set<TEntity>();
         }
 
