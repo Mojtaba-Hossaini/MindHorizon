@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MindHorizon.Common.Attributes;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace MindHorizon.ViewModels.Category
@@ -24,6 +25,7 @@ namespace MindHorizon.ViewModels.Category
 
         [Display(Name = "آدرس"), JsonProperty("آدرس")]
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
+        [UrlValidate("/", @"\", " ")]
         public string Url { get; set; }
     }
 }
