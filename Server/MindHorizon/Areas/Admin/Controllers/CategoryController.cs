@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common;
+using MindHorizon.Common.Attributes;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
 using MindHorizon.ViewModels.Category;
-using NewsWebsite.Common;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -70,7 +70,7 @@ namespace MindHorizon.Areas.Admin.Controllers
             return Json(new { total = total, rows = categories });
         }
 
-        [HttpGet]
+        [HttpGet, AjaxOnly]
         public async Task<IActionResult> RenderCategory(string categoryId)
         {
             var categoryViewModel = new CategoryViewModel();
@@ -90,7 +90,7 @@ namespace MindHorizon.Areas.Admin.Controllers
             return PartialView("_RenderCategory", categoryViewModel);
         }
 
-        [HttpPost]
+        [HttpPost, AjaxOnly]
         public async Task<IActionResult> CreateOrUpdate(CategoryViewModel viewModel)
         {
             if (ModelState.IsValid)
@@ -145,7 +145,7 @@ namespace MindHorizon.Areas.Admin.Controllers
             return PartialView("_RenderCategory", viewModel);
         }
 
-        [HttpGet]
+        [HttpGet, AjaxOnly]
         public async Task<IActionResult> Delete(string categoryId)
         {
             if (!categoryId.HasValue())
@@ -162,7 +162,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Delete"), AjaxOnly]
         public async Task<IActionResult> DeleteConfirmed(Category model)
         {
             if (model.CategoryId == null)
@@ -190,14 +190,8 @@ namespace MindHorizon.Areas.Admin.Controllers
             return PartialView("_DeleteConfirmation");
         }
 
-        [HttpGet]
-        public IActionResult DeleteGroup()
-        {
-            return PartialView("_DeleteGroup");
-        }
 
-
-        [HttpPost, ActionName("DeleteGroup")]
+        [HttpPost, ActionName("DeleteGroup"), AjaxOnly]
         public async Task<IActionResult> DeleteGroupConfirmed(string[] btSelectItem)
         {
             if (btSelectItem.Count() == 0)

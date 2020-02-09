@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MindHorizon.Data;
 using MindHorizon.IocConfig;
+using MindHorizon.ViewModels.Settings;
 
 namespace MindHorizon
 {
@@ -26,8 +27,10 @@ namespace MindHorizon
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<SiteSettings>(Configuration.GetSection(nameof(SiteSettings)));
             services.AddDbContext<MindHorizonDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MSSqlServer")));
             services.AddCustomServices();
+            services.AddCustomIdentityServices();
             services.AddAutoMapper();
             services.AddMvc();
         }
@@ -41,6 +44,7 @@ namespace MindHorizon
             }
 
             app.UseStaticFiles();
+            app.UseCustomIdentityServices();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

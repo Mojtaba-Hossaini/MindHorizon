@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NewsWebsite.Common
+namespace MindHorizon.Common
 {
     public static class ObjectExtensions
     {

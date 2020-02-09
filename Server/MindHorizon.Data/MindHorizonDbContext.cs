@@ -7,7 +7,7 @@ using MindHorizon.Entities.Identity;
 
 namespace MindHorizon.Data
 {
-    public class MindHorizonDbContext: IdentityDbContext<User, Role, string, UserClaim, UserRole, IdentityUserLogin<string>, RoleClaim, IdentityUserToken<string>>
+    public class MindHorizonDbContext: IdentityDbContext<User, Role, int, UserClaim, UserRole, IdentityUserLogin<int>, RoleClaim, IdentityUserToken<int>>
     {
         public MindHorizonDbContext(DbContextOptions options) : base(options)
         {
@@ -20,6 +20,7 @@ namespace MindHorizon.Data
             builder.AddCustomIdentityMappings();
             builder.AddCustomMindHorizonMappings();
             builder.Entity<Post>().Property(b => b.PublishDateTime).HasDefaultValueSql("CONVERT(datetime,GetDate())");
+            builder.Entity<Video>().Property(b => b.PublishDateTime).HasDefaultValueSql("CONVERT(datetime,GetDate())");
         }
 
         public virtual DbSet<Category> Categories { set; get; }
@@ -33,5 +34,6 @@ namespace MindHorizon.Data
         public virtual DbSet<PostTag> PostTags { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<Visit> Visits { get; set; }
+        public virtual DbSet<Video> Videos { get; set; }
     }
 }

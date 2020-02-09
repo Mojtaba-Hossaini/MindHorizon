@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MindHorizon.Data.Contracts;
-using NewsWebsite.Common;
+using MindHorizon.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;

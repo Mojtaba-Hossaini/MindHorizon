@@ -1,4 +1,5 @@
-﻿using MindHorizon.Data.Contracts;
+﻿using AutoMapper;
+using MindHorizon.Data.Contracts;
 using MindHorizon.Data.Repositories;
 using System.Threading.Tasks;
 
@@ -7,10 +8,15 @@ namespace MindHorizon.Data.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         public MindHorizonDbContext _Context { get; }
+        private IMapper _mapper;
         private ICategoryRepository _categoryRepository;
-        public UnitOfWork(MindHorizonDbContext context)
+        private ITagRepository _tagRepository;
+        private IVideoRepository _videoRepository;
+
+        public UnitOfWork(MindHorizonDbContext context, IMapper mapper)
         {
             _Context = context;
+            _mapper = mapper;
         }
 
         public IBaseRepository<TEntity> BaseRepository<TEntity>() where TEntity : class
@@ -24,11 +30,35 @@ namespace MindHorizon.Data.UnitOfWork
             get
             {
                 if (_categoryRepository == null)
-                    _categoryRepository = new CategoryRepository(_Context);
+                    _categoryRepository = new CategoryRepository(_Context, _mapper);
 
                 return _categoryRepository;
             }
         }
+
+        public ITagRepository TagRepository
+        {
+            get
+            {
+                if (_tagRepository == null)
+                    _tagRepository = new TagRepository(_Context);
+
+                return _tagRepository;
+            }
+        }
+
+
+        public IVideoRepository VideoRepository
+        {
+            get
+            {
+                if (_videoRepository == null)
+                    _videoRepository = new VideoRepository(_Context);
+
+                return _videoRepository;
+            }
+        }
+
         public async Task Commit()
         {
             await _Context.SaveChangesAsync();

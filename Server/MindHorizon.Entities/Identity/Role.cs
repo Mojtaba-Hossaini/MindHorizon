@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MindHorizon.Entities.Identity
 {
-    public class Role: IdentityRole<string>
+    public class Role: IdentityRole<int>
     {
         public Role()
         {

@@ -10,8 +10,8 @@ using MindHorizon.Data;
 namespace MindHorizon.Data.Migrations
 {
     [DbContext(typeof(MindHorizonDbContext))]
-    [Migration("20191230075747_Init")]
-    partial class Init
+    [Migration("20200209065149_NewDataBase")]
+    partial class NewDataBase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace MindHorizon.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
                     b.Property<string>("LoginProvider");
 
@@ -29,8 +29,7 @@ namespace MindHorizon.Data.Migrations
 
                     b.Property<string>("ProviderDisplayName");
 
-                    b.Property<string>("UserId")
-                        .IsRequired();
+                    b.Property<int>("UserId");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -39,9 +38,9 @@ namespace MindHorizon.Data.Migrations
                     b.ToTable("AspNetUserLogins");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<int>("UserId");
 
                     b.Property<string>("LoginProvider");
 
@@ -56,7 +55,7 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.Bookmark", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<int>("UserId");
 
                     b.Property<string>("PostId");
 
@@ -115,8 +114,9 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.Identity.Role", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
@@ -149,8 +149,7 @@ namespace MindHorizon.Data.Migrations
 
                     b.Property<string>("ClaimValue");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired();
+                    b.Property<int>("RoleId");
 
                     b.HasKey("Id");
 
@@ -161,8 +160,9 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.Identity.User", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("AccessFailedCount");
 
@@ -234,8 +234,7 @@ namespace MindHorizon.Data.Migrations
 
                     b.Property<string>("ClaimValue");
 
-                    b.Property<string>("UserId")
-                        .IsRequired();
+                    b.Property<int>("UserId");
 
                     b.HasKey("Id");
 
@@ -246,9 +245,9 @@ namespace MindHorizon.Data.Migrations
 
             modelBuilder.Entity("MindHorizon.Entities.Identity.UserRole", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<int>("UserId");
 
-                    b.Property<string>("RoleId");
+                    b.Property<int>("RoleId");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -291,7 +290,7 @@ namespace MindHorizon.Data.Migrations
 
                     b.Property<string>("Url");
 
-                    b.Property<string>("UserId");
+                    b.Property<int>("UserId");
 
                     b.HasKey("PostId");
 
@@ -368,6 +367,24 @@ namespace MindHorizon.Data.Migrations
                     b.ToTable("Tags");
                 });
 
+            modelBuilder.Entity("MindHorizon.Entities.Video", b =>
+                {
+                    b.Property<string>("VideoId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Poster");
+
+                    b.Property<DateTime?>("PublishDateTime");
+
+                    b.Property<string>("Title");
+
+                    b.Property<string>("Url");
+
+                    b.HasKey("VideoId");
+
+                    b.ToTable("Videos");
+                });
+
             modelBuilder.Entity("MindHorizon.Entities.Visit", b =>
                 {
                     b.Property<string>("PostId");
@@ -383,7 +400,7 @@ namespace MindHorizon.Data.Migrations
                     b.ToTable("Visits");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
                     b.HasOne("MindHorizon.Entities.Identity.User")
                         .WithMany()
@@ -391,7 +408,7 @@ namespace MindHorizon.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
                     b.HasOne("MindHorizon.Entities.Identity.User")
                         .WithMany()
@@ -409,12 +426,12 @@ namespace MindHorizon.Data.Migrations
                     b.HasOne("MindHorizon.Entities.Identity.User", "User")
                         .WithMany("Bookmarks")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.Category", b =>
                 {
-                    b.HasOne("MindHorizon.Entities.Category", "category")
+                    b.HasOne("MindHorizon.Entities.Category", "Parent")
                         .WithMany("Categories")
                         .HasForeignKey("ParentCategoryId");
                 });
@@ -471,7 +488,8 @@ namespace MindHorizon.Data.Migrations
                 {
                     b.HasOne("MindHorizon.Entities.Identity.User", "User")
                         .WithMany("Post")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MindHorizon.Entities.PostCategory", b =>

@@ -5,11 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MindHorizon.Data\MindHorizon.Data.csproj" />
+    <ProjectReference Include="..\MindHorizon.Services\MindHorizon.Services.csproj" />
   </ItemGroup>
 
 </Project>
