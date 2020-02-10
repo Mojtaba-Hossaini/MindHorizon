@@ -2,8 +2,10 @@
 using MindHorizon.Entities;
 using MindHorizon.Entities.Identity;
 using MindHorizon.ViewModels.Category;
+using MindHorizon.ViewModels.Manage;
 using MindHorizon.ViewModels.RoleManager;
 using MindHorizon.ViewModels.Tag;
+using MindHorizon.ViewModels.UserManager;
 using MindHorizon.ViewModels.Video;
 
 namespace MindHorizon.IocConfig.AutoMapper
@@ -25,6 +27,16 @@ namespace MindHorizon.IocConfig.AutoMapper
                    .ForMember(p => p.PostTags, c => c.Ignore());
 
             CreateMap<Video, VideoViewModel>().ReverseMap();
+
+            CreateMap<User, UsersViewModel>().ReverseMap()
+                  .ForMember(p => p.Post, c => c.Ignore())
+                  .ForMember(p => p.Bookmarks, c => c.Ignore())
+                  .ForMember(p => p.Claims, c => c.Ignore());
+
+            CreateMap<User, ProfileViewModel>().ReverseMap()
+                   .ForMember(p => p.Post, c => c.Ignore())
+                   .ForMember(p => p.Bookmarks, c => c.Ignore())
+                   .ForMember(p => p.Claims, c => c.Ignore());
         }
     }
 }

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MindHorizon
+namespace MindHorizon.Common
 {
     public static class FileExtensions
     {

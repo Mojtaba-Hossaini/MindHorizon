@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MindHorizon.Data;
 
 namespace MindHorizon.Data.Migrations
 {
     [DbContext(typeof(MindHorizonDbContext))]
-    partial class MindHorizonDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200210083043_UpdateAppUserTable")]
+    partial class UpdateAppUserTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

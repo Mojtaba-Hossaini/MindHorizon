@@ -132,7 +132,7 @@ namespace MindHorizon.Services.Identity
                     IsActive = user.IsActive,
                     Image = user.Image,
                     RegisterDateTime = user.RegisterDateTime,
-                    Roles = user.Roles.Select(u => u.Role.Name),
+                    Roles = user.Roles,
                 }).AsNoTracking().ToListAsync();
         }
 

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MindHorizon.Common\MindHorizon.Common.csproj" />
+    <ProjectReference Include="..\MindHorizon.Entities\MindHorizon.Entities.csproj" />
   </ItemGroup>
 
 </Project>

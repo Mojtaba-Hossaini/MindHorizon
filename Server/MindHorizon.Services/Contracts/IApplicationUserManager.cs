@@ -121,7 +121,8 @@ namespace MindHorizon.Services.Contracts
         Task<UsersViewModel> FindUserWithRolesByIdAsync(int UserId);
         Task<string> GetFullName(ClaimsPrincipal User);
         Task<User> GetUserAsync(ClaimsPrincipal User);
-        Task<List<UsersViewModel>> GetPaginateUsersAsync(int offset, int limit, bool? firstnameSortAsc, bool? lastnameSortAsc, bool? emailSortAsc, bool? usernameSortAsc, string searchText);
+        Task<List<UsersViewModel>> GetPaginateUsersAsync(int offset, int limit, bool? firstnameSortAsc, bool? lastnameSortAsc, bool? emailSortAsc, bool? usernameSortAsc, bool? registerDateTimeSortAsc, string searchText);
+        string CheckAvatarFileName(string fileName);
         #endregion
     }
 }
