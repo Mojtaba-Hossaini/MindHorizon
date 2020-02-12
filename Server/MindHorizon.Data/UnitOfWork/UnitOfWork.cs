@@ -12,6 +12,7 @@ namespace MindHorizon.Data.UnitOfWork
         private ICategoryRepository _categoryRepository;
         private ITagRepository _tagRepository;
         private IVideoRepository _videoRepository;
+        private IPostRepository _postRepository;
 
         public UnitOfWork(MindHorizonDbContext context, IMapper mapper)
         {
@@ -56,6 +57,16 @@ namespace MindHorizon.Data.UnitOfWork
                     _videoRepository = new VideoRepository(_Context);
 
                 return _videoRepository;
+            }
+        }
+
+        public IPostRepository PostRepository
+        {
+            get
+            {
+                if (_postRepository == null)
+                    _postRepository = new PostRepository(_Context, _mapper);
+                return _postRepository;
             }
         }
 

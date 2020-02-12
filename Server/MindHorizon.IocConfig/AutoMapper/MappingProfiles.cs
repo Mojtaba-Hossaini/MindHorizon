@@ -3,6 +3,7 @@ using MindHorizon.Entities;
 using MindHorizon.Entities.Identity;
 using MindHorizon.ViewModels.Category;
 using MindHorizon.ViewModels.Manage;
+using MindHorizon.ViewModels.Post;
 using MindHorizon.ViewModels.RoleManager;
 using MindHorizon.ViewModels.Tag;
 using MindHorizon.ViewModels.UserManager;
@@ -37,6 +38,8 @@ namespace MindHorizon.IocConfig.AutoMapper
                    .ForMember(p => p.Post, c => c.Ignore())
                    .ForMember(p => p.Bookmarks, c => c.Ignore())
                    .ForMember(p => p.Claims, c => c.Ignore());
+
+            CreateMap<Post, PostViewModel>().ReverseMap();
         }
     }
 }

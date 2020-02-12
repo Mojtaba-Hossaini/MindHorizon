@@ -8,6 +8,7 @@ namespace MindHorizon.Data.Contracts
         ICategoryRepository CategoryRepository { get; }
         ITagRepository TagRepository { get; }
         IVideoRepository VideoRepository { get; }
+        IPostRepository PostRepository { get; }
         MindHorizonDbContext _Context { get; }
         Task Commit();
     }
