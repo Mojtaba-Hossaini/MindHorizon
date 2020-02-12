@@ -104,17 +104,18 @@ namespace MindHorizon.Areas.Admin.Controllers
                 {
                     var video = await _uw.BaseRepository<Video>().FindByIdAsync(viewModel.VideoId);
 
-                    if (viewModel.PosterFile != null)
-                    {
-                        await viewModel.PosterFile.UploadFileAsync($"{_env.WebRootPath}/posters/{viewModel.Poster}");
-                        FileExtensions.DeleteFile($"{_env.WebRootPath}/posters/{video.Poster}");
-                    }
- 
-                    else
-                        viewModel.Poster = video.Poster;
+                    
                     
                     if (video != null)
                     {
+                        if (viewModel.PosterFile != null)
+                        {
+                            await viewModel.PosterFile.UploadFileAsync($"{_env.WebRootPath}/posters/{viewModel.Poster}");
+                            FileExtensions.DeleteFile($"{_env.WebRootPath}/posters/{video.Poster}");
+                        }
+
+                        else
+                            viewModel.Poster = video.Poster;
                         _uw.BaseRepository<Video>().Update(_mapper.Map(viewModel, video));
                         await _uw.Commit();
                         TempData["notification"] = EditSuccess;

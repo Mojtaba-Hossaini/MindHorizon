@@ -14,7 +14,7 @@ using MindHorizon.ViewModels.Post;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
-    public class PostController : Controller
+    public class PostController : BaseController
     {
         private readonly IUnitOfWork _uw;
         private readonly IHostingEnvironment _env;
