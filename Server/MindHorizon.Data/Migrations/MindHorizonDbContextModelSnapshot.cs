@@ -276,17 +276,15 @@ namespace MindHorizon.Data.Migrations
                     b.Property<string>("PostId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Abstract");
+
                     b.Property<string>("Description");
 
                     b.Property<string>("ImageName");
 
-                    b.Property<bool>("IsInternal");
-
                     b.Property<bool>("IsPublish");
 
-                    b.Property<DateTime?>("PublishDateTime")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("CONVERT(datetime,GetDate())");
+                    b.Property<DateTime?>("PublishDateTime");
 
                     b.Property<string>("Title");
 

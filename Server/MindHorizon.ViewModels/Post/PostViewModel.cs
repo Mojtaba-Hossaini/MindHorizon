@@ -25,6 +25,10 @@ namespace MindHorizon.ViewModels.Post
         public bool FuturePublish { get; set; }
 
         [JsonIgnore]
+        [Required(ErrorMessage = "وارد نمودن {0} الزامی است."), Display(Name = "چکیده")]
+        public string Abstract { get; set; }
+
+        [JsonIgnore]
         public DateTime? PublishDateTime { get; set; }
 
         [Display(Name = "تاریخ انتشار"), JsonProperty("تاریخ انتشار")]
@@ -63,6 +67,9 @@ namespace MindHorizon.ViewModels.Post
 
         [JsonProperty("NumberOfDisLike")]
         public int NumberOfDisLike { get; set; }
+
+        [JsonProperty("NumberOfComments")]
+        public int NumberOfComments { get; set; }
 
         [JsonProperty("دسته")]
         public string NameOfCategories { get; set; }

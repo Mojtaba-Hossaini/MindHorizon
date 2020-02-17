@@ -54,45 +54,45 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "ShortTitle")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, true, null, null, null, null, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, true, null, null, null, null, search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, false, null, null, null, null, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, false, null, null, null, null, search, null);
             }
 
             else if (sort == "بازدید")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, true, null, null, null, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, true, null, null, null, search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, false, null, null, null, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, false, null, null, null, search, null);
             }
 
             else if (sort == "لایک")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, true, null, null, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, true, null, null, search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, false, null, null, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, false, null, null, search, null);
             }
 
             else if (sort == "دیس لایک")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, true, null, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, true, null, search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, false, null, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, false, null, search, null);
             }
 
             else if (sort == "تاریخ انتشار")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, null, true, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, null, true, search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, null, false, search);
+                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, null, false, search, null);
             }
 
             else
-                posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, null, false, search);
+                posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, null, false, search, null);
 
             if (search != "")
                 total = posts.Count();

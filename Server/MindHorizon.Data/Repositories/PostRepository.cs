@@ -26,13 +26,13 @@ namespace MindHorizon.Data.Repositories
         }
 
 
-        public async Task<List<PostViewModel>> GetPaginatePostAsync(int offset, int limit, bool? titleSortAsc, bool? visitSortAsc, bool? likeSortAsc, bool? dislikeSortAsc, bool? publishDateTimeSortAsc, string searchText)
+        public async Task<List<PostViewModel>> GetPaginatePostAsync(int offset, int limit, bool? titleSortAsc, bool? visitSortAsc, bool? likeSortAsc, bool? dislikeSortAsc, bool? publishDateTimeSortAsc, string searchText, bool? isPublish)
         {
             string NameOfCategories = "";
             string NameOfTags = "";
             List<PostViewModel> PostViewModel = new List<PostViewModel>();
 
-            var postGroup = await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User)
+            var postGroup = await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User).Include(c => c.Comments)
                                    join e in _context.PostCategories on n.PostId equals e.PostId into bc
                                    from bct in bc.DefaultIfEmpty()
                                    join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
@@ -41,22 +41,23 @@ namespace MindHorizon.Data.Repositories
                                    from act in ac.DefaultIfEmpty()
                                    join t in _context.Tags on act.TagId equals t.TagId into tg
                                    from tog in tg.DefaultIfEmpty()
-                                   where (n.Title.Contains(searchText))
+                                   where (n.Title.Contains(searchText) && isPublish == null ? (n.IsPublish == true || n.IsPublish == false) : (isPublish == true ? n.IsPublish == true && n.PublishDateTime<= DateTime.Now : n.IsPublish == false))
                                    select (new
                                    {
                                        n.PostId,
                                        n.Title,
                                        ShortTitle = n.Title.Length > 60 ? n.Title.Substring(0, 60) + "..." : n.Title,
                                        n.Url,
+                                       n.ImageName,
                                        n.Description,
                                        NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
                                        NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
                                        NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
+                                       NumberOfComments = n.Comments.Count(),
                                        CategoryName = cog != null ? cog.CategoryName : "",
                                        TagName = tog != null ? tog.TagName : "",
                                        AuthorName = n.User.FirstName + " " + n.User.LastName,
                                        n.IsPublish,
-                                       PostType = n.IsInternal == true ? "داخلی" : "خارجی",
                                        PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
                                        PersianPublishDateTime = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت hh:mm:ss"),
                                    })).GroupBy(b => b.PostId).Select(g => new { PostId = g.Key, PostGroup = g }).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
@@ -95,7 +96,9 @@ namespace MindHorizon.Data.Repositories
                     Status = item.PostGroup.First().IsPublish == false ? "پیش نویس" : (item.PostGroup.First().PublishDateTime > DateTime.Now ? "انتشار در آینده" : "منتشر شده"),
                     NameOfCategories = NameOfCategories,
                     NameOfTags = NameOfTags,
+                    ImageName = item.PostGroup.First().ImageName,
                     AuthorName = item.PostGroup.First().AuthorName,
+                    NumberOfComments = item.PostGroup.First().NumberOfComments
                 };
                 PostViewModel.Add(post);
             }

@@ -7,6 +7,6 @@ namespace MindHorizon.Data.Contracts
     public interface IPostRepository
     {
         string CheckPostFileName(string fileName);
-        Task<List<PostViewModel>> GetPaginatePostAsync(int offset, int limit, bool? titleSortAsc, bool? visitSortAsc, bool? likeSortAsc, bool? dislikeSortAsc, bool? publishDateTimeSortAsc, string searchText);
+        Task<List<PostViewModel>> GetPaginatePostAsync(int offset, int limit, bool? titleSortAsc, bool? visitSortAsc, bool? likeSortAsc, bool? dislikeSortAsc, bool? publishDateTimeSortAsc, string searchText, bool? isPublish);
     }
 }
