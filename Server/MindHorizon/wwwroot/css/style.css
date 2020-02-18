@@ -924,7 +924,7 @@ input:focus {
   .single-feature-post.video-post .video-duration {
     display: inline-block;
     position: absolute;
-    right: 30px;
+    left: 30px;
     bottom: 30px;
     background-color: #0f1112;
     padding: 6px 12px;
@@ -1559,7 +1559,7 @@ input:focus {
   position: relative;
   z-index: 1;
   border-radius: 3px;
-  padding: 40px 30px; }
+  padding: 30px 20px; }
   @media only screen and (min-width: 768px) and (max-width: 991px) {
     .single-widget {
       padding: 30px 20px; } }
@@ -1971,8 +1971,12 @@ textarea.form-control {
 
 /*# custom Styles*/
 .direction-ltr{
-  direction: ltr !important;
+  direction: ltr;
 }
+.direction-rtl {
+    direction: rtl !important;
+}
+
 
 .nav-tabs {
   background-color: #e7e7e7;

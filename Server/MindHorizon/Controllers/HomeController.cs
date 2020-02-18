@@ -31,7 +31,8 @@ namespace MindHorizon.Controllers
                 var mostViewedPosts = await uw.PostRepository.MostViewedPosts(0, 3, "day");
                 var mostTalkPosts = await uw.PostRepository.MostTalkPosts(0, 5,"day");
                 var mostPopularPosts = await uw.PostRepository.MostPopularPosts(0, 5);
-                var homePageViewModel = new HomePageViewModel(posts, mostViewedPosts, mostTalkPosts, mostPopularPosts);
+                var videos = await uw.VideoRepository.GetPaginateVideosAsync(0, 10, null, false, "");
+                var homePageViewModel = new HomePageViewModel(posts, mostViewedPosts, mostTalkPosts, mostPopularPosts, videos);
                 return View(homePageViewModel);
             }
             

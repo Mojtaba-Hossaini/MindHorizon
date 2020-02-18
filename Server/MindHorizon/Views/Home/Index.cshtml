@@ -5,83 +5,83 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-    <script src="~/js/Ajax.js"></script>
+<script src="~/js/Ajax.js"></script>
 
 <!-- ##### Hero Area Start ##### -->
-    <section class="hero--area section-padding-60">
-        @if (Model.Post.Count() != 0)
-        {
-            <div class="container">
-                <div class="row no-gutters">
-                    <div class="col-12 col-md-7 col-lg-8">
-                        <div class="tab-content">
-                            @{ int i = 1;}
-                            @foreach (var item in Model.Post)
-                            {
-                                <div class="tab-pane fade show @(i == 1 ? "active" : "")" id="@("post-"+i)" role="tabpanel" aria-labelledby="@("post-"+i+"-tab")">
-                                    <!-- Single Feature Post -->
-                                    <div class="single-feature-post video-post bg-img" style="background-image: url(/postImage/@item.ImageName);">
-                                        <!-- Post Content -->
-                                        <div class="post-content">
-                                            <a href="/@item.PostId/@item.Url" class="post-cata">@item.NameOfCategories</a>
-                                            <a href="single-post.html" class="post-title">@item.Title</a>
-                                            <div class="post-meta d-flex float-left">
-                                                <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments</a>
-                                                <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> @item.NumberOfVisit</a>
-                                                <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> @item.NumberOfLike</a>
-                                                <a href="#"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> @item.NumberOfDisLike</a>
-                                            </div>
+<section class="hero--area section-padding-60">
+    @if (Model.Post.Count() != 0)
+    {
+        <div class="container">
+            <div class="row no-gutters">
+                <div class="col-12 col-md-7 col-lg-8">
+                    <div class="tab-content">
+                        @{ int i = 1;}
+                        @foreach (var item in Model.Post)
+                        {
+                            <div class="tab-pane fade show @(i == 1 ? "active" : "")" id="@("post-"+i)" role="tabpanel" aria-labelledby="@("post-"+i+"-tab")">
+                                <!-- Single Feature Post -->
+                                <div class="single-feature-post video-post bg-img" style="background-image: url(/postImage/@item.ImageName);">
+                                    <!-- Post Content -->
+                                    <div class="post-content">
+                                        <a href="/@item.PostId/@item.Url" class="post-cata">@item.NameOfCategories</a>
+                                        <a href="single-post.html" class="post-title">@item.Title</a>
+                                        <div class="post-meta d-flex float-left">
+                                            <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments</a>
+                                            <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> @item.NumberOfVisit</a>
+                                            <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> @item.NumberOfLike</a>
+                                            <a href="#"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> @item.NumberOfDisLike</a>
                                         </div>
-
-                                        <!-- Video Duration -->
-                                        <span class="video-duration">@item.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy")</span>
                                     </div>
+
+                                    <!-- Video Duration -->
+                                    <span class="video-duration">@item.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy")</span>
                                 </div>
-                                i++;
-                            }
+                            </div>
+                            i++;
+                        }
 
 
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-5 col-lg-4">
-                        <ul class="nav vizew-nav-tab" role="tablist">
-                            @{i = 1;}
-                            @foreach (var item in Model.Post)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link @(i == 1 ? "active" : "")" id="@("post-"+i+"-tab")" data-toggle="pill" href="@("#post-"+i)" role="tab" aria-controls="post-1" aria-selected="true">
-                                        <!-- Single Blog Post -->
-                                        <div class="single-blog-post style-2 d-flex align-items-center">
-                                            <div class="post-thumbnail">
-                                                <img src="~/postImage/@item.ImageName" alt="@item.ImageName">
-                                            </div>
-                                            <div class="post-content">
-                                                <h6 class="post-title">@item.Title </h6>
-                                                <div class="post-meta d-flex justify-content-between">
-                                                    <span><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments</span>
-                                                    <span><i class="fa fa-eye" aria-hidden="true"></i> @item.NumberOfVisit</span>
-                                                    <span><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> @item.NumberOfLike</span>
-                                                    <span><i class="fa fa-thumbs-o-down" aria-hidden="true"></i>@item.NumberOfDisLike</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                                i++;
-                            }
-
-
-
-
-
-                        </ul>
                     </div>
                 </div>
-            </div>
-        }
 
-    </section>
+                <div class="col-12 col-md-5 col-lg-4">
+                    <ul class="nav vizew-nav-tab" role="tablist">
+                        @{i = 1;}
+                        @foreach (var item in Model.Post)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(i == 1 ? "active" : "")" id="@("post-"+i+"-tab")" data-toggle="pill" href="@("#post-"+i)" role="tab" aria-controls="post-1" aria-selected="true">
+                                    <!-- Single Blog Post -->
+                                    <div class="single-blog-post style-2 d-flex align-items-center">
+                                        <div class="post-thumbnail">
+                                            <img src="~/postImage/@item.ImageName" alt="@item.ImageName">
+                                        </div>
+                                        <div class="post-content">
+                                            <h6 class="post-title">@item.Title </h6>
+                                            <div class="post-meta d-flex justify-content-between">
+                                                <span><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments</span>
+                                                <span><i class="fa fa-eye" aria-hidden="true"></i> @item.NumberOfVisit</span>
+                                                <span><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> @item.NumberOfLike</span>
+                                                <span><i class="fa fa-thumbs-o-down" aria-hidden="true"></i>@item.NumberOfDisLike</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            i++;
+                        }
+
+
+
+
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+
+</section>
 <!-- ##### Hero Area End ##### -->
 <!-- ##### Trending Posts Area Start ##### -->
 <section class="trending-posts-area">
@@ -96,164 +96,30 @@
         <div class="row">
             <div class="col-12 col-md-7 col-lg-8">
                 <div class="all-posts-area">
-                    <!-- Section Heading -->
-                    <div class="section-heading style-2">
-                        <h4> جدیدترین ویدیوها </h4>
-                        <div class="line"></div>
-                    </div>
-
-                    <!-- Featured Post Slides -->
-                    <div class="featured-post-slides owl-carousel mb-30 direction-ltr">
-                        <!-- Single Feature Post -->
-                        <div class="single-feature-post video-post bg-img" style="background-image: url(/assets/img/bg-img/11.jpeg);">
-                            <!-- Play Button -->
-                            <a href="video-post.html" class="btn play-btn"><i class="fa fa-play" aria-hidden="true"></i></a>
-
-                            <!-- Post Content -->
-                            <div class="post-content">
-                                <a href="#" class="post-cata">سینمایی</a>
-                                <a href="single-post.html" class="post-title">فیلم داستان ازدواج یک نمود واقعی از رفتار خیانت پیشه زن ها در جامعه هست </a>
-                                <div class="post-meta d-flex">
-                                    <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> 25</a>
-                                    <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> 25</a>
-                                    <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> 25</a>
-                                </div>
-                            </div>
-
-                            <!-- Video Duration -->
-                            <span class="video-duration">05.03</span>
+                    @if (Model.Videos.Count() != 0)
+                    {
+                        <div class="section-heading style-2">
+                            <h4> جدیدترین ویدیيها </h4>
+                            <div class="line"></div>
                         </div>
 
-                        <!-- Single Feature Post -->
-                        <div class="single-feature-post video-post bg-img" style="background-image: url(/assets/img/bg-img/11.jpeg);">
-                            <!-- Play Button -->
-                            <a href="video-post.html" class="btn play-btn"><i class="fa fa-play" aria-hidden="true"></i></a>
+                        <div class="featured-post-slides owl-carousel mb-30 direction-ltr">
 
-                            <!-- Post Content -->
-                            <div class="post-content">
-                                <a href="#" class="post-cata">سینمایی</a>
-                                <a href="single-post.html" class="post-title">فیلم داستان ازدواج یک نمود واقعی از رفتار خیانت پیشه زن ها در جامعه هست </a>
-                                <div class="post-meta d-flex">
-                                    <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> 25</a>
-                                    <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> 25</a>
-                                    <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> 25</a>
-                                </div>
-                            </div>
+                            @foreach (var item in Model.Videos)
+                            {
+                                <div class="single-feature-post video-post bg-img" style="background-image: url(/posters/@item.Poster);">
+                                    <a href="/Videos/@item.VideoId" class="btn play-btn"><i class="fa fa-play" aria-hidden="true"></i></a>
 
-                            <!-- Video Duration -->
-                            <span class="video-duration">05.03</span>
-                        </div>
-                    </div>
-
-                    <div class="row mt-5">
-                        <div class="col-12 col-lg-6">
-                            <!-- Section Heading -->
-                            <div class="section-heading style-2">
-                                <h5>جدیدترین اخبار داخلی</h5>
-                                <div class="line"></div>
-                            </div>
-
-                            <!-- Sports Video Slides -->
-                            <div class="sport-video-slides owl-carousel mb-50 direction-ltr">
-                                <!-- Single Blog Post -->
-                                <div class="single-post-area">
-                                    <!-- Post Thumbnail -->
-                                    <div class="post-thumbnail">
-                                        <img src="/assets/img/bg-img/11.jpeg" alt="">
-
-                                        <!-- Video Duration -->
-                                        <span class="video-duration">05.03</span>
-                                    </div>
-
-                                    <!-- Post Content -->
                                     <div class="post-content">
-                                        <a href="#" class="post-cata cata-sm cata-primary">سینمایی</a>
-                                        <a href="single-post.html" class="post-title">فیلم داستان ازدواج یک نمود واقعی از رفتار خیانت پیشه زن ها در جامعه هست  </a>
-                                        <div class="post-meta d-flex">
-                                            <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> 14</a>
-                                            <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> 38</a>
-                                            <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> 22</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="single-post-area">
-                                    <!-- Post Thumbnail -->
-                                    <div class="post-thumbnail">
-                                        <img src="/assets/img/bg-img/11.jpeg" alt="">
-
-                                        <!-- Video Duration -->
-                                        <span class="video-duration">05.03</span>
+                                        <a href="/Videos/@item.VideoId" class="post-title">@item.Title</a>
                                     </div>
 
-                                    <!-- Post Content -->
-                                    <div class="post-content">
-                                        <a href="#" class="post-cata cata-sm cata-primary">سینمایی</a>
-                                        <a href="single-post.html" class="post-title">فیلم داستان ازدواج یک نمود واقعی از رفتار خیانت پیشه زن ها در جامعه هست  </a>
-                                        <div class="post-meta d-flex">
-                                            <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> 14</a>
-                                            <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> 38</a>
-                                            <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> 22</a>
-                                        </div>
-                                    </div>
+                                    <span class="video-duration direction-rtl">@item.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy")</span>
                                 </div>
-                            </div>
+                            }
                         </div>
 
-                        <div class="col-12 col-lg-6">
-                            <!-- Section Heading -->
-                            <div class="section-heading style-2">
-                                <h5>جدیدترین اخبار خارجی</h5>
-                                <div class="line"></div>
-                            </div>
-
-                            <!-- Business Video Slides -->
-                            <div class="business-video-slides owl-carousel mb-50 direction-ltr">
-                                <!-- Single Blog Post -->
-                                <div class="single-post-area">
-                                    <!-- Post Thumbnail -->
-                                    <div class="post-thumbnail">
-                                        <img src="/assets/img/bg-img/11.jpeg" alt="">
-
-                                        <!-- Video Duration -->
-                                        <span class="video-duration">05.03</span>
-                                    </div>
-
-                                    <!-- Post Content -->
-                                    <div class="post-content">
-                                        <a href="#" class="post-cata cata-sm cata-primary">سینمایی</a>
-                                        <a href="single-post.html" class="post-title">فیلم داستان ازدواج یک نمود واقعی از رفتار خیانت پیشه زن ها در جامعه هست  </a>
-                                        <div class="post-meta d-flex">
-                                            <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> 14</a>
-                                            <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> 38</a>
-                                            <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> 22</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="single-post-area">
-                                    <!-- Post Thumbnail -->
-                                    <div class="post-thumbnail">
-                                        <img src="/assets/img/bg-img/11.jpeg" alt="">
-
-                                        <!-- Video Duration -->
-                                        <span class="video-duration">05.03</span>
-                                    </div>
-
-                                    <!-- Post Content -->
-                                    <div class="post-content">
-                                        <a href="#" class="post-cata cata-sm cata-primary">سینمایی</a>
-                                        <a href="single-post.html" class="post-title">فیلم داستان ازدواج یک نمود واقعی از رفتار خیانت پیشه زن ها در جامعه هست  </a>
-                                        <div class="post-meta d-flex">
-                                            <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> 32</a>
-                                            <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> 42</a>
-                                            <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> 7</a>
-                                            <a href="#"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> 0</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                    }
 
 
                     <!-- Section Heading -->
@@ -340,11 +206,10 @@
                     </div>
 
                     <!-- ***** Single Widget ***** -->
-                    <div class="container" id="MostTalkPostsDiv">
-                        @if (Model.MostTalkPosts.Count() != 0)
-                        {
-                            @await Html.PartialAsync("_MostTalkPosts", Model.MostTalkPosts)
-                        }
+                    <div id="MostTalkPostsDiv">
+
+                        @await Html.PartialAsync("_MostTalkPosts", Model.MostTalkPosts)
+
                     </div>
                 </div>
 
