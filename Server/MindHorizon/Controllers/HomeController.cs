@@ -19,8 +19,8 @@ namespace MindHorizon.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var post = await uw.PostRepository.GetPaginatePostAsync(0, 10, null, null, null, null, false, "", true);
-            var homePageViewModel = new HomePageViewModel(post);
+            var posts = uw.PostRepository.GetPaginatePost(0, 10, item => "", item => item.First().PersianPublishDate, "", null);
+            var homePageViewModel = new HomePageViewModel(posts);
             return View(homePageViewModel);
         }
     }

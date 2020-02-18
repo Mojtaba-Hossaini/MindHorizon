@@ -26,13 +26,13 @@ namespace MindHorizon.Data.Repositories
         }
 
 
-        public async Task<List<PostViewModel>> GetPaginatePostAsync(int offset, int limit, bool? titleSortAsc, bool? visitSortAsc, bool? likeSortAsc, bool? dislikeSortAsc, bool? publishDateTimeSortAsc, string searchText, bool? isPublish)
+        public  List<PostViewModel> GetPaginatePost(int offset, int limit, Func<IGrouping<string, PostViewModel>, object> orderByAscFunc, Func<IGrouping<string, PostViewModel>, object> orderByDescFunc, string searchText, bool? isPublish)
         {
             string NameOfCategories = "";
             string NameOfTags = "";
             List<PostViewModel> PostViewModel = new List<PostViewModel>();
 
-            var postGroup = await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User).Include(c => c.Comments)
+            var postGroup = (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User).Include(c => c.Comments)
                                    join e in _context.PostCategories on n.PostId equals e.PostId into bc
                                    from bct in bc.DefaultIfEmpty()
                                    join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
@@ -42,31 +42,32 @@ namespace MindHorizon.Data.Repositories
                                    join t in _context.Tags on act.TagId equals t.TagId into tg
                                    from tog in tg.DefaultIfEmpty()
                                    where (n.Title.Contains(searchText) && isPublish == null ? (n.IsPublish == true || n.IsPublish == false) : (isPublish == true ? n.IsPublish == true && n.PublishDateTime<= DateTime.Now : n.IsPublish == false))
-                                   select (new
+                                   select (new PostViewModel
                                    {
-                                       n.PostId,
-                                       n.Title,
-                                       ShortTitle = n.Title.Length > 60 ? n.Title.Substring(0, 60) + "..." : n.Title,
-                                       n.Url,
-                                       n.ImageName,
-                                       n.Description,
+                                       PostId =  n.PostId,
+                                       Title =  n.Title,
+                                       Abstract =  n.Abstract,
+                                       ShortTitle = n.Title.Length > 45 ? n.Title.Substring(0, 45) + "..." : n.Title,
+                                       Url =  n.Url,
+                                       ImageName = n.ImageName,
+                                       Description = n.Description,
                                        NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
                                        NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
                                        NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
                                        NumberOfComments = n.Comments.Count(),
-                                       CategoryName = cog != null ? cog.CategoryName : "",
-                                       TagName = tog != null ? tog.TagName : "",
+                                       NameOfCategories = cog != null ? cog.CategoryName : "",
+                                       NameOfTags = tog != null ? tog.TagName : "",
                                        AuthorName = n.User.FirstName + " " + n.User.LastName,
-                                       n.IsPublish,
+                                       IsPublish = n.IsPublish,
                                        PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
-                                       PersianPublishDateTime = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت hh:mm:ss"),
-                                   })).GroupBy(b => b.PostId).Select(g => new { PostId = g.Key, PostGroup = g }).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
+                                       PersianPublishDate = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),
+                                   })).GroupBy(b => b.PostId).OrderBy(orderByAscFunc).OrderByDescending(orderByDescFunc).Select(g => new { PostId = g.Key, PostGroup = g }).Skip(offset).Take(limit).ToList();
 
             foreach (var item in postGroup)
             {
                 NameOfCategories = "";
                 NameOfTags = "";
-                foreach (var a in item.PostGroup.Select(a => a.CategoryName).Distinct())
+                foreach (var a in item.PostGroup.Select(a => a.NameOfCategories).Distinct())
                 {
                     if (NameOfCategories == "")
                         NameOfCategories = a;
@@ -74,7 +75,7 @@ namespace MindHorizon.Data.Repositories
                         NameOfCategories = NameOfCategories + " - " + a;
                 }
 
-                foreach (var a in item.PostGroup.Select(a => a.TagName).Distinct())
+                foreach (var a in item.PostGroup.Select(a => a.NameOfTags).Distinct())
                 {
                     if (NameOfTags == "")
                         NameOfTags = a;
@@ -87,43 +88,25 @@ namespace MindHorizon.Data.Repositories
                     PostId = item.PostId,
                     Title = item.PostGroup.First().Title,
                     ShortTitle = item.PostGroup.First().ShortTitle,
+                    Abstract = item.PostGroup.First().Abstract,
                     Url = item.PostGroup.First().Url,
                     Description = item.PostGroup.First().Description,
                     NumberOfVisit = item.PostGroup.First().NumberOfVisit,
                     NumberOfDisLike = item.PostGroup.First().NumberOfDisLike,
                     NumberOfLike = item.PostGroup.First().NumberOfLike,
-                    PersianPublishDate = item.PostGroup.First().PersianPublishDateTime,
+                    PersianPublishDate = item.PostGroup.First().PersianPublishDate,
                     Status = item.PostGroup.First().IsPublish == false ? "پیش نویس" : (item.PostGroup.First().PublishDateTime > DateTime.Now ? "انتشار در آینده" : "منتشر شده"),
                     NameOfCategories = NameOfCategories,
                     NameOfTags = NameOfTags,
                     ImageName = item.PostGroup.First().ImageName,
                     AuthorName = item.PostGroup.First().AuthorName,
-                    NumberOfComments = item.PostGroup.First().NumberOfComments
+                    NumberOfComments = item.PostGroup.First().NumberOfComments,
+                    PublishDateTime = item.PostGroup.First().PublishDateTime
                 };
                 PostViewModel.Add(post);
             }
 
-            if (titleSortAsc != null)
-                PostViewModel = PostViewModel.OrderBy(c => (titleSortAsc == true && titleSortAsc != null) ? c.Title : "")
-                                     .OrderByDescending(c => (titleSortAsc == false && titleSortAsc != null) ? c.Title : "").ToList();
-
-            else if (visitSortAsc != null)
-                PostViewModel = PostViewModel.OrderBy(c => (visitSortAsc == true && visitSortAsc != null) ? c.NumberOfVisit : 0)
-                                   .OrderByDescending(c => (visitSortAsc == false && visitSortAsc != null) ? c.NumberOfVisit : 0).ToList();
-
-            else if (likeSortAsc != null)
-                PostViewModel = PostViewModel.OrderBy(c => (likeSortAsc == true && likeSortAsc != null) ? c.NumberOfLike : 0)
-                                   .OrderByDescending(c => (likeSortAsc == false && likeSortAsc != null) ? c.NumberOfLike : 0).ToList();
-
-            else if (dislikeSortAsc != null)
-                PostViewModel = PostViewModel.OrderBy(c => (dislikeSortAsc == true && dislikeSortAsc != null) ? c.NumberOfDisLike : 0)
-                                   .OrderByDescending(c => (dislikeSortAsc == false && dislikeSortAsc != null) ? c.NumberOfDisLike : 0).ToList();
-
-            else if (publishDateTimeSortAsc != null)
-                PostViewModel = PostViewModel.OrderBy(c => (publishDateTimeSortAsc == true && publishDateTimeSortAsc != null) ? c.PersianPublishDate : "")
-                                   .OrderByDescending(c => (publishDateTimeSortAsc == false && publishDateTimeSortAsc != null) ? c.PersianPublishDate : "").ToList();
-
-            foreach (var item in PostViewModel)
+             foreach (var item in PostViewModel)
                 item.Row = ++offset;
 
             return PostViewModel;

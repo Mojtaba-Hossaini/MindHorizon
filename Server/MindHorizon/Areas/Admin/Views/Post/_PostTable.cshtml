@@ -6,7 +6,7 @@
 </style>
     <div id="toolbar">
         <a  class="btn btn-success text-white" asp-action="CreateOrUpdate">
-            <i class="fa fa-plus"></i> | افزودن پست جدید
+            <i class="fa fa-plus"></i> | افزودن مطلب جدید
         </a>
 
         <button type="button" class="btn btn-danger" data-toggle="ajax-modal" data-url="@Url.Action("DeleteGroup","Category")">
@@ -62,13 +62,13 @@
          function detailFormatter(index, row) {
             var html = []
             $.each(row, function (key, value) {
-                if (key != "state" && key != "Id" && key!='آدرس' && key!="ردیف" && key!="متن پست" && key!="NumberOfLike" && key!="NumberOfDisLike" && key!="ShortTitle" && key!="Status")
+                if (key != "state" && key != "Id" && key!='آدرس' && key!="ردیف" && key!="متن مطلب" && key!="NumberOfLike" && key!="NumberOfDisLike" && key!="ShortTitle" && key!="Status" && key!="NumberOfComments")
                     html.push('<p><b>' + key + ':</b> ' + value + '</p>')
                 if (key == 'آدرس') {
                     var url = '@string.Format("{0}://{1}", Context.Request.Scheme, Context.Request.Host)' + '/' + row.Id + '/' + value;
                     html.push('<p><b style="float:right">' + key + ':</b> ' + '<a href="' + url +'" style="float:right;direction:ltr;margin-right:2px;">'  + url + '</a>' + '</p>')
                 }
-                if(key == 'متن پست'){
+                if(key == 'متن مطلب'){
                     html.push('<br><hr/><p><b>' + key + ':</b>' + value + '</p>')
                 }
             })
@@ -110,6 +110,15 @@
             '</a >'
         ].join('')
     }
+    function commentFormatter(value, row, index) {
+        return [
+            '<a class="btn btn-primary btn-sm text-white">',
+            row.NumberOfComments,'<i class="fa fa-comments mr-1"></i>',
+            '</a >'
+        ].join('')
+    }
+
+    
 
      function checkBoxFormat(value, row) {
        return '<input type="checkbox" name="btSelectItem" value="' + row.Id + '" />';
@@ -144,13 +153,13 @@
                         valign: 'middle',
                         footerFormatter: totalTextFormatter
                     }, {
-                        title: 'جزئیات اطلاعات پست',
-                        colspan: 8,
+                        title: 'جزئیات اطلاعات مطلب',
+                        colspan: 9,
                         align: 'center'
                     }],
                     [{
                         field: 'ShortTitle',
-                        title: 'عنوان پست',
+                        title: 'عنوان مطلب',
                         sortable: true,
                         footerFormatter: totalNameFormatter,
                     },{
@@ -158,6 +167,12 @@
                         title: 'بازدید',
                         sortable: true,
                         align: 'center'
+                        },{
+                        field: 'نظرات',
+                        title: 'نظرات',
+                        sortable: true,
+                        align: 'center',
+                        formatter:commentFormatter
                     },{
                         field: 'لایک',
                         title: 'لایک',

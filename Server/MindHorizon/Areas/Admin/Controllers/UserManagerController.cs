@@ -139,17 +139,20 @@ namespace MindHorizon.Areas.Admin.Controllers
                 if (viewModel.ImageFile != null)
                     viewModel.Image = _userManager.CheckAvatarFileName(viewModel.ImageFile.FileName);
 
+                viewModel.Roles = new List<UserRole> { new UserRole { RoleId = (int)viewModel.RoleId } };
+                viewModel.BirthDate = viewModel.PersianBirthDate.ConvertShamsiToMiladi();
+
                 if (viewModel.Id != null)
                 {
                     var user = await _userManager.FindByIdAsync(viewModel.Id.ToString());
                     user.FirstName = viewModel.FirstName;
                     user.LastName = viewModel.LastName;
-                    user.BirthDate = viewModel.PersianBirthDate.ConvertShamsiToMiladi();
+                    user.BirthDate = viewModel.BirthDate;
                     user.Email = viewModel.Email;
                     user.UserName = viewModel.UserName;
                     user.Gender = viewModel.Gender.Value;
                     user.PhoneNumber = viewModel.PhoneNumber;
-                    user.Roles = new List<UserRole> { new UserRole { RoleId = (int)viewModel.RoleId } };
+                    user.Roles = viewModel.Roles;
                     var userRoles = await _userManager.GetRolesAsync(user);
 
                     if (viewModel.ImageFile != null)

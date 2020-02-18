@@ -5,13 +5,13 @@ namespace MindHorizon.ViewModels.Post
 {
     public class PostCategoriesViewModel
     {
-        public PostCategoriesViewModel(List<TreeViewCategory> categories, string[] categoryId)
+        public PostCategoriesViewModel(List<TreeViewCategory> categories, string[] categoryIds)
         {
             Categories = categories;
-            CategoryId = categoryId;
+            CategoryIds = categoryIds;
         }
 
         public List<TreeViewCategory> Categories { get; set; }
-        public string[] CategoryId { get; set; }
+        public string[] CategoryIds { get; set; }
     }
 }

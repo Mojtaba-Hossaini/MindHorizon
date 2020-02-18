@@ -65,13 +65,13 @@
             @if (Model.PostId.HasValue())
             {
                 <li>
-                    <a class="h4 mb-0 text-white d-lg-inline-block"  asp-action="CreateOrUpdate" asp-route-postId="@Model.PostId">ویرایش پست </a>
+                    <a class="h4 mb-0 text-white d-lg-inline-block"  asp-action="CreateOrUpdate" asp-route-postId="@Model.PostId">ویرایش مطلب </a>
                 </li>
             }
             else
             {
                 <li>
-                    <a class="h4 mb-0 text-white d-lg-inline-block" asp-action="CreateOrUpdate">افزودن پست جدید</a>
+                    <a class="h4 mb-0 text-white d-lg-inline-block" asp-action="CreateOrUpdate">افزودن مطلب جدید</a>
                 </li>
             }
 
@@ -92,11 +92,11 @@
             <div class="card-header font_Vazir_Medium">
                 @if (Model.PostId.HasValue())
                 {
-                    <span>ویرایش پست</span>
+                    <span>ویرایش مطلب</span>
                 }
                 else
                 {
-                    <span>افزودن پست </span>
+                    <span>افزودن مطلب </span>
                 }
             </div>
             <form asp-action="CreateOrUpdate" asp-controller="Post">
@@ -116,7 +116,7 @@
                     <div class="row">
                         <div class="col-md-9">
                             <div class="form-group">
-                                <input asp-for="Title" class="form-control" placeholder="عنوان پست" />
+                                <input asp-for="Title" class="form-control" placeholder="عنوان مطلب" />
                                 <span asp-validation-for="Title" class="text-danger"></span>
                             </div>
 
@@ -140,7 +140,7 @@
                                     <div class="custom-control custom-control-alternative custom-checkbox mb-3">
                                         <input class="custom-control-input" asp-for="FuturePublish" id="futurePublish" type="checkbox">
                                         <label class="custom-control-label" for="futurePublish">
-                                            انتشار پست در آینده
+                                            انتشار مطلب در آینده
                                         </label>
                                     </div>
                                     <div class="futurePublishDiv" style="@(Model.FuturePublish==true?"":"display:none;")">
@@ -177,9 +177,9 @@
                                 </div>
                             </div>
                             @*<div class="card mb-2">
-                                <div class="card-header pt-2 pb-2 bg-light">نوع پست</div>
+                                <div class="card-header pt-2 pb-2 bg-light">نوع مطلب</div>
                                 <div class="card-body">
-                                    <p>نوع پست را انتخاب کنید.</p>
+                                    <p>نوع مطلب را انتخاب کنید.</p>
                                     <label class="col-md-8" style="vertical-align:20px;">داخلی</label>
                                     <label class="custom-toggle">
                                         <input type="radio" asp-for="IsInternal" value="true" />
@@ -201,9 +201,9 @@
                                         @foreach (var item in Model.PostCategoriesViewModel.Categories)
                                         {
                                             <li>
-                                                @if (Model.PostCategories != null)
+                                                @if (Model.PostCategoriesViewModel.CategoryIds != null)
                                                 {
-                                                    if (Model.PostCategories.Select(c => c.CategoryId).Contains(item.id))
+                                                    if (Model.PostCategoriesViewModel.CategoryIds.Contains(item.id))
                                                     {
                                                         <input type="checkbox" name="CategoryIds" value="@item.id" checked /> @item.title
                                                     }

@@ -14,7 +14,7 @@ namespace MindHorizon.ViewModels.Post
         [JsonProperty("ردیف")]
         public int Row { get; set; }
 
-        [JsonProperty("عنوان پست"), Display(Name = "عنوان پست")]
+        [JsonProperty("عنوان مطلب"), Display(Name = "عنوان مطلب")]
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
         public string Title { get; set; }
 
@@ -75,14 +75,14 @@ namespace MindHorizon.ViewModels.Post
         public string NameOfCategories { get; set; }
 
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
-        [Display(Name = "آدرس پست"), JsonProperty("آدرس")]
+        [Display(Name = "آدرس مطلب"), JsonProperty("آدرس")]
         public string Url { get; set; }
 
         [JsonProperty("Status")]
         public string Status { get; set; }
 
 
-        [JsonProperty("متن پست")]
+        [JsonProperty("متن مطلب")]
         public string Description { get; set; }
 
 

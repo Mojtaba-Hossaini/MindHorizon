@@ -23,7 +23,7 @@ namespace MindHorizon.Data.Repositories
         public async Task<List<VideoViewModel>> GetPaginateVideosAsync(int offset, int limit, bool? titleSortAsc, bool? publishDateTimeSortAsc, string searchText)
         {
             List<VideoViewModel> videos= await _context.Videos.Where(c => c.Title.Contains(searchText))
-                                    .Select(c => new VideoViewModel { VideoId = c.VideoId, Title = c.Title, Url = c.Url, Poster=c.Poster,PersianPublishDateTime=c.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت hh:mm:ss")}).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
+                                    .Select(c => new VideoViewModel { VideoId = c.VideoId, Title = c.Title, Url = c.Url, Poster=c.Poster,PersianPublishDateTime=c.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss")}).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
 
             if (titleSortAsc != null)
             {
@@ -33,8 +33,8 @@ namespace MindHorizon.Data.Repositories
 
             else if (publishDateTimeSortAsc != null)
             {
-                videos = videos.OrderBy(c => (publishDateTimeSortAsc == true && publishDateTimeSortAsc != null) ? c.Title : "")
-                                   .OrderByDescending(c => (publishDateTimeSortAsc == false && publishDateTimeSortAsc != null) ? c.Title : "").ToList();
+                videos = videos.OrderBy(c => (publishDateTimeSortAsc == true && publishDateTimeSortAsc != null) ? c.PersianPublishDateTime : "")
+                                   .OrderByDescending(c => (publishDateTimeSortAsc == false && publishDateTimeSortAsc != null) ? c.PersianPublishDateTime : "").ToList();
             }
 
             foreach (var item in videos)

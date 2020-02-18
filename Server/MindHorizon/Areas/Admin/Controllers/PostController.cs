@@ -18,7 +18,7 @@ namespace MindHorizon.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork _uw;
         private readonly IHostingEnvironment _env;
-        private const string PostNotFound = "پستی یافت نشد.";
+        private const string PostNotFound = "مطلبی یافت نشد.";
         private readonly IMapper _mapper;
 
         public PostController(IUnitOfWork uw, IMapper mapper, IHostingEnvironment env)
@@ -54,45 +54,45 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "ShortTitle")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, true, null, null, null, null, search, null);
+                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().Title, item => "", search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, false, null, null, null, null, search, null);
+                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().Title, search, null);
             }
 
             else if (sort == "بازدید")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, true, null, null, null, search, null);
+                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().NumberOfVisit, item => "", search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, false, null, null, null, search, null);
+                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().NumberOfVisit, search, null);
             }
 
             else if (sort == "لایک")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, true, null, null, search, null);
+                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().NumberOfLike, item => "", search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, false, null, null, search, null);
+                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().NumberOfLike, search, null);
             }
 
             else if (sort == "دیس لایک")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, true, null, search, null);
+                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().NumberOfDisLike, item => "", search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, false, null, search, null);
+                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().NumberOfDisLike, search, null);
             }
 
             else if (sort == "تاریخ انتشار")
             {
                 if (order == "asc")
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, null, true, search, null);
+                    posts =  _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().PersianPublishDate, item => "", search, null);
                 else
-                    posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, null, false, search, null);
+                    posts =  _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
             }
 
             else
-                posts = await _uw.PostRepository.GetPaginatePostAsync(offset, limit, null, null, null, null, false, search, null);
+                posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
 
             if (search != "")
                 total = posts.Count();
@@ -105,7 +105,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         {
             PostViewModel PostViewModel = new PostViewModel();
             ViewBag.Tags = _uw._Context.Tags.Select(t => t.TagName).ToList();
-            PostViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(_uw.CategoryRepository.GetAllCategories(), null);
+            PostViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), null);
             if (postId.HasValue())
             {
                 var post = await (from n in _uw._Context.Post.Include(c => c.PostCategories)
@@ -118,6 +118,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                                   {
                                       PostId = n.PostId,
                                       Title = n.Title,
+                                      Abstract = n.Abstract,
                                       Description = n.Description,
                                       PublishDateTime = n.PublishDateTime,
                                       IsPublish = n.IsPublish,
@@ -136,7 +137,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                         PostViewModel.PersianPublishDate = post.FirstOrDefault().PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd");
                         PostViewModel.PersianPublishTime = post.FirstOrDefault().PublishDateTime.Value.TimeOfDay.ToString();
                     }
-                    PostViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(_uw.CategoryRepository.GetAllCategories(), post.FirstOrDefault().PostCategories.Select(n => n.CategoryId).ToArray());
+                    PostViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), post.FirstOrDefault().PostCategories.Select(n => n.CategoryId).ToArray());
                     PostViewModel.NameOfTags = post.Select(t => t.NameOfTags).ToArray().CombineWith(',');
                 }
 
@@ -149,7 +150,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         public async Task<IActionResult> CreateOrUpdate(PostViewModel viewModel, string submitButton)
         {
             ViewBag.Tags = _uw._Context.Tags.Select(t => t.TagName).ToList();
-            viewModel.PostCategoriesViewModel = new PostCategoriesViewModel(_uw.CategoryRepository.GetAllCategories(), null);
+            viewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), viewModel.CategoryIds);
             if (!viewModel.FuturePublish)
             {
                 ModelState.Remove("PersianPublishTime");
@@ -168,7 +169,6 @@ namespace MindHorizon.Areas.Admin.Controllers
 
                 if (viewModel.PostId.HasValue())
                 {
-                    string[] newTagsArray;
                     var post = _uw.BaseRepository<Post>().FindByConditionAsync(n => n.PostId == viewModel.PostId, null, n => n.PostCategories, n => n.PostTags).Result.FirstOrDefault();
                     if (post == null)
                         ModelState.AddModelError(string.Empty, PostNotFound);
@@ -197,12 +197,10 @@ namespace MindHorizon.Areas.Admin.Controllers
                         else
                             viewModel.ImageName = post.ImageName;
 
-                        var postTags = _uw._Context.PostTags.Include(t => t.Tag).Where(t => t.PostId == viewModel.PostId).Select(t => t.Tag).ToList();
+                       
                         if (viewModel.NameOfTags.HasValue())
-                        {
-                            newTagsArray = viewModel.NameOfTags.Split(',');
                             viewModel.PostTags = await _uw.TagRepository.InsertPostTags(viewModel.NameOfTags.Split(','), post.PostId);
-                        }
+
                         else
                             viewModel.PostTags = post.PostTags;
 
@@ -215,7 +213,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                         _uw.BaseRepository<Post>().Update(_mapper.Map(viewModel, post));
                         await _uw.Commit();
                         ViewBag.Alert = "ذخیره تغییرات با موفقیت انجام شد.";
-                        viewModel.PostCategoriesViewModel.CategoryId = viewModel.CategoryIds;
+                        
                     }
                 }
 
@@ -300,7 +298,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteGroupConfirmed(string[] btSelectItem)
         {
             if (btSelectItem.Count() == 0)
-                ModelState.AddModelError(string.Empty, "هیچ پستی برای حذف انتخاب نشده است.");
+                ModelState.AddModelError(string.Empty, "هیچ مطلبی برای حذف انتخاب نشده است.");
             else
             {
                 foreach (var item in btSelectItem)
