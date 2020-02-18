@@ -13,5 +13,6 @@ namespace MindHorizon.Data.Contracts
         Task<List<PostViewModel>> MostViewedPosts(int offset, int limit, string duration);
         Task<List<PostViewModel>> MostTalkPosts(int offset, int limit, string duration);
         Task<List<PostViewModel>> MostPopularPosts(int offset, int limit);
+        int CountPostPublished();
     }
 }

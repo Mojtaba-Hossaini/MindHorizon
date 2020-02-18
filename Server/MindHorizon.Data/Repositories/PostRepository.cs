@@ -25,6 +25,7 @@ namespace MindHorizon.Data.Repositories
             _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
+        public int CountPostPublished() => _context.Post.Where(n => n.IsPublish == true && n.PublishDateTime <= DateTime.Now).Count();
 
         public  List<PostViewModel> GetPaginatePost(int offset, int limit, Func<IGrouping<string, PostViewModel>, object> orderByAscFunc, Func<IGrouping<string, PostViewModel>, object> orderByDescFunc, string searchText, bool? isPublish)
         {
