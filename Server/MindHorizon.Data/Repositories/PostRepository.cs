@@ -127,5 +127,132 @@ namespace MindHorizon.Data.Repositories
 
             return fileName;
         }
+
+        public async Task<List<PostViewModel>> MostViewedPosts(int offset, int limit, string duration)
+        {
+            string NameOfCategories = "";
+            List<PostViewModel> postViewModel = new List<PostViewModel>();
+            DateTime StartMiladiDate;
+            DateTime EndMiladiDate = DateTime.Now;
+
+            if (duration == "week")
+            {
+                int NumOfWeek = ConvertDateTime.ConvertMiladiToShamsi(DateTime.Now, "dddd").GetNumOfWeek();
+                StartMiladiDate = DateTime.Now.AddDays((-1) * NumOfWeek).Date + new TimeSpan(0, 0, 0);
+            }
+
+            else if (duration == "day")
+                StartMiladiDate = DateTime.Now.Date + new TimeSpan(0, 0, 0);
+
+            else
+            {
+                string DayOfMonth = ConvertDateTime.ConvertMiladiToShamsi(DateTime.Now, "dd").Fa2En();
+                StartMiladiDate = DateTime.Now.AddDays((-1) * (int.Parse(DayOfMonth) - 1)).Date + new TimeSpan(0, 0, 0);
+            }
+
+            var postGroup = await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
+                                   join e in _context.PostCategories on n.PostId equals e.PostId into bc
+                                   from bct in bc.DefaultIfEmpty()
+                                   join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
+                                   from cog in cg.DefaultIfEmpty()
+                                   where (n.PublishDateTime <= EndMiladiDate && StartMiladiDate <= n.PublishDateTime)
+                                   select (new
+                                   {
+                                       n.PostId,
+                                       ShortTitle = n.Title.Length > 60 ? n.Title.Substring(0, 60) + "..." : n.Title,
+                                       n.Url,
+                                       NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
+                                       NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
+                                       NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
+                                       NumberOfComments = n.Comments.Count(),
+                                       n.ImageName,
+                                       CategoryName = cog != null ? cog.CategoryName : "",
+                                       PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
+                                   })).GroupBy(b => b.PostId).Select(g => new { PostId = g.Key, PostGroup = g }).OrderByDescending(g => g.PostGroup.First().NumberOfVisit).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
+
+            foreach (var item in postGroup)
+            {
+                NameOfCategories = "";
+                foreach (var a in item.PostGroup.Select(a => a.CategoryName).Distinct())
+                {
+                    if (NameOfCategories == "")
+                        NameOfCategories = a;
+                    else
+                        NameOfCategories = NameOfCategories + " - " + a;
+                }
+
+                PostViewModel post = new PostViewModel()
+                {
+                    PostId = item.PostId,
+                    ShortTitle = item.PostGroup.First().ShortTitle,
+                    Url = item.PostGroup.First().Url,
+                    NumberOfVisit = item.PostGroup.First().NumberOfVisit,
+                    NumberOfDisLike = item.PostGroup.First().NumberOfDisLike,
+                    NumberOfLike = item.PostGroup.First().NumberOfLike,
+                    NameOfCategories = NameOfCategories,
+                    PublishDateTime = item.PostGroup.First().PublishDateTime,
+                    ImageName = item.PostGroup.First().ImageName,
+                };
+                postViewModel.Add(post);
+            }
+
+            return postViewModel;
+        }
+
+        public async Task<List<PostViewModel>> MostTalkPosts(int offset, int limit, string duration)
+        {
+            DateTime StartMiladiDate;
+            DateTime EndMiladiDate = DateTime.Now;
+
+            if (duration == "week")
+            {
+                int NumOfWeek = ConvertDateTime.ConvertMiladiToShamsi(DateTime.Now, "dddd").GetNumOfWeek();
+                StartMiladiDate = DateTime.Now.AddDays((-1) * NumOfWeek).Date + new TimeSpan(0, 0, 0);
+            }
+
+            else if (duration == "day")
+                StartMiladiDate = DateTime.Now.Date + new TimeSpan(0, 0, 0);
+
+            else
+            {
+                string DayOfMonth = ConvertDateTime.ConvertMiladiToShamsi(DateTime.Now, "dd").Fa2En();
+                StartMiladiDate = DateTime.Now.AddDays((-1) * (int.Parse(DayOfMonth) - 1)).Date + new TimeSpan(0, 0, 0);
+            }
+
+            return await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
+                          where (n.PublishDateTime <= EndMiladiDate && StartMiladiDate <= n.PublishDateTime)
+                          select (new PostViewModel
+                          {
+                              PostId = n.PostId,
+                              ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
+                              Url = n.Url,
+                              NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
+                              NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
+                              NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
+                              NumberOfComments = n.Comments.Count(),
+                              ImageName = n.ImageName,
+                              PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
+                          })).OrderByDescending(o => o.NumberOfComments).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
+        }
+
+        public async Task<List<PostViewModel>> MostPopularPosts(int offset, int limit)
+        {
+            return await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
+                          where (n.IsPublish == true && n.PublishDateTime <= DateTime.Now)
+                          select (new PostViewModel
+                          {
+                              PostId = n.PostId,
+                              ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
+                              Url = n.Url,
+                              Title = n.Title,
+                              NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
+                              NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
+                              NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
+                              NumberOfComments = n.Comments.Count(),
+                              ImageName = n.ImageName,
+                              PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
+                          })).OrderByDescending(o => o.NumberOfLike).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
+
+        }
     }
 }
