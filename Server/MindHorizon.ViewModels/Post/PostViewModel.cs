@@ -1,4 +1,6 @@
-﻿using MindHorizon.Entities;
+﻿using MindHorizon.Common.Attributes;
+using MindHorizon.Entities;
+using MindHorizon.Entities.Identity;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -76,6 +78,7 @@ namespace MindHorizon.ViewModels.Post
 
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
         [Display(Name = "آدرس مطلب"), JsonProperty("آدرس")]
+        [UrlValidate("/", @"\", " ")]
         public string Url { get; set; }
 
         [JsonProperty("Status")]
@@ -88,6 +91,18 @@ namespace MindHorizon.ViewModels.Post
 
         [JsonIgnore]
         public string[] CategoryIds { get; set; }
+
+        [JsonIgnore]
+        public string IdOfTags { get; set; }
+
+        [JsonIgnore]
+        public List<string> TagIdsList { get; set; }
+
+        [JsonIgnore]
+        public List<string> TagNamesList { get; set; }
+
+        [JsonIgnore]
+        public User AuthorInfo { get; set; }
 
         [JsonIgnore]
         public PostCategoriesViewModel PostCategoriesViewModel { get; set; }

@@ -20,7 +20,7 @@
         var form = $(this).parents(".modal").find('form');
         var actionUrl = form.attr('action');
 
-        if (form.length == 0) {
+        if (form.length === 0) {
             form = $(".card-body").find('form');
             actionUrl = form.attr('action') + '/' + $(".modal").attr('id');
         }

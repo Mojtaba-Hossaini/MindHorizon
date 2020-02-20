@@ -1,4 +1,5 @@
-﻿using MindHorizon.ViewModels.Post;
+﻿using MindHorizon.Entities;
+using MindHorizon.ViewModels.Post;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,11 @@ namespace MindHorizon.Data.Contracts
         Task<List<PostViewModel>> MostViewedPosts(int offset, int limit, string duration);
         Task<List<PostViewModel>> MostTalkPosts(int offset, int limit, string duration);
         Task<List<PostViewModel>> MostPopularPosts(int offset, int limit);
+        Task<PostViewModel> GetPostById(string postId);
+        Task<List<PostViewModel>> GetNextAndPreviousPost(DateTime? PublishDateTime);
+        Task<List<Comment>> GetPostCommentsAsync(string postId);
+        Task BindSubComments(Comment comment);
+        Task<List<PostViewModel>> GetRelatedPost(int number, List<string> tagIdList, string postId);
         int CountPostPublished();
     }
 }
