@@ -19,7 +19,6 @@ namespace MindHorizon.Areas.Admin.Controllers
         private readonly IApplicationRoleManager _roleManager;
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
-        private readonly IUnitOfWork _uw;
         private const string UserNotFound = "کاربر یافت نشد.";
         public UserManagerController(IApplicationUserManager userManager, IMapper mapper, IApplicationRoleManager roleManager, IHostingEnvironment env)
         {

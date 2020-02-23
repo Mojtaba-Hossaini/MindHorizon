@@ -153,11 +153,12 @@ namespace MindHorizon.Data.Repositories
             }
 
             var postGroup = await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
+                                   join v in _context.Visits on n.PostId equals v.PostId
                                    join e in _context.PostCategories on n.PostId equals e.PostId into bc
                                    from bct in bc.DefaultIfEmpty()
                                    join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
                                    from cog in cg.DefaultIfEmpty()
-                                   where (n.PublishDateTime <= EndMiladiDate && StartMiladiDate <= n.PublishDateTime)
+                                   where (v.LastVisitDateTime <= EndMiladiDate && StartMiladiDate <= v.LastVisitDateTime)
                                    select (new
                                    {
                                        n.PostId,
@@ -222,7 +223,8 @@ namespace MindHorizon.Data.Repositories
             }
 
             return await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
-                          where (n.PublishDateTime <= EndMiladiDate && StartMiladiDate <= n.PublishDateTime)
+                          join t in _context.Comments on n.PostId equals t.PostId
+                          where (t.PostageDateTime <= EndMiladiDate && StartMiladiDate <= t.PostageDateTime)
                           select (new PostViewModel
                           {
                               PostId = n.PostId,

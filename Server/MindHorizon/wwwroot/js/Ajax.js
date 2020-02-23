@@ -39,10 +39,10 @@
             var IsValid = newBody.find("input[name='IsValid']").val() === "True";
             if (IsValid) {
                 $.ajax({ url: '/Admin/Base/Notification', error: function () { ShowSweetErrorAlert(); } }).done(function (notification) {
-                    ShowSweetSuccessAlert(notification)
+                    ShowSweetSuccessAlert(notification);
                 });
 
-                $table.bootstrapTable('refresh')
+                $table.bootstrapTable('refresh');
                 placeholder.find(".modal").modal('hide');
             }
         });
@@ -69,8 +69,8 @@ function ShowSweetSuccessAlert(message) {
         position: 'top-middle',
         type: 'success',
         title: message,
-        confirmButtonText: 'بستن',
-    })
+        confirmButtonText: 'بستن'
+    });
 }
 
 
@@ -87,7 +87,7 @@ $(document).on('click','a[data-toggle="tab"]',function () {
 
     $.ajax({
         url: url,
-        beforeSend: function () {$(loadingDivId).html("<p class='text-center mb-5 mt-3'><span style='font-size:18px;font-family: Vazir_Medium;'>در حال بارگزاری اطلاعات مطلب </span><img src='/icons/LoaderIcon.gif'/></p>")},
+        beforeSend: function () { $(loadingDivId).html("<p class='text-center mb-5 mt-3'><span style='font-size:18px;font-family: Vazir_Medium;'>در حال بارگزاری اطلاعات مطلب </span><img src='/icons/LoaderIcon.gif'/></p>");},
         error: function () {
            ShowSweetErrorAlert();
         }
@@ -97,6 +97,66 @@ $(document).on('click','a[data-toggle="tab"]',function () {
        $("#"+id).addClass("active");
     });
 });
+
+function ShowCommentForm(parentCommentId, postId) {
+    $.ajax({
+        url: "/Admin/Comments/SendComment?parentCommentId=" + parentCommentId + "&&newsId=" + postId,
+        beforeSend: function () { $("#comment-" + parentCommentId).after("<p class='text-center mb-5 mt-3'><span style='font-size:18px;font-family: Vazir_Medium;'> لطفا منتظر بماند  </span><img src='/icons/LoaderIcon.gif'/></p>"); },
+        error: function () {
+            ShowSweetErrorAlert();
+        }
+    }).done(function (result) {
+        $("#comment-" + parentCommentId).next().replaceWith("");
+        $("#comment-" + parentCommentId).after("<hr/>" + result);
+        $("#btn-" + parentCommentId).html("لغو پاسخ");
+        $("#btn-" + parentCommentId).attr("onclick", "HideCommentForm('" + parentCommentId + "','" + postId + "')");
+    });
+}
+
+function HideCommentForm(parentCommentId, postId) {
+    $("#comment-" + parentCommentId).next().replaceWith("");
+    $("#comment-" + parentCommentId).next().replaceWith("");
+    $("#btn-" + parentCommentId).html("پاسخ");
+    $("#btn-" + parentCommentId).attr("onclick", "ShowCommentForm('" + parentCommentId + "')");
+}
+
+
+function SendComment(parentCommentId) {
+    var form = $("#reply-" + parentCommentId).find('form');
+    var actionUrl = form.attr('action');
+    var dataToSend = new FormData(form.get(0));
+    var loaderAfter = "#comment-" + parentCommentId;
+    if ($("#comment-" + parentCommentId).length === 0) {
+        loaderAfter = "#reply-";
+    }
+    $.ajax({
+        url: actionUrl, type: "post", data: dataToSend, processData: false, contentType: false, error: function () {
+            ShowSweetErrorAlert();
+        },
+        beforeSend: function () {
+            $(".vizew-btn").attr("disabled", true);
+            $(loaderAfter).after("<p class='text-center mb-5 mt-3'><span style='font-size:18px;font-family: Vazir_Medium;'> در حال ارسال دیدگاه  </span><img src='/icons/LoaderIcon.gif'/></p>");
+        },
+        complete: function () {
+            $(".vizew-btn").attr("disabled", false);
+            $(loaderAfter).next().replaceWith("");
+        }
+    }).done(function (data) {
+        var newForm = $("form", data);
+        $("#reply-" + parentCommentId).find("form").replaceWith(newForm);
+        var IsValid = newForm.find("input[name='IsValid']").val() === "True";
+        if (IsValid) {
+            $("#comment-" + parentCommentId).next().replaceWith("");
+            $("#comment-" + parentCommentId).next().replaceWith("");
+            $.ajax({ url: '/Admin/Base/Notification', error: function () { ShowSweetErrorAlert(); } }).done(function (notification) {
+                ShowSweetSuccessAlert(notification);
+            });
+            $("#Name").val("");
+            $("#Email").val("");
+            $("#Desription").val("");
+        }
+    });
+}
 
 
 

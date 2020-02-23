@@ -41,7 +41,7 @@ namespace MindHorizon.Areas.Admin.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetPosts(string search, string order, int offset, int limit, string sort)
+        public IActionResult GetPosts(string search, string order, int offset, int limit, string sort)
         {
             List<PostViewModel> posts;
             int total = _uw.BaseRepository<Post>().CountEntities();
