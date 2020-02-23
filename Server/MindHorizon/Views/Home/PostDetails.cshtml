@@ -1,9 +1,14 @@
 ﻿@model MindHorizon.ViewModels.Home.PostDetailsViewModel
 @using MindHorizon.Common
+@using MindHorizon.ViewModels.Comments
 @{
     ViewData["Title"] = "PostDetails";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<script src="~/js/Ajax.js"></script>
+<!-- Sweetalert2 -->
+<link href="~/lib/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet" />
+<script src="~/lib/sweetalert2/dist/sweetalert2.min.js"></script>
 <style>
     .post-meta.d-flex a i {
         font-size: 15px !important;
@@ -44,7 +49,7 @@
             </div>
         </div>
     }
-    @if (Model.NextAndPreviousPost.Last()!=null)
+    @if (Model.NextAndPreviousPost.Last() != null)
     {
         <div class="vizew-pager-prev">
             <p>مطلب بعدی</p>
@@ -141,35 +146,35 @@
                             </div>
                             @if (Model.PostRelated.Count() != 0)
                             {
-                                 <div class="row">
-                                        @foreach (var item in Model.PostRelated)
-                                        {
-                                            <div class="col-12 col-md-6">
-                                                <div class="single-post-area mb-50">
-                                                    <div class="post-thumbnail">
-                                                        <img src="~/postImage/@item.ImageName" alt="@item.ImageName">
-                                                        <span class="video-duration">@item.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy")</span>
-                                                    </div>
-                                                    <div class="post-content">
-                                                        <a href="/Posts/@item.PostId/@item.Url" class="post-title">@item.Title</a>
-                                                        <div class="post-meta d-flex">
-                                                            <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments</a>
-                                                            <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> @item.NumberOfVisit</a>
-                                                            <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> @item.NumberOfLike</a>
-                                                            <a href="#"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> @item.NumberOfDisLike</a>
-                                                        </div>
+                                <div class="row">
+                                    @foreach (var item in Model.PostRelated)
+                                    {
+                                        <div class="col-12 col-md-6">
+                                            <div class="single-post-area mb-50">
+                                                <div class="post-thumbnail">
+                                                    <img src="~/postImage/@item.ImageName" alt="@item.ImageName">
+                                                    <span class="video-duration">@item.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy")</span>
+                                                </div>
+                                                <div class="post-content">
+                                                    <a href="/Posts/@item.PostId/@item.Url" class="post-title">@item.Title</a>
+                                                    <div class="post-meta d-flex">
+                                                        <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments</a>
+                                                        <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> @item.NumberOfVisit</a>
+                                                        <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> @item.NumberOfLike</a>
+                                                        <a href="#"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> @item.NumberOfDisLike</a>
                                                     </div>
                                                 </div>
                                             </div>
-                                        }
-                                    </div>
+                                        </div>
+                                    }
+                                </div>
                             }
                             else
                             {
                                 <p class="alert alert-info">پست مرتبط با این مطلب یافت نشد .</p>
                             }
                         </div>
-                       
+
                         <!-- Comment Area Start -->
                         <div class="comment_area clearfix mb-50">
 
@@ -183,24 +188,26 @@
                                 <ul>
                                     @foreach (var item in Model.Comments)
                                     {
-                                        <li class="single_comment_area">
-                                            <!-- Comment Content -->
-                                            <div id="@("comment-"+item.CommentId)" class="comment-content d-flex">
-                                                <!-- Comment Author -->
-                                                <div class="comment-author">
-                                                    <img src="~/assets/img/UserPic.png" alt="author">
-                                                </div>
-                                                <!-- Comment Meta -->
-                                                <div class="comment-meta">
-                                                    <a href="#" class="comment-date">@item.PostageDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm")</a>
-                                                    <h6>@item.Name</h6>
-                                                    <p>@item.Desription</p>
-                                                    <div class="d-flex align-items-center">
-                                                        <a id="@("btn-"+item.CommentId)" href="#" class="reply">پاسخ</a>
-                                                    </div>
+                                    <li class="single_comment_area">
+                                        <!-- Comment Content -->
+                                        <div id="@("comment-"+item.CommentId)" class="comment-content d-flex">
+                                            <!-- Comment Author -->
+                                            <div class="comment-author">
+                                                <img src="~/assets/img/UserPic.png" alt="author">
+                                            </div>
+                                            <!-- Comment Meta -->
+                                            <div class="comment-meta">
+                                                <a href="#" class="comment-date">@item.PostageDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm")</a>
+                                                <h6>@item.Name</h6>
+                                                <p>@item.Desription</p>
+                                                <div class="d-flex align-items-center">
+                                                    <a id="@("btn-"+item.CommentId)" onclick="ShowCommentForm('@item.CommentId', '@item.PostId')" href="#" class="reply">پاسخ</a>
                                                 </div>
                                             </div>
+                                        </div>
 
+                                        @if (item.comments != null)
+                                        {
                                             @if (item.comments.Count() != 0)
                                             {
                                                 <ol class="children">
@@ -216,7 +223,7 @@
                                                                     <h6>@sub.Name</h6>
                                                                     <p>@sub.Desription</p>
                                                                     <div class="d-flex align-items-center">
-                                                                        <a id="@("btn-"+sub.CommentId)" href="#" class="reply">پاسخ</a>
+                                                                        <a id="@("btn-"+sub.CommentId)" onclick="ShowCommentForm('@sub.CommentId', '@item.PostId')" href="#" class="reply">پاسخ</a>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -230,8 +237,10 @@
 
                                                 </ol>
                                             }
+                                        }
 
-                                        </li>
+
+                                    </li>
                                     }
 
                                 </ul>
@@ -253,24 +262,7 @@
                             </div>
 
                             <!-- Reply Form -->
-                            <div class="contact-form-area">
-                                <form action="#" method="post">
-                                    <div class="row">
-                                        <div class="col-12 col-lg-6">
-                                            <input type="text" class="form-control" id="name" placeholder="نام*">
-                                        </div>
-                                        <div class="col-12 col-lg-6">
-                                            <input type="email" class="form-control" id="email" placeholder="ایمیل*">
-                                        </div>
-                                        <div class="col-12">
-                                            <textarea name="message" class="form-control" id="message" placeholder="دیدگاه خود را بنویسید ...*"></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <button class="btn vizew-btn mt-10 float-left" type="submit">ارسال دیدگاه</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                            @await Html.PartialAsync("_SendComment", new CommentViewModel(null, Model.Post.PostId))
                         </div>
 
                     </div>

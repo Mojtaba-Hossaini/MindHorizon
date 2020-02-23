@@ -2007,3 +2007,7 @@ textarea.form-control {
 a:not([href]):not([tabindex]) {
     cursor: pointer !important;
 }
+
+.bgTextArea:hover {
+    background-color: azure !important;
+}

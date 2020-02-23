@@ -100,7 +100,7 @@ $(document).on('click','a[data-toggle="tab"]',function () {
 
 function ShowCommentForm(parentCommentId, postId) {
     $.ajax({
-        url: "/Admin/Comments/SendComment?parentCommentId=" + parentCommentId + "&&newsId=" + postId,
+        url: "/Admin/Comments/SendComment?parentCommentId=" + parentCommentId + "&&postId=" + postId,
         beforeSend: function () { $("#comment-" + parentCommentId).after("<p class='text-center mb-5 mt-3'><span style='font-size:18px;font-family: Vazir_Medium;'> لطفا منتظر بماند  </span><img src='/icons/LoaderIcon.gif'/></p>"); },
         error: function () {
             ShowSweetErrorAlert();
