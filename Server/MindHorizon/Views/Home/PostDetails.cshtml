@@ -177,7 +177,7 @@
 
                         <!-- Comment Area Start -->
                         <!-- Comment Area Start -->
-                        <div class="comment_area clearfix mb-50">
+                        <div class="comment_area clearfix mb-50 bg-parentComment">
 
                             <!-- Section Title -->
                             <div class="section-heading style-2">
@@ -191,7 +191,7 @@
                                     {
                                         <li class="single_comment_area">
                                             <!-- Comment Content -->
-                                            <div id="@("comment-"+item.CommentId)" class="comment-content d-flex">
+                                            <div id="@("comment-"+item.CommentId)" class="comment-content d-flex m-3">
                                                 <!-- Comment Author -->
                                                 <div class="comment-author">
                                                     <img src="~/assets/img/UserPic.png" alt="author">
@@ -212,12 +212,12 @@
                                                 <ol class="children">
                                                     @foreach (var sub in item.comments)
                                                     {
-                                                        <li class="single_comment_area">
-                                                            <div id="@("comment-"+sub.CommentId)" class="comment-content d-flex bg-subComment">
-                                                                <div class="comment-author">
+                                                        <li class="single_comment_area m-3">
+                                                            <div id="@("comment-"+sub.CommentId)" class="comment-content d-flex bg-subComment m-3">
+                                                                <div class="comment-author m-2">
                                                                     <img src="~/assets/img/UserPic.png" alt="author">
                                                                 </div>
-                                                                <div class="comment-meta">
+                                                                <div class="comment-meta m-2">
                                                                     <a href="#" class="comment-date text-info">@sub.PostageDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm")</a>
                                                                     <h6>@sub.Name</h6>
                                                                     <p>@sub.Desription</p>
