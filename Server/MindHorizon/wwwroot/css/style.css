@@ -2011,3 +2011,8 @@ a:not([href]):not([tabindex]) {
 .bgTextArea:hover {
     background-color: azure !important;
 }
+
+.bg-subComment {
+    background-color: #3dccc8 !important;
+    color: blue !important;
+}

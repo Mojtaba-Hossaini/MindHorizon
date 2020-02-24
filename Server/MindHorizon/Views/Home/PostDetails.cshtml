@@ -176,6 +176,7 @@
                         </div>
 
                         <!-- Comment Area Start -->
+                        <!-- Comment Area Start -->
                         <div class="comment_area clearfix mb-50">
 
                             <!-- Section Title -->
@@ -188,42 +189,40 @@
                                 <ul>
                                     @foreach (var item in Model.Comments)
                                     {
-                                    <li class="single_comment_area">
-                                        <!-- Comment Content -->
-                                        <div id="@("comment-"+item.CommentId)" class="comment-content d-flex">
-                                            <!-- Comment Author -->
-                                            <div class="comment-author">
-                                                <img src="~/assets/img/UserPic.png" alt="author">
-                                            </div>
-                                            <!-- Comment Meta -->
-                                            <div class="comment-meta">
-                                                <a href="#" class="comment-date">@item.PostageDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm")</a>
-                                                <h6>@item.Name</h6>
-                                                <p>@item.Desription</p>
-                                                <div class="d-flex align-items-center">
-                                                    <a id="@("btn-"+item.CommentId)" onclick="ShowCommentForm('@item.CommentId', '@item.PostId')" href="#" class="reply">پاسخ</a>
+                                        <li class="single_comment_area">
+                                            <!-- Comment Content -->
+                                            <div id="@("comment-"+item.CommentId)" class="comment-content d-flex">
+                                                <!-- Comment Author -->
+                                                <div class="comment-author">
+                                                    <img src="~/assets/img/UserPic.png" alt="author">
+                                                </div>
+                                                <!-- Comment Meta -->
+                                                <div class="comment-meta">
+                                                    <a href="#" class="comment-date">@item.PostageDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm")</a>
+                                                    <h6>@item.Name</h6>
+                                                    <p>@item.Desription</p>
+                                                    <div class="d-flex align-items-center">
+                                                        <a id="@("btn-"+item.CommentId)" onclick="ShowCommentForm('@item.CommentId','@item.PostId')" href="#" class="reply">پاسخ</a>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        @if (item.comments != null)
-                                        {
                                             @if (item.comments.Count() != 0)
                                             {
                                                 <ol class="children">
                                                     @foreach (var sub in item.comments)
                                                     {
                                                         <li class="single_comment_area">
-                                                            <div id="@("comment-"+sub.CommentId)" class="comment-content d-flex">
+                                                            <div id="@("comment-"+sub.CommentId)" class="comment-content d-flex bg-subComment">
                                                                 <div class="comment-author">
                                                                     <img src="~/assets/img/UserPic.png" alt="author">
                                                                 </div>
                                                                 <div class="comment-meta">
-                                                                    <a href="#" class="comment-date">@sub.PostageDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm")</a>
+                                                                    <a href="#" class="comment-date text-info">@sub.PostageDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm")</a>
                                                                     <h6>@sub.Name</h6>
                                                                     <p>@sub.Desription</p>
                                                                     <div class="d-flex align-items-center">
-                                                                        <a id="@("btn-"+sub.CommentId)" onclick="ShowCommentForm('@sub.CommentId', '@item.PostId')" href="#" class="reply">پاسخ</a>
+                                                                        <a id="@("btn-"+sub.CommentId)" href="#" onclick="ShowCommentForm('@sub.CommentId','@item.PostId')" class="reply">پاسخ</a>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -237,17 +236,15 @@
 
                                                 </ol>
                                             }
-                                        }
 
-
-                                    </li>
+                                        </li>
                                     }
 
                                 </ul>
                             }
                             else
                             {
-                                <p class="alert alert-info mb-0">دیدگاهی برای این مطلب ارسال نشده است.</p>
+                                <p class="alert alert-info mb-0">دیدگاهی برای این خبر ارسال نشده است.</p>
                             }
 
                         </div>
