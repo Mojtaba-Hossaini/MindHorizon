@@ -99,6 +99,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                     ModelState.AddModelError(string.Empty, CategoryDuplicate);
                 else
                 {
+                    viewModel.Url = viewModel.Url.Trim();
                     if (viewModel.ParentCategoryName.HasValue())
                     {
                         var parentCategory = _uw.CategoryRepository.FindByCategoryName(viewModel.ParentCategoryName);

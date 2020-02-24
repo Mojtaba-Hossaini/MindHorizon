@@ -510,7 +510,8 @@ input:focus {
     position: relative;
     width: 100%; }
     .header-area .vizew-main-menu .classy-nav-container {
-      background-color: #68dbbb; }
+        background-color: #3dccc8;
+    }
     .header-area .vizew-main-menu .classy-navbar {
       padding: 0;
       height: 90px; }
@@ -1110,6 +1111,7 @@ input:focus {
 
 .pagination {
   position: relative;
+  justify-content: center;
   z-index: 1; }
   @media only screen and (min-width: 768px) and (max-width: 991px) {
     .pagination {
@@ -1117,26 +1119,29 @@ input:focus {
   @media only screen and (max-width: 767px) {
     .pagination {
       margin-bottom: 80px; } }
-  .pagination .page-item .page-link {
-    background-color: #393c3d;
+.pagination .page-item .page-link {
+    background-color: #3dccc8;
     min-width: 40px;
     height: 40px;
     line-height: 40px;
-    font-size: 16px;
-    color: #a6a6a6;
+    font-size: 13px;
+    color: #fff;
     text-transform: uppercase;
     text-align: center;
     display: inline-block;
-    border-radius: 2px;
+    border-radius: 50px;
     padding: 0 15px;
     margin-right: 5px;
-    border: none; }
+    border: none;
+    font-family: Vazir_FD;
+}
     .pagination .page-item .page-link:hover, .pagination .page-item .page-link:focus {
-        background-color: #ffffff;
+        background-color: #e7e7e7;
         color: #3dccc8;
     }
 .pagination .page-item.active .page-link {
-    background-color: #ffffff;
+    background-color: #e7e7e7;
+    border: 1px solid #ddd7d7;
     color: #3dccc8;
 }
 
@@ -2009,6 +2014,9 @@ a:not([href]):not([tabindex]) {
 }
 
 .bgTextArea:hover {
+    background-color: azure !important;
+}
+.bgTextArea:focus {
     background-color: azure !important;
 }
 

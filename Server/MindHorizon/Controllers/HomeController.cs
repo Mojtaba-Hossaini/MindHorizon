@@ -31,12 +31,13 @@ namespace MindHorizon.Controllers
                 return PartialView("_MostTalkPosts", await uw.PostRepository.MostTalkPosts(0, 5, duration));
             else
             {
+                int countPostsPublished = uw.PostRepository.CountPostPublished();
                 var posts = uw.PostRepository.GetPaginatePost(0, 10, item => "", item => item.First().PersianPublishDate, "", null);
                 var mostViewedPosts = await uw.PostRepository.MostViewedPosts(0, 3, "day");
                 var mostTalkPosts = await uw.PostRepository.MostTalkPosts(0, 5,"day");
                 var mostPopularPosts = await uw.PostRepository.MostPopularPosts(0, 5);
                 var videos = await uw.VideoRepository.GetPaginateVideosAsync(0, 10, null, false, "");
-                var homePageViewModel = new HomePageViewModel(posts, mostViewedPosts, mostTalkPosts, mostPopularPosts, videos);
+                var homePageViewModel = new HomePageViewModel(posts, mostViewedPosts, mostTalkPosts, mostPopularPosts, videos, countPostsPublished);
                 return View(homePageViewModel);
             }
             
@@ -66,6 +67,14 @@ namespace MindHorizon.Controllers
             var postRelated = await uw.PostRepository.GetRelatedPost(2, post.TagIdsList, postId);
             var postDetailsViewModel = new PostDetailsViewModel(post, postComments, postRelated, nextAndPreviousPost);
             return View(postDetailsViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult GetPostPaginate(int limit, int offset)
+        {
+            int countPostsPublished = uw.PostRepository.CountPostPublished();
+            var posts = uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().PersianPublishDate, "", true);
+            return PartialView("_PostPaginate", new PostPaginateViewModel(countPostsPublished, posts));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿@model MindHorizon.ViewModels.Home.HomePageViewModel
 @using MindHorizon.Common
+@using MindHorizon.ViewModels.Home
 
 @{
     ViewData["Title"] = "Index";
@@ -133,45 +134,14 @@
                     }
                     else
                     {
-                        foreach (var item in Model.Post.Take(5))
-                        {
-                            <div class="single-post-area mb-30">
-                                <div class="row align-items-center">
-                                    <div class="col-12 col-lg-6">
-                                        <!-- Post Thumbnail -->
-                                        <div class="post-thumbnail">
-                                            <img src="~/postImage/@item.ImageName" alt="@item.ImageName">
+                        <div id="PostPaginate">
+                            @await Html.PartialAsync("_PostPaginate", new PostPaginateViewModel(Model.CountPostsPublished, Model.Post.Take(5).ToList()))
+                        </div>
 
-                                            <!-- Video Duration -->
-                                            <span class="video-duration">@item.PublishDateTime.Value.ToString("HH:mm")</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-lg-6">
-                                        <!-- Post Content -->
-                                        <div class="post-content mt-0">
-                                            <a href="#" class="post-cata cata-sm cata-success">@item.NameOfCategories</a>
-                                            <a href="/Posts/@item.PostId/@item.Url" class="post-title mb-2">
-                                                @item.Title
-                                            </a>
-                                            <div class="post-meta d-flex align-items-center mb-2">
-                                                <a href="#" class="post-author">@item.AuthorName</a>
-                                                <i class="fa fa-circle" aria-hidden="true"></i>
-                                                <a href="#" class="post-date">@item.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy")</a>
-                                            </div>
-                                            <p class="mb-2">
-                                                @item.Abstract
-                                            </p>
-                                            <div class="post-meta d-flex float-left">
-                                                <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i>@item.NumberOfComments</a>
-                                                <a href="#"><i class="fa fa-eye" aria-hidden="true"></i>@item.NumberOfVisit</a>
-                                                <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i>@item.NumberOfLike</a>
-                                                <a href="#"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i>@item.NumberOfDisLike</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
+
+                        <div id="page" class="mt-5">
+                            <ul class="pagination"></ul>
+                        </div>
                     }
                     <!-- Single Post Area -->
 
@@ -188,22 +158,7 @@
                         @await Html.PartialAsync("_MostPopularPosts", Model.MostPopularPosts)
                     }
 
-                    <!-- ***** Single Widget ***** -->
-                    @*<div class="single-widget newsletter-widget mb-4 border">*@
-                        <!-- Section Heading -->
-                        @*<div class="section-heading style-2 mb-30">
-                            <h4>عضویت در خبرنامه</h4>
-                            <div class="line"></div>
-                        </div>
-                        <p>جهت دریافت جدیدترین اخبار ایمیل خود را وارد کنید.</p>*@
-                        <!-- Newsletter Form -->
-                        @*<div class="newsletter-form">
-                            <form action="#" method="post">
-                                <input type="email" name="nl-email" class="form-control mb-15" id="emailnl" placeholder="ایمیل خود را وارد کنید">
-                                <button type="submit" class="btn vizew-btn w-100">عضویت</button>
-                            </form>
-                        </div>
-                    </div>*@
+
 
                     <!-- ***** Single Widget ***** -->
                     <div id="MostTalkPostsDiv">
@@ -218,4 +173,28 @@
         </div>
     </div>
 </section>
+<script src="~/js/pagination.min.js"></script>
+
+<script type="text/javascript">
+$(function() {
+	$('#page').Pagination({
+            size: @Model.CountPostsPublished,
+            limit: 5,
+    	}, function(obj){
+              var offset=(obj.page-1)*5;
+              $.ajax({
+                url: '/Home/GetPostPaginate?offset='+offset+'&&limit=5',
+                beforeSend: function () { $('#modal-placeholder').after('<div class="preloader d-flex align-items-center justify-content-center"><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>');},
+                complete: function () { $('.preloader').remove();},
+                error: function () {
+                     ShowSweetErrorAlert();
+                }
+             }).done(function (result) {
+                $("#PostPaginate").html(result);
+             });
+    	});
+});
+
+</script>
+
 <!-- ##### Vizew Psot Area End ##### -->

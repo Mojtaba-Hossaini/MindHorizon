@@ -149,6 +149,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrUpdate(PostViewModel viewModel, string submitButton)
         {
+            viewModel.Url = viewModel.Url.Trim();
             ViewBag.Tags = _uw._Context.Tags.Select(t => t.TagName).ToList();
             viewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), viewModel.CategoryIds);
             if (!viewModel.FuturePublish)
