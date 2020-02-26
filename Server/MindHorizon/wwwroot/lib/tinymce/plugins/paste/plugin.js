@@ -4,7 +4,7 @@
  * For LGPL see License.txt in the project root for license information.
  * For commercial licenses see https://www.tiny.cloud/
  *
- * Version: 5.1.6 (2020-01-28)
+ * Version: 5.0.14 (2019-08-19)
  */
 (function (domGlobals) {
     'use strict';
@@ -103,8 +103,6 @@
     };
     var Commands = { register: register };
 
-    var noop = function () {
-    };
     var constant = function (value) {
       return function () {
         return value;
@@ -113,6 +111,8 @@
     var never = constant(false);
     var always = constant(true);
 
+    var never$1 = never;
+    var always$1 = always;
     var none = function () {
       return NONE;
     };
@@ -126,27 +126,37 @@
       var id = function (n) {
         return n;
       };
+      var noop = function () {
+      };
+      var nul = function () {
+        return null;
+      };
+      var undef = function () {
+        return undefined;
+      };
       var me = {
         fold: function (n, s) {
           return n();
         },
-        is: never,
-        isSome: never,
-        isNone: always,
+        is: never$1,
+        isSome: never$1,
+        isNone: always$1,
         getOr: id,
         getOrThunk: call,
         getOrDie: function (msg) {
           throw new Error(msg || 'error: getOrDie called on none.');
         },
-        getOrNull: constant(null),
-        getOrUndefined: constant(undefined),
+        getOrNull: nul,
+        getOrUndefined: undef,
         or: id,
         orThunk: call,
         map: none,
+        ap: none,
         each: noop,
         bind: none,
-        exists: never,
-        forall: always,
+        flatten: none,
+        exists: never$1,
+        forall: always$1,
         filter: none,
         equals: eq,
         equals_: eq,
@@ -161,9 +171,14 @@
       return me;
     }();
     var some = function (a) {
-      var constant_a = constant(a);
+      var constant_a = function () {
+        return a;
+      };
       var self = function () {
         return me;
+      };
+      var map = function (f) {
+        return some(f(a));
       };
       var bind = function (f) {
         return f(a);
@@ -175,8 +190,8 @@
         is: function (v) {
           return a === v;
         },
-        isSome: always,
-        isNone: never,
+        isSome: always$1,
+        isNone: never$1,
         getOr: constant_a,
         getOrThunk: constant_a,
         getOrDie: constant_a,
@@ -184,31 +199,35 @@
         getOrUndefined: constant_a,
         or: self,
         orThunk: self,
-        map: function (f) {
-          return some(f(a));
+        map: map,
+        ap: function (optfab) {
+          return optfab.fold(none, function (fab) {
+            return some(fab(a));
+          });
         },
         each: function (f) {
           f(a);
         },
         bind: bind,
+        flatten: constant_a,
         exists: bind,
         forall: bind,
         filter: function (f) {
           return f(a) ? me : NONE;
+        },
+        equals: function (o) {
+          return o.is(a);
+        },
+        equals_: function (o, elementEq) {
+          return o.fold(never$1, function (b) {
+            return elementEq(a, b);
+          });
         },
         toArray: function () {
           return [a];
         },
         toString: function () {
           return 'some(' + a + ')';
-        },
-        equals: function (o) {
-          return o.is(a);
-        },
-        equals_: function (o, elementEq) {
-          return o.fold(never, function (b) {
-            return elementEq(a, b);
-          });
         }
       };
       return me;
@@ -242,27 +261,27 @@
     };
     var isFunction = isType('function');
 
-    var nativeSlice = Array.prototype.slice;
+    var slice = Array.prototype.slice;
     var map = function (xs, f) {
       var len = xs.length;
       var r = new Array(len);
       for (var i = 0; i < len; i++) {
         var x = xs[i];
-        r[i] = f(x, i);
+        r[i] = f(x, i, xs);
       }
       return r;
     };
     var each = function (xs, f) {
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        f(x, i);
+        f(x, i, xs);
       }
     };
     var filter = function (xs, pred) {
       var r = [];
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        if (pred(x, i)) {
+        if (pred(x, i, xs)) {
           r.push(x);
         }
       }
@@ -275,7 +294,7 @@
       return acc;
     };
     var from$1 = isFunction(Array.from) ? Array.from : function (x) {
-      return nativeSlice.call(x);
+      return slice.call(x);
     };
 
     var exports$1 = {}, module = { exports: exports$1 };
@@ -919,8 +938,9 @@
     var par$1 = function (futures) {
       return par(futures, Future.nu);
     };
-    var traverse = function (array, fn) {
-      return par$1(map(array, fn));
+    var mapM = function (array, fn) {
+      var futures = map(array, fn);
+      return par$1(futures);
     };
 
     var value = function () {
@@ -1021,11 +1041,11 @@
 
     var global$7 = tinymce.util.Tools.resolve('tinymce.html.DomParser');
 
-    var global$8 = tinymce.util.Tools.resolve('tinymce.html.Serializer');
+    var global$8 = tinymce.util.Tools.resolve('tinymce.html.Node');
 
-    var global$9 = tinymce.util.Tools.resolve('tinymce.html.Node');
+    var global$9 = tinymce.util.Tools.resolve('tinymce.html.Schema');
 
-    var global$a = tinymce.util.Tools.resolve('tinymce.html.Schema');
+    var global$a = tinymce.util.Tools.resolve('tinymce.html.Serializer');
 
     var shouldBlockDrop = function (editor) {
       return editor.getParam('paste_block_drop', false);
@@ -1098,7 +1118,7 @@
       return content;
     }
     function innerText(html) {
-      var schema = global$a();
+      var schema = global$9();
       var domParser = global$7({}, schema);
       var text = '';
       var shortEndedElements = schema.getShortEndedElements();
@@ -1258,7 +1278,7 @@
         }
         if (!currentListNode || currentListNode.name !== listName) {
           prevListNode = prevListNode || currentListNode;
-          currentListNode = new global$9(listName, 1);
+          currentListNode = new global$8(listName, 1);
           if (start > 1) {
             currentListNode.attr('start', '' + start);
           }
@@ -1370,11 +1390,11 @@
       });
       if (/(bold)/i.test(outputStyles['font-weight'])) {
         delete outputStyles['font-weight'];
-        node.wrap(new global$9('b', 1));
+        node.wrap(new global$8('b', 1));
       }
       if (/(italic)/i.test(outputStyles['font-style'])) {
         delete outputStyles['font-style'];
-        node.wrap(new global$9('i', 1));
+        node.wrap(new global$8('i', 1));
       }
       outputStyles = editor.dom.serializeStyle(outputStyles, node.name);
       if (outputStyles) {
@@ -1409,7 +1429,7 @@
         ]
       ]);
       var validElements = Settings.getWordValidElements(editor);
-      var schema = global$a({
+      var schema = global$9({
         valid_elements: validElements,
         valid_children: '-li[p]'
       });
@@ -1485,7 +1505,7 @@
       if (Settings.shouldConvertWordFakeLists(editor)) {
         convertFakeListsToProperLists(rootNode);
       }
-      content = global$8({ validate: editor.settings.validate }, schema).serialize(rootNode);
+      content = global$a({ validate: editor.settings.validate }, schema).serialize(rootNode);
       return content;
     };
     var preProcess = function (editor, content) {
@@ -1496,19 +1516,6 @@
       isWordContent: isWordContent
     };
 
-    var preProcess$1 = function (editor, html) {
-      var parser = global$7({}, editor.schema);
-      parser.addNodeFilter('meta', function (nodes) {
-        global$4.each(nodes, function (node) {
-          return node.remove();
-        });
-      });
-      var fragment = parser.parse(html, {
-        forced_root_block: false,
-        isRootContent: true
-      });
-      return global$8({ validate: editor.settings.validate }, editor.schema).serialize(fragment);
-    };
     var processResult = function (content, cancelled) {
       return {
         content: content,
@@ -1522,11 +1529,10 @@
     };
     var filterContent = function (editor, content, internal, isWordHtml) {
       var preProcessArgs = Events.firePastePreProcess(editor, content, internal, isWordHtml);
-      var filteredContent = preProcess$1(editor, preProcessArgs.content);
       if (editor.hasEventListeners('PastePostProcess') && !preProcessArgs.isDefaultPrevented()) {
-        return postProcessFilter(editor, filteredContent, internal, isWordHtml);
+        return postProcessFilter(editor, preProcessArgs.content, internal, isWordHtml);
       } else {
-        return processResult(filteredContent, preProcessArgs.isDefaultPrevented());
+        return processResult(preProcessArgs.content, preProcessArgs.isDefaultPrevented());
       }
     };
     var process = function (editor, html, internal) {
@@ -1536,8 +1542,15 @@
     };
     var ProcessFilters = { process: process };
 
+    var removeMeta = function (editor, html) {
+      var body = editor.dom.create('body', {}, html);
+      global$4.each(body.querySelectorAll('meta'), function (elm) {
+        return elm.parentNode.removeChild(elm);
+      });
+      return body.innerHTML;
+    };
     var pasteHtml = function (editor, html) {
-      editor.insertContent(html, {
+      editor.insertContent(removeMeta(editor, html), {
         merge: Settings.shouldMergeFormats(editor),
         paste: true
       });
@@ -1580,8 +1593,8 @@
         return action(editor, html, pasteHtml) !== true;
       });
     };
-    var insertContent = function (editor, html, pasteAsText) {
-      if (pasteAsText || Settings.isSmartPasteEnabled(editor) === false) {
+    var insertContent = function (editor, html) {
+      if (Settings.isSmartPasteEnabled(editor) === false) {
         pasteHtml(editor, html);
       } else {
         smartInsertContent(editor, html);
@@ -1629,21 +1642,18 @@
       return result.str;
     };
 
-    var doPaste = function (editor, content, internal, pasteAsText) {
-      var args = ProcessFilters.process(editor, content, internal);
-      if (args.cancelled === false) {
-        SmartPaste.insertContent(editor, args.content, pasteAsText);
-      }
-    };
     var pasteHtml$1 = function (editor, html, internalFlag) {
       var internal = internalFlag ? internalFlag : InternalHtml.isMarked(html);
-      doPaste(editor, InternalHtml.unmark(html), internal, false);
+      var args = ProcessFilters.process(editor, InternalHtml.unmark(html), internal);
+      if (args.cancelled === false) {
+        SmartPaste.insertContent(editor, args.content);
+      }
     };
     var pasteText = function (editor, text) {
       var encodedText = editor.dom.encode(text).replace(/\r\n/g, '\n');
       var normalizedText = normalizeWhitespace(encodedText);
       var html = Newlines.convert(normalizedText, editor.settings.forced_root_block, editor.settings.forced_root_block_attrs);
-      doPaste(editor, html, false, true);
+      pasteHtml$1(editor, html, false);
     };
     var getDataTransferItems = function (dataTransfer) {
       var items = {};
@@ -1723,7 +1733,7 @@
       return event.type === 'paste';
     };
     var readBlobsAsDataUris = function (items) {
-      return traverse(items, function (item) {
+      return mapM(items, function (item) {
         return Future.nu(function (resolve) {
           var blob = item.getAsFile ? item.getAsFile() : item;
           var reader = new window.FileReader();
@@ -1806,7 +1816,7 @@
         }
       });
       function insertClipboardContent(clipboardContent, isKeyBoardPaste, plainTextMode, internal) {
-        var content, isPlainTextHtml, isImage;
+        var content, isPlainTextHtml;
         if (hasContentType(clipboardContent, 'text/html')) {
           content = clipboardContent['text/html'];
         } else {
@@ -1819,11 +1829,10 @@
         content = Utils.trimHtml(content);
         pasteBin.remove();
         isPlainTextHtml = internal === false && Newlines.isPlainText(content);
-        isImage = SmartPaste.isImageUrl(content);
-        if (!content.length || isPlainTextHtml && !isImage) {
+        if (!content.length || isPlainTextHtml) {
           plainTextMode = true;
         }
-        if (plainTextMode || isImage) {
+        if (plainTextMode) {
           if (hasContentType(clipboardContent, 'text/plain') && isPlainTextHtml) {
             content = clipboardContent['text/plain'];
           } else {
@@ -2055,6 +2064,8 @@
       };
     };
 
+    var noop = function () {
+    };
     var hasWorkingClipboardApi = function (clipboardData) {
       return global$2.iOS === false && clipboardData !== undefined && typeof clipboardData.setData === 'function' && Utils.isMsEdge() !== true;
     };
@@ -2126,15 +2137,9 @@
       return function (evt) {
         if (hasSelectedContent(editor)) {
           setClipboardData(evt, getData(editor), fallback(editor), function () {
-            if (global$2.browser.isChrome()) {
-              var rng_1 = editor.selection.getRng();
-              global$3.setEditorTimeout(editor, function () {
-                editor.selection.setRng(rng_1);
-                editor.execCommand('Delete');
-              }, 0);
-            } else {
+            global$3.setTimeout(function () {
               editor.execCommand('Delete');
-            }
+            }, 0);
           });
         }
       };
@@ -2142,8 +2147,7 @@
     var copy = function (editor) {
       return function (evt) {
         if (hasSelectedContent(editor)) {
-          setClipboardData(evt, getData(editor), fallback(editor), function () {
-          });
+          setClipboardData(evt, getData(editor), fallback(editor), noop);
         }
       };
     };

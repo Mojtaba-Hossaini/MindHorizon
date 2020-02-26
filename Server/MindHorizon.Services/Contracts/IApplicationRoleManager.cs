@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using MindHorizon.Entities.Identity;
-using MindHorizon.ViewModels.RoleManager;
-using MindHorizon.ViewModels.UserManager;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MindHorizon.ViewModels.RoleManager;
+using MindHorizon.ViewModels.UserManager;
 
 namespace MindHorizon.Services.Contracts
 {

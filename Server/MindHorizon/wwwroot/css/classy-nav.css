@@ -61,8 +61,11 @@ img {
     left: 0; }
   .classy-nav-container.box-skins .classynav > ul > li {
     background-color: #1abc9c; }
-    .classy-nav-container.box-skins .classynav > ul > li > a {
-      color: #fff; }
+    .classy-nav-container.box-skins .classynav > ul > li > a{
+        color: #fff !important;
+    }
+
+
 
 .justify-content-between {
   -webkit-box-pack: justify;
@@ -334,7 +337,7 @@ img {
   position: absolute;
   background-color: #ffffff;
   top: 120%;
-  left: 0;
+  right: 0;
   z-index: 100;
   height: auto;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);

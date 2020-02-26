@@ -1,14 +1,16 @@
 ﻿using MindHorizon.ViewModels.Post;
 using MindHorizon.ViewModels.Video;
+using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MindHorizon.ViewModels.Home
 {
-    public class HomePageViewModel
+    public  class HomePageViewModel
     {
-        public HomePageViewModel(List<PostViewModel> post, List<PostViewModel> mostViewedPosts, List<PostViewModel> mostTalkPosts, List<PostViewModel> mostPopularPosts, List<VideoViewModel> videos, int countPostsPublished)
+        public HomePageViewModel(List<PostViewModel> posts, List<PostViewModel> mostViewedPosts, List<PostViewModel> mostTalkPosts, List<PostViewModel> mostPopularPosts, List<VideoViewModel> videos, int countPostsPublished)
         {
-            Post = post;
+            Posts = posts;
             MostViewedPosts = mostViewedPosts;
             MostTalkPosts = mostTalkPosts;
             MostPopularPosts = mostPopularPosts;
@@ -16,11 +18,11 @@ namespace MindHorizon.ViewModels.Home
             CountPostsPublished = countPostsPublished;
         }
 
-        public List<PostViewModel> Post { get; set; }
-        public List<PostViewModel> MostViewedPosts { get; }
-        public List<PostViewModel> MostTalkPosts { get; }
-        public List<PostViewModel> MostPopularPosts { get; }
-        public List<VideoViewModel> Videos { get; }
+        public List<PostViewModel> Posts { get; set; }
+        public List<PostViewModel> MostViewedPosts { get; set; }
+        public List<PostViewModel> MostTalkPosts { get; set; }
+        public List<PostViewModel> MostPopularPosts { get; set; }
+        public List<VideoViewModel> Videos { get; set; }
         public int CountPostsPublished { get; set; }
     }
 }

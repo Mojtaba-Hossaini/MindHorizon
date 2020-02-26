@@ -1,6 +1,7 @@
 ﻿using MindHorizon.ViewModels.Comments;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MindHorizon.Data.Contracts
 {

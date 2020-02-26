@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace MindHorizon.ViewComponents
 {
-    public class RandomPostList : ViewComponent
+    public class RandomPostsList : ViewComponent
     {
         private readonly IUnitOfWork _uw;
-        public RandomPostList(IUnitOfWork uw)
+        public RandomPostsList(IUnitOfWork uw)
         {
             _uw = uw;
         }
@@ -24,9 +24,9 @@ namespace MindHorizon.ViewComponents
             int randomRow;
             for (int i=0;i<number;i++)
             {
-                randomRow = CustomMethods.RandomNumber(1, _uw.PostRepository.CountPostPublished()+1);
-                var posts = await _uw._Context.Post.Where(n => n.IsPublish == true && n.PublishDateTime <= DateTime.Now).Select(n => new PostViewModel { Title = n.Title, Url = n.Url, PostId = n.PostId, ImageName = n.ImageName }).Skip(randomRow-1).Take(1).FirstOrDefaultAsync();
-                postsList.Add(posts);
+                randomRow = CustomMethods.RandomNumber(1, _uw.PostRepository.CountPostsPublished()+1);
+                var post = await _uw._Context.Post.Where(n => n.IsPublish == true && n.PublishDateTime <= DateTime.Now).Select(n => new PostViewModel { Title = n.Title, Url = n.Url, PostId = n.PostId, ImageName = n.ImageName }).Skip(randomRow-1).Take(1).FirstOrDefaultAsync();
+                postsList.Add(post);
             }
            
             return View(postsList);

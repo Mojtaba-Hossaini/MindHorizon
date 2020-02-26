@@ -6,13 +6,13 @@
         @foreach (var item in Model.OrderBy(t=>t.title))
         {
             <li>
-                <a href="/@item.id/@item.url">@item.title</a>
+                <a href="/Category/@item.id/@item.url">@item.title</a>
                 @if (item.subs.Count() != 0)
                 {
                     <ul class="dropdown">
                         @foreach (var sub in item.subs)
                         {
-                            <li><a href="/@sub.id/@sub.url">@sub.title</a></li>
+                            <li><a href="/Category/@sub.id/@sub.url">@sub.title</a></li>
                         }
 
                     </ul>
@@ -21,6 +21,6 @@
             </li>
         }
 
-        <li><a href="contact.html">ویدیوها</a></li>
+        <li><a href="/Videos">ویدیوها</a></li>
     </ul>
 </div>

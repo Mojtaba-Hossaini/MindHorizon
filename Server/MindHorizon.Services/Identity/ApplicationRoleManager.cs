@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MindHorizon.Common;
 using MindHorizon.Entities.Identity;
 using MindHorizon.Services.Contracts;
 using MindHorizon.ViewModels.RoleManager;
@@ -9,10 +7,13 @@ using MindHorizon.ViewModels.UserManager;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using System;
+using MindHorizon.Common;
 
 namespace MindHorizon.Services.Identity
 {
-    public class ApplicationRoleManager : RoleManager<Role>, IApplicationRoleManager
+    public class ApplicationRoleManager : RoleManager<Role> , IApplicationRoleManager
     {
         private readonly IdentityErrorDescriber _errors;
         private readonly IApplicationUserManager _userManager;
@@ -74,10 +75,10 @@ namespace MindHorizon.Services.Identity
         }
 
 
-        public async Task<IdentityResult> AddOrUpdateClaimsAsync(int roleId, string roleClaimType, IList<string> SelectedRoleClaimValues)
+        public async Task<IdentityResult> AddOrUpdateClaimsAsync(int roleId,string roleClaimType,IList<string> SelectedRoleClaimValues)
         {
             var Role = await FindClaimsInRole(roleId);
-            if (Role == null)
+            if(Role==null)
             {
                 return IdentityResult.Failed(new IdentityError
                 {
@@ -91,18 +92,18 @@ namespace MindHorizon.Services.Identity
                 SelectedRoleClaimValues = new List<string>();
 
             var NewClaimValuesToAdd = SelectedRoleClaimValues.Except(CurrentRoleClaimValues).ToList();
-            foreach (var claim in NewClaimValuesToAdd)
+            foreach(var claim in NewClaimValuesToAdd)
             {
                 Role.Claims.Add(new RoleClaim
                 {
-                    RoleId = roleId,
-                    ClaimType = roleClaimType,
-                    ClaimValue = claim,
+                    RoleId=roleId,
+                    ClaimType=roleClaimType,
+                    ClaimValue=claim,
                 });
             }
 
             var removedClaimValues = CurrentRoleClaimValues.Except(SelectedRoleClaimValues).ToList();
-            foreach (var claim in removedClaimValues)
+            foreach(var claim in removedClaimValues)
             {
                 var roleClaim = Role.Claims.SingleOrDefault(r => r.ClaimValue == claim && r.ClaimType == roleClaimType);
                 if (roleClaim != null)
@@ -149,7 +150,7 @@ namespace MindHorizon.Services.Identity
             }).Skip(offset).Take(limit).ToListAsync();
 
             if (roleNameSortAsc != null)
-                roles = roles.OrderBy(t => (roleNameSortAsc == true && roleNameSortAsc != null) ? t.Name : "").OrderByDescending(t => (roleNameSortAsc == false && roleNameSortAsc != null) ? t.Name : "").ToList();
+               roles = roles.OrderBy(t => (roleNameSortAsc == true && roleNameSortAsc != null) ? t.Name : "").OrderByDescending(t => (roleNameSortAsc == false && roleNameSortAsc != null) ? t.Name : "").ToList();
 
             foreach (var item in roles)
                 item.Row = ++offset;

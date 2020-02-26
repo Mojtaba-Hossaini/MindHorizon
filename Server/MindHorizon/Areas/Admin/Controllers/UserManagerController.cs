@@ -1,4 +1,8 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,9 +11,6 @@ using MindHorizon.Data.Contracts;
 using MindHorizon.Entities.Identity;
 using MindHorizon.Services.Contracts;
 using MindHorizon.ViewModels.UserManager;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
@@ -19,6 +20,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         private readonly IApplicationRoleManager _roleManager;
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
+        private readonly IUnitOfWork _uw;
         private const string UserNotFound = "کاربر یافت نشد.";
         public UserManagerController(IApplicationUserManager userManager, IMapper mapper, IApplicationRoleManager roleManager, IHostingEnvironment env)
         {
@@ -56,45 +58,45 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "نام")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, true, null, null, null, null, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, true, null, null, null,null, search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, false, null, null, null, null, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, false, null, null, null,null, search);
             }
 
             else if (sort == "نام خانوادگی")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, true, null, null, null, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, true, null, null,null, search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, false, null, null, null, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, false, null, null,null, search);
             }
 
             else if (sort == "ایمیل")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, true, null, null, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, true, null,null, search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, false, null, null, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, false, null,null, search);
             }
 
             else if (sort == "نام کاربری")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, true, null, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, true,null, search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, false, null, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, false,null, search);
             }
 
             else if (sort == "تاریخ عضویت")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, null, true, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null,null, true, search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, null, false, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null,null, false, search);
             }
 
             else
-                allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, null, null, search);
+                allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, null,null, search);
 
             if (search != "")
                 total = allUsers.Count();
@@ -125,22 +127,21 @@ namespace MindHorizon.Areas.Admin.Controllers
         public async Task<IActionResult> CreateOrUpdate(UsersViewModel viewModel)
         {
             ViewBag.Roles = _roleManager.GetAllRoles();
-            if (viewModel.Id != null)
+            if (viewModel.Id!=null)
             {
                 ModelState.Remove("Password");
                 ModelState.Remove("ConfirmPassword");
                 ModelState.Remove("ImageFile");
             }
-
+           
             if (ModelState.IsValid)
             {
-                IdentityResult result = null;
+                IdentityResult result=null;
                 if (viewModel.ImageFile != null)
                     viewModel.Image = _userManager.CheckAvatarFileName(viewModel.ImageFile.FileName);
 
-                viewModel.Roles = new List<UserRole> { new UserRole { RoleId = (int)viewModel.RoleId } };
-                viewModel.BirthDate = viewModel.PersianBirthDate.ConvertShamsiToMiladi();
-
+                viewModel.Roles= new List<UserRole> { new UserRole { RoleId = (int)viewModel.RoleId } };
+                viewModel.BirthDate= viewModel.PersianBirthDate.ConvertShamsiToMiladi();
                 if (viewModel.Id != null)
                 {
                     var user = await _userManager.FindByIdAsync(viewModel.Id.ToString());
@@ -152,6 +153,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                     user.Gender = viewModel.Gender.Value;
                     user.PhoneNumber = viewModel.PhoneNumber;
                     user.Roles = viewModel.Roles;
+                    user.Bio = viewModel.Bio;
                     var userRoles = await _userManager.GetRolesAsync(user);
 
                     if (viewModel.ImageFile != null)
@@ -170,7 +172,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                 {
                     await viewModel.ImageFile.UploadFileAsync($"{_env.WebRootPath}/avatars/{viewModel.Image}");
                     viewModel.EmailConfirmed = true;
-                    result = await _userManager.CreateAsync(_mapper.Map<User>(viewModel), viewModel.Password);
+                    result = await _userManager.CreateAsync(_mapper.Map<User>(viewModel),viewModel.Password);
                 }
 
                 if (result.Succeeded)
@@ -187,12 +189,12 @@ namespace MindHorizon.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(string userId)
         {
             if (!userId.HasValue())
-                ModelState.AddModelError(string.Empty, UserNotFound);
+                ModelState.AddModelError(string.Empty,UserNotFound);
             else
             {
                 var user = await _userManager.FindByIdAsync(userId.ToString());
                 if (user == null)
-                    ModelState.AddModelError(string.Empty, UserNotFound);
+                    ModelState.AddModelError(string.Empty,UserNotFound);
                 else
                     return PartialView("_DeleteConfirmation", user);
             }
@@ -213,7 +215,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                 {
                     FileExtensions.DeleteFile($"{_env.WebRootPath}/avatars/{user.Image}");
                     TempData["notification"] = DeleteSuccess;
-                    return PartialView("_DeleteConfirmation", user);
+                    return PartialView("_DeleteConfirmation",user);
                 }
                 else
                     ModelState.AddErrorsFromResult(result);

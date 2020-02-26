@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
 
 namespace MindHorizon.Entities
 {
@@ -17,5 +19,6 @@ namespace MindHorizon.Entities
         public ICollection<PostCategory> PostCategories { get; set; }
         public virtual Category Parent { get; set; }
         public virtual List<Category> Categories { get; set; }
+
     }
 }

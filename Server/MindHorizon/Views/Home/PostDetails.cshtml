@@ -5,10 +5,7 @@
     ViewData["Title"] = "PostDetails";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<script src="~/js/Ajax.js"></script>
-<!-- Sweetalert2 -->
-<link href="~/lib/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet" />
-<script src="~/lib/sweetalert2/dist/sweetalert2.min.js"></script>
+
 <style>
     .post-meta.d-flex a i {
         font-size: 15px !important;
@@ -90,7 +87,7 @@
                         <!-- Post Content -->
                         <div class="post-content mt-0">
                             <a href="#" class="post-cata cata-sm cata-danger">@Model.Post.NameOfCategories</a>
-                            <a href="#" class="post-title mb-2">@Model.Post.Title</a>
+                            <a href="single-post.html" class="post-title mb-2">@Model.Post.Title</a>
 
                             <div class="d-flex justify-content-between mb-30">
                                 <div class="post-meta d-flex align-items-center">
@@ -117,10 +114,11 @@
                                 @if (Model.Post.TagNamesList.Count() != 0)
                                 {
                                     <ul>
-                                        @foreach (var item in Model.Post.TagNamesList)
+                                        @for (var i = 0; i < Model.Post.TagNamesList.Count; i++)
                                         {
-                                            <li><a href="#">@item</a></li>
+                                            <li><a href="/Tag/@Model.Post.TagIdsList[i]">@Model.Post.TagNamesList[i]</a></li>
                                         }
+
                                     </ul>
                                 }
                             </div>
@@ -129,11 +127,11 @@
                         <!-- Post Author -->
                         <div class="vizew-post-author d-flex align-items-center py-2">
                             <div class="post-author-thumb">
-                                <img src="~/avatars/@Model.Post.AuthorInfo.Image" alt="@Model.Post.AuthorInfo.Image" height="120">
+                                <img src="~/avatars/@Model.Post.AuthorInfo.Image" alt="@Model.Post.AuthorInfo.Image" height="90">
                             </div>
                             <div class="post-author-desc pr-4">
                                 <h6 href="#" class="author-name"> نویسنده : @Model.Post.AuthorInfo.FirstName  @Model.Post.AuthorInfo.LastName</h6>
-                                <p>توضیحات نویسنده درباره خودش در اینجا نوشته شود...</p>
+                                <p>@Model.Post.AuthorInfo.Bio</p>
                             </div>
                         </div>
 
@@ -171,13 +169,12 @@
                             }
                             else
                             {
-                                <p class="alert alert-info">پست مرتبط با این مطلب یافت نشد .</p>
+                        <p class="alert alert-info">مطلب مرتبط با این پست یافت نشد .</p>
                             }
                         </div>
 
                         <!-- Comment Area Start -->
-                        <!-- Comment Area Start -->
-                        <div class="comment_area clearfix mb-50 bg-parentComment p-2">
+                        <div class="comment_area clearfix mb-50">
 
                             <!-- Section Title -->
                             <div class="section-heading style-2">
@@ -189,9 +186,9 @@
                                 <ul>
                                     @foreach (var item in Model.Comments)
                                     {
-                                        <li class="single_comment_area bg-Comment m-4 p-2" >
+                                        <li class="single_comment_area">
                                             <!-- Comment Content -->
-                                            <div id="@("comment-"+item.CommentId)" class="comment-content d-flex m-1">
+                                            <div id="@("comment-"+item.CommentId)" class="comment-content d-flex">
                                                 <!-- Comment Author -->
                                                 <div class="comment-author">
                                                     <img src="~/assets/img/UserPic.png" alt="author">
@@ -212,13 +209,13 @@
                                                 <ol class="children">
                                                     @foreach (var sub in item.comments)
                                                     {
-                                                        <li class="single_comment_area m-1 bg-Comment m-1 p-1">
-                                                            <div id="@("comment-"+sub.CommentId)" class="comment-content d-flex bg-subComment">
-                                                                <div class="comment-author m-2">
+                                                        <li class="single_comment_area">
+                                                            <div id="@("comment-"+sub.CommentId)" class="comment-content d-flex">
+                                                                <div class="comment-author">
                                                                     <img src="~/assets/img/UserPic.png" alt="author">
                                                                 </div>
-                                                                <div class="comment-meta m-2">
-                                                                    <a href="#" class="comment-date text-info">@sub.PostageDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm")</a>
+                                                                <div class="comment-meta">
+                                                                    <a href="#" class="comment-date">@sub.PostageDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm")</a>
                                                                     <h6>@sub.Name</h6>
                                                                     <p>@sub.Desription</p>
                                                                     <div class="d-flex align-items-center">
@@ -244,7 +241,7 @@
                             }
                             else
                             {
-                                <p class="alert alert-info mb-0">دیدگاهی برای این خبر ارسال نشده است.</p>
+                        <p class="alert alert-info mb-0">دیدگاهی برای این مطلب ارسال نشده است.</p>
                             }
 
                         </div>

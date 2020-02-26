@@ -9,9 +9,9 @@
                 <div class="col-md-12 ">
                     <nav>
                         <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                            <a class="nav-item nav-link active most-talk" id="most-talk-day-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="day",typeOfPosts="MostTalkPosts"})">امروز</a>
-                            <a class="nav-item nav-link most-talk" id="-most-talk-week-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="week",typeOfPosts="MostTalkPosts"})">هفته</a>
-                            <a class="nav-item nav-link most-talk" id="-most-talk-month-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="month",typeOfPosts="MostTalkPosts"})">ماه</a>
+                            <a class="nav-item nav-link active most-talk" id="most-talk-day-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="day",TypeOfPosts="MostTalkPosts"})">امروز</a>
+                            <a class="nav-item nav-link most-talk" id="-most-talk-week-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="week",TypeOfPosts="MostTalkPosts"})">هفته</a>
+                            <a class="nav-item nav-link most-talk" id="-most-talk-month-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="month",TypeOfPosts="MostTalkPosts"})">ماه</a>
                         </div>
                     </nav>
                     <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
@@ -25,7 +25,7 @@
                                             <img src="~/postImage/@item.ImageName" alt="@item.ImageName">
                                         </div>
                                         <div class="post-content">
-                                            <a href="/@item.PostId/@item.Url" class="post-title">
+                                            <a href="/Posts/@item.PostId/@item.Url" class="post-title">
                                                 @item.ShortTitle
                                             </a>
                                             <div class="post-meta d-flex justify-content-between">
@@ -38,13 +38,12 @@
                                     </div>
 
                                 }
+
                             }
                             else
                             {
-                                <p class="alert alert-primary">پر بحث ترین مطالب یافت نشد</p>
+                                <p class="alert alert-primary">پربحث ترین  مطالب یافت نشد...</p>
                             }
-
-
                         </div>
                     </div>
 

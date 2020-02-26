@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <!-- Title -->
-    <title>افق ذهنی</title>
+    <title>وب سایت افق فکر</title>
 
     <!-- Favicon -->
     <link rel="icon" href="/assets/img/core-img/favicon.ico">
@@ -16,6 +16,9 @@
     <!-- Stylesheet -->
     <link rel="stylesheet" href="~/css/style.css">
     <script src="~/assets/vendor/jquery/dist/jquery-2.2.4.min.js"></script>
+    <script src="~/js/Ajax.js"></script>
+    <link href="~/lib/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/dist/sweetalert2.min.js"></script>
 
 </head>
 
@@ -39,17 +42,17 @@
                 <div class="row align-items-center">
                     <div class="col-12 col-md-6">
                         <!-- Breaking News Widget -->
-                        @await Component.InvokeAsync("LatestPostTitleList")
+                        @await  Component.InvokeAsync("LatestPostsTitleList")
                     </div>
                     <div class="col-12 col-md-6">
                         <div class="top-meta-data d-flex align-items-center justify-content-end">
                             <!-- Top Social Info -->
                             <div class="top-social-info">
                                 <a href="#"><i class="fa fa-facebook"></i></a>
-                                <a href="#"><i class="fa fa-twitter"></i></a>
-                                <a href="#"><i class="fa fa-pinterest"></i></a>
+                                <a href="#"><i class="fa fa-instagram"></i></a>
+                                <a href="#"><i class="fa fa-google-plus"></i></a>
                                 <a href="#"><i class="fa fa-linkedin"></i></a>
-                                <a href="#"><i class="fa fa-youtube-play"></i></a>
+                                <a href="#"><i class="fa fa-telegram"></i></a>
                             </div>
                             <!-- Top Search Area -->
                             <div class="top-search-area">
@@ -59,7 +62,7 @@
                                 </form>
                             </div>
                             <!-- Login -->
-                            <a href="login.html" class="login-btn"><i class="fa fa-user" aria-hidden="true"></i></a>
+                            @await Html.PartialAsync("_UserLogin")
                         </div>
                     </div>
                 </div>
@@ -75,7 +78,7 @@
                     <nav class="classy-navbar justify-content-between" id="vizewNav">
 
                         <!-- Nav brand -->
-                        <a href="index.html" class="nav-brand"><img src="/assets/img/core-img/logo.png" alt="" height="90"> افق ذهنی </a>
+                        <a href="index.html" class="nav-brand"><img src="/assets/img/core-img/logo.png" alt="" height="90"> وب سایت افق فکر </a>
 
 
                         <!-- Navbar Toggler -->
@@ -91,7 +94,7 @@
                             </div>
 
                             <!-- Nav Start -->
-                            @await Component.InvokeAsync("CategoryList")
+                            @await  Component.InvokeAsync("CategoryList")
                             <!-- Nav End -->
                         </div>
                     </nav>
@@ -110,22 +113,16 @@
                     <div class="footer-widget mb-70">
                         <!-- Logo -->
                         <a href="index.html" class="foo-logo d-block mb-4"><img src="/assets/img/core-img/logo.png" alt="" height="80"></a>
-                        <p>افق رویداد درباره چیست...؟؟</p>
-                        <!-- Footer Newsletter Area -->
-                        <div class="footer-nl-area">
-                            <form action="#" method="post">
-                                <input type="email" name="nl-email" class="form-control" id="nlEmail" placeholder="ایمیل شما">
-                                <button type="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
-                            </form>
-                        </div>
+                        <p>بنویسیم تا سر حد پرواز فکر </p>
+
                     </div>
                 </div>
 
-                <!-- Footer Random Videos -->
+                <!-- Random Videos -->
                 @await Component.InvokeAsync("RandomVideosList", 2)
 
-                <!-- Footer Random Post -->
-                @await Component.InvokeAsync("RandomPostList", 2)
+                <!-- Random Posts -->
+                @await Component.InvokeAsync("RandomPostsList", 2)
 
                 <!-- Footer Widget Area -->
                 <div class="col-12 col-sm-6 col-xl-3">
@@ -133,16 +130,16 @@
                         <h6 class="widget-title">اطلاعات تماس</h6>
                         <!-- Contact Address -->
                         <div class="contact-address">
-                            <p>قم ، خیابان آذر</p>
+                            <p>قم ، خیابان آذر </p>
                             <p>موبایل و تلگرام 09302843490</p>
-                            <p>آدرس ایمیل: s.mojtaba1987@gmail.com</p>
+                            <p>آدرس ایمیل: info@mindhorizon.com</p>
                         </div>
                         <!-- Footer Social Area -->
                         <div class="footer-social-area">
                             <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
                             <a href="#" class="google-plus"><i class="fa fa-google-plus"></i></a>
                             <a href="#" class="instagram"><i class="fa fa-instagram"></i></a>
-                            <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
+                            <a href="#" class="twitter"><i class="fa fa-telegram"></i></a>
                             <a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a>
                         </div>
                     </div>
@@ -158,7 +155,7 @@
                     <div class="col-12 col-sm-6">
                         <p class="copywrite-text">
                             <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                            Copyright &copy  <a href="https://mindhorizon.com" target="_blank">Mind Horizon</a>
+                            Copyright &copy  <a href="https://mindhorizon.com" target="_blank">MindHorizon.com</a>
                             <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
                         </p>
                     </div>
@@ -169,7 +166,7 @@
     <!-- ##### Footer Area End ##### -->
     <!-- ##### All Javascript Script ##### -->
     <!-- jQuery-2.2.4 js -->
-    
+ 
     <script src="~/assets/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="~/js/plugins.js"></script>
     <script src="~/js/active.js"></script>

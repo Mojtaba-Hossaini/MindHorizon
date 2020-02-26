@@ -1,5 +1,4 @@
 ﻿using MindHorizon.Common;
-using MindHorizon.Data;
 using MindHorizon.Data.Contracts;
 using MindHorizon.ViewModels.Comments;
 using System;

@@ -1,4 +1,8 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common;
@@ -6,9 +10,6 @@ using MindHorizon.Common.Attributes;
 using MindHorizon.Entities.Identity;
 using MindHorizon.Services.Contracts;
 using MindHorizon.ViewModels.RoleManager;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
@@ -63,11 +64,11 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet, AjaxOnly]
+        [HttpGet,AjaxOnly]
         public async Task<IActionResult> RenderRole(int? roleId)
         {
             var roleViewModel = new RolesViewModel();
-            if (roleId != null)
+            if (roleId!=null)
             {
                 var role = await _roleManager.FindByIdAsync(roleId.ToString());
                 if (role != null)
@@ -88,7 +89,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                 if (viewModel.Id != null)
                 {
                     var role = await _roleManager.FindByIdAsync(viewModel.Id.ToString());
-                    result = await _roleManager.UpdateAsync(_mapper.Map(viewModel, role));
+                    result = await _roleManager.UpdateAsync(_mapper.Map(viewModel,role));
                 }
 
                 else
@@ -108,12 +109,12 @@ namespace MindHorizon.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(string roleId)
         {
             if (!roleId.HasValue())
-                ModelState.AddModelError(string.Empty, RoleNotFound);
+                ModelState.AddModelError(string.Empty,RoleNotFound);
             else
             {
                 var role = await _roleManager.FindByIdAsync(roleId.ToString());
                 if (role == null)
-                    ModelState.AddModelError(string.Empty, RoleNotFound);
+                    ModelState.AddModelError(string.Empty,RoleNotFound);
                 else
                     return PartialView("_DeleteConfirmation", role);
             }
@@ -133,7 +134,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                 if (result.Succeeded)
                 {
                     TempData["notification"] = DeleteSuccess;
-                    return PartialView("_DeleteConfirmation", role);
+                    return PartialView("_DeleteConfirmation",role);
                 }
                 else
                     ModelState.AddErrorsFromResult(result);

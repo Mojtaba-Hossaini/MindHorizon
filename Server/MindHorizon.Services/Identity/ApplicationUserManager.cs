@@ -124,6 +124,7 @@ namespace MindHorizon.Services.Identity
                         LastName = user.LastName,
                         IsActive = user.IsActive,
                         Image = user.Image,
+                        Bio=user.Bio,
                         PersianBirthDate = user.BirthDate.ConvertMiladiToShamsi("yyyy/MM/dd"),
                         PersianRegisterDateTime = user.RegisterDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),
                         GenderName = user.Gender == GenderType.Male ? "مرد" : "زن",

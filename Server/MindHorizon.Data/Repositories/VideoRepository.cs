@@ -20,23 +20,13 @@ namespace MindHorizon.Data.Repositories
         }
 
 
-        public async Task<List<VideoViewModel>> GetPaginateVideosAsync(int offset, int limit, bool? titleSortAsc, bool? publishDateTimeSortAsc, string searchText)
+        public List<VideoViewModel> GetPaginateVideos(int offset, int limit, Func<VideoViewModel, Object> orderByAscFunc, Func<VideoViewModel, Object> orderByDescFunc, string searchText)
         {
-            List<VideoViewModel> videos= await _context.Videos.Where(c => c.Title.Contains(searchText))
-                                    .Select(c => new VideoViewModel { VideoId = c.VideoId, Title = c.Title, Url = c.Url, Poster=c.Poster,PersianPublishDateTime=c.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"), PublishDateTime = c.PublishDateTime}).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
+            List<VideoViewModel> videos= _context.Videos.Where(c => c.Title.Contains(searchText))
+                                    .Select(c => new VideoViewModel { VideoId = c.VideoId, Title = c.Title, Url = c.Url, Poster=c.Poster,PersianPublishDateTime=c.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),PublishDateTime=c.PublishDateTime})
+                                    .OrderBy(orderByAscFunc).OrderByDescending(orderByDescFunc).Skip(offset).Take(limit).ToList();
 
-            if (titleSortAsc != null)
-            {
-                videos = videos.OrderBy(c => (titleSortAsc == true && titleSortAsc != null) ? c.Title : "")
-                                    .OrderByDescending(c => (titleSortAsc == false && titleSortAsc != null) ? c.Title : "").ToList();
-            }
-
-            else if (publishDateTimeSortAsc != null)
-            {
-                videos = videos.OrderBy(c => (publishDateTimeSortAsc == true && publishDateTimeSortAsc != null) ? c.PersianPublishDateTime : "")
-                                   .OrderByDescending(c => (publishDateTimeSortAsc == false && publishDateTimeSortAsc != null) ? c.PersianPublishDateTime : "").ToList();
-            }
-
+          
             foreach (var item in videos)
                 item.Row = ++offset;
 

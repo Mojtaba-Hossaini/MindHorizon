@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace MindHorizon.Entities
 {
@@ -17,6 +18,7 @@ namespace MindHorizon.Entities
         public string ImageName { get; set; }
         public bool IsPublish { get; set; }
         public string Abstract { get; set; }
+
         public virtual User User { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<PostCategory> PostCategories { get; set; }
@@ -25,5 +27,6 @@ namespace MindHorizon.Entities
         public virtual ICollection<Like> Likes { get; set; }
         public virtual ICollection<Visit> Visits { get; set; }
         public virtual ICollection<PostImage> PostImages { get; set; }
+
     }
 }

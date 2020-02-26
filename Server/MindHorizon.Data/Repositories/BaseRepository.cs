@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MindHorizon.Data.Contracts;
 using MindHorizon.Common;
+using MindHorizon.Data.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 
 namespace MindHorizon.Data.Repositories
 {
-
-    public class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity> where TEntity : class where TContext : DbContext
+    public class BaseRepository<TEntity,TContext> : IBaseRepository<TEntity> where TEntity : class where TContext : DbContext
     {
         protected TContext _Context { get; set; }
         private DbSet<TEntity> dbSet;
@@ -18,6 +17,7 @@ namespace MindHorizon.Data.Repositories
         {
             _Context = Context;
             _Context.CheckArgumentIsNull(nameof(_Context));
+
             dbSet = _Context.Set<TEntity>();
         }
 
@@ -36,20 +36,20 @@ namespace MindHorizon.Data.Repositories
             return await dbSet.FindAsync(id);
         }
 
-        public async Task<IEnumerable<TEntity>> FindByConditionAsync(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, params Expression<Func<TEntity, object>>[] includes)
+        public async Task<IEnumerable<TEntity>> FindByConditionAsync(Expression<Func<TEntity,bool>> filter=null,Func<IQueryable<TEntity>,IOrderedQueryable<TEntity>> orderBy=null,params Expression<Func<TEntity,object>>[] includes)
         {
             IQueryable<TEntity> query = _Context.Set<TEntity>();
-            foreach (var include in includes)
+            foreach(var include in includes)
             {
                 query = query.Include(include);
             }
 
-            if (filter != null)
+            if(filter!=null)
             {
                 query = query.Where(filter);
             }
 
-            if (orderBy != null)
+            if(orderBy!=null)
             {
                 query = orderBy(query);
             }
@@ -69,7 +69,7 @@ namespace MindHorizon.Data.Repositories
 
         public void DeleteRange(IEnumerable<TEntity> entities) => dbSet.RemoveRange(entities);
 
-        public async Task<List<TEntity>> GetPaginateResultAsync(int currentPage, int pageSize = 1)
+        public async Task<List<TEntity>> GetPaginateResultAsync(int currentPage,int pageSize=1)
         {
             var entities = await FindAllAsync();
             return entities.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
@@ -81,4 +81,3 @@ namespace MindHorizon.Data.Repositories
         }
     }
 }
-

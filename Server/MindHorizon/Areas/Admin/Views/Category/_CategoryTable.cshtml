@@ -3,6 +3,7 @@
         <button type="button" class="btn btn-success" data-toggle="ajax-modal" data-url="@Url.Action("RenderCategory","Category")">
             <i class="fa fa-plus"></i> | افزودن دسته بندی جدید
         </button>
+
         <button type="button" class="btn btn-danger" data-toggle="ajax-modal" data-url="@Url.Action("DeleteGroup","Category")">
             <i class="fa fa-trash"></i> | حذف گروهی
         </button>
@@ -59,8 +60,8 @@
                 if (key != "state" && key != "Id" && key!='آدرس' && key!="ردیف")
                     html.push('<p><b>' + key + ':</b> ' + value + '</p>')
                 if (key == 'آدرس') {
-                    var url = '@string.Format("{0}://{1}", Context.Request.Scheme, Context.Request.Host)' + '/' + row.Id + '/' + value;
-                    html.push('<p><b style="float: right">' + key + ':</b> ' + '<a href="' + url +'" style="float: right;direction: ltr;margin-right: 2px;">'  + url + '</a>' + '</p>')
+                    var url = '@string.Format("{0}://{1}", Context.Request.Scheme, Context.Request.Host)' + '/Category/' + row.Id + '/' + value;
+                    html.push('<p><b style="float:right">' + key + ':</b> ' + '<a href="' + url +'" style="float:right;direction:ltr;margin-right:2px;">'  + url + '</a>' + '</p>')
                 }
             })
             return html.join('')

@@ -1,4 +1,8 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -8,7 +12,6 @@ using MindHorizon.Common;
 using MindHorizon.Entities.Identity;
 using MindHorizon.Services.Contracts;
 using MindHorizon.ViewModels.Manage;
-using System.Threading.Tasks;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
@@ -158,7 +161,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                         viewModel.Image = viewModel.ImageFile.FileName;
                         await viewModel.ImageFile.UploadFileAsync($"{_env.WebRootPath}/avatars/{viewModel.Image}");
                     }
-
+                   
                     else
                         viewModel.Image = user.Image;
 

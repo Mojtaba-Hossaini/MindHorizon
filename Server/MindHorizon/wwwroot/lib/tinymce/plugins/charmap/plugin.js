@@ -4,7 +4,7 @@
  * For LGPL see License.txt in the project root for license information.
  * For commercial licenses see https://www.tiny.cloud/
  *
- * Version: 5.1.6 (2020-01-28)
+ * Version: 5.0.14 (2019-08-19)
  */
 (function (domGlobals) {
     'use strict';
@@ -35,8 +35,6 @@
       getCharMapAppend: getCharMapAppend
     };
 
-    var noop = function () {
-    };
     var constant = function (value) {
       return function () {
         return value;
@@ -45,6 +43,8 @@
     var never = constant(false);
     var always = constant(true);
 
+    var never$1 = never;
+    var always$1 = always;
     var none = function () {
       return NONE;
     };
@@ -58,27 +58,37 @@
       var id = function (n) {
         return n;
       };
+      var noop = function () {
+      };
+      var nul = function () {
+        return null;
+      };
+      var undef = function () {
+        return undefined;
+      };
       var me = {
         fold: function (n, s) {
           return n();
         },
-        is: never,
-        isSome: never,
-        isNone: always,
+        is: never$1,
+        isSome: never$1,
+        isNone: always$1,
         getOr: id,
         getOrThunk: call,
         getOrDie: function (msg) {
           throw new Error(msg || 'error: getOrDie called on none.');
         },
-        getOrNull: constant(null),
-        getOrUndefined: constant(undefined),
+        getOrNull: nul,
+        getOrUndefined: undef,
         or: id,
         orThunk: call,
         map: none,
+        ap: none,
         each: noop,
         bind: none,
-        exists: never,
-        forall: always,
+        flatten: none,
+        exists: never$1,
+        forall: always$1,
         filter: none,
         equals: eq,
         equals_: eq,
@@ -93,9 +103,14 @@
       return me;
     }();
     var some = function (a) {
-      var constant_a = constant(a);
+      var constant_a = function () {
+        return a;
+      };
       var self = function () {
         return me;
+      };
+      var map = function (f) {
+        return some(f(a));
       };
       var bind = function (f) {
         return f(a);
@@ -107,8 +122,8 @@
         is: function (v) {
           return a === v;
         },
-        isSome: always,
-        isNone: never,
+        isSome: always$1,
+        isNone: never$1,
         getOr: constant_a,
         getOrThunk: constant_a,
         getOrDie: constant_a,
@@ -116,31 +131,35 @@
         getOrUndefined: constant_a,
         or: self,
         orThunk: self,
-        map: function (f) {
-          return some(f(a));
+        map: map,
+        ap: function (optfab) {
+          return optfab.fold(none, function (fab) {
+            return some(fab(a));
+          });
         },
         each: function (f) {
           f(a);
         },
         bind: bind,
+        flatten: constant_a,
         exists: bind,
         forall: bind,
         filter: function (f) {
           return f(a) ? me : NONE;
+        },
+        equals: function (o) {
+          return o.is(a);
+        },
+        equals_: function (o, elementEq) {
+          return o.fold(never$1, function (b) {
+            return elementEq(a, b);
+          });
         },
         toArray: function () {
           return [a];
         },
         toString: function () {
           return 'some(' + a + ')';
-        },
-        equals: function (o) {
-          return o.is(a);
-        },
-        equals_: function (o, elementEq) {
-          return o.fold(never, function (b) {
-            return elementEq(a, b);
-          });
         }
       };
       return me;
@@ -175,39 +194,39 @@
     var isArray = isType('array');
     var isFunction = isType('function');
 
-    var nativeSlice = Array.prototype.slice;
-    var nativePush = Array.prototype.push;
+    var slice = Array.prototype.slice;
     var map = function (xs, f) {
       var len = xs.length;
       var r = new Array(len);
       for (var i = 0; i < len; i++) {
         var x = xs[i];
-        r[i] = f(x, i);
+        r[i] = f(x, i, xs);
       }
       return r;
     };
     var each = function (xs, f) {
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        f(x, i);
+        f(x, i, xs);
       }
     };
     var find = function (xs, pred) {
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        if (pred(x, i)) {
+        if (pred(x, i, xs)) {
           return Option.some(x);
         }
       }
       return Option.none();
     };
+    var push = Array.prototype.push;
     var flatten = function (xs) {
       var r = [];
       for (var i = 0, len = xs.length; i < len; ++i) {
         if (!isArray(xs[i])) {
           throw new Error('Arr.flatten item ' + i + ' was not an array, input: ' + xs);
         }
-        nativePush.apply(r, xs[i]);
+        push.apply(r, xs[i]);
       }
       return r;
     };
@@ -216,7 +235,7 @@
       return flatten(output);
     };
     var from$1 = isFunction(Array.from) ? Array.from : function (x) {
-      return nativeSlice.call(x);
+      return slice.call(x);
     };
 
     var isArray$1 = global$1.isArray;
@@ -1631,8 +1650,7 @@
           }
         }
       };
-      var dialogApi = editor.windowManager.open(bridgeSpec);
-      dialogApi.focus(patternName);
+      editor.windowManager.open(bridgeSpec);
     };
     var Dialog = { open: open };
 

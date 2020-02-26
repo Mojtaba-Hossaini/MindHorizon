@@ -1,4 +1,8 @@
-﻿namespace MindHorizon.Entities
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MindHorizon.Entities
 {
     public class PostTag
     {
@@ -7,5 +11,6 @@
 
         public Post Post { get; set; }
         public Tag Tag { get; set; }
+
     }
 }

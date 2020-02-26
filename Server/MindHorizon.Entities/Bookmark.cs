@@ -1,4 +1,7 @@
 ﻿using MindHorizon.Entities.Identity;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace MindHorizon.Entities
 {

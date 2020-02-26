@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MindHorizon.Entities.Identity
 {
-    public class Role: IdentityRole<int>
+    public class Role : IdentityRole<int>
     {
         public Role()
         {

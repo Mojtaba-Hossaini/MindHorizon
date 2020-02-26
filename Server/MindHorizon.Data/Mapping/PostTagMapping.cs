@@ -3,9 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MindHorizon.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MindHorizon.Data.Mapping
 {
@@ -25,4 +23,5 @@ namespace MindHorizon.Data.Mapping
                .HasForeignKey(f => f.TagId);
         }
     }
+
 }

@@ -52,21 +52,21 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "عنوان ویدیو")
             {
                 if (order == "asc")
-                    videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit, true, null, search);
+                    videos = _uw.VideoRepository.GetPaginateVideos(offset, limit,item=>item.Title,item=>"", search);
                 else
-                    videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit, false, null, search);
+                    videos = _uw.VideoRepository.GetPaginateVideos(offset, limit, item => "", item => item.Title, search);
             }
 
             else if (sort == "تاریخ انتشار")
             {
                 if (order == "asc")
-                    videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit, null, true, search);
+                    videos = _uw.VideoRepository.GetPaginateVideos(offset, limit,item=>item.PersianPublishDateTime, item => "", search);
                 else
-                    videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit, null, false, search);
+                    videos = _uw.VideoRepository.GetPaginateVideos(offset, limit, item => "", item => item.PersianPublishDateTime, search);
             }
 
             else
-                videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit, null, null, search);
+                videos = _uw.VideoRepository.GetPaginateVideos(offset, limit, item => "", item => item.PersianPublishDateTime, search);
 
             if (search != "")
                 total = videos.Count();
@@ -99,23 +99,22 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 if(viewModel.PosterFile!=null)
+                {
                     viewModel.Poster = _uw.VideoRepository.CheckVideoFileName(viewModel.PosterFile.FileName);
+                    await viewModel.PosterFile.UploadFileAsync($"{_env.WebRootPath}/posters/{viewModel.Poster}");
+                }
+              
                 if (viewModel.VideoId.HasValue())
                 {
                     var video = await _uw.BaseRepository<Video>().FindByIdAsync(viewModel.VideoId);
-
-                    
-                    
+                   
                     if (video != null)
                     {
-                        if (viewModel.PosterFile != null)
-                        {
-                            await viewModel.PosterFile.UploadFileAsync($"{_env.WebRootPath}/posters/{viewModel.Poster}");
+                        if(viewModel.PosterFile != null)
                             FileExtensions.DeleteFile($"{_env.WebRootPath}/posters/{video.Poster}");
-                        }
-
                         else
                             viewModel.Poster = video.Poster;
+
                         viewModel.PublishDateTime = video.PublishDateTime;
                         _uw.BaseRepository<Video>().Update(_mapper.Map(viewModel, video));
                         await _uw.Commit();
@@ -127,7 +126,6 @@ namespace MindHorizon.Areas.Admin.Controllers
 
                 else
                 {
-                    await viewModel.PosterFile.UploadFileAsync($"{_env.WebRootPath}/posters/{viewModel.Poster}");
                     viewModel.VideoId = StringExtensions.GenerateId(10);
                     await _uw.BaseRepository<Video>().CreateAsync(_mapper.Map<Video>(viewModel));
                     await _uw.Commit();

@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace MindHorizon.Entities.Identity
 {
-    public class User: IdentityUser<int>
+    public class User : IdentityUser<int>
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -14,6 +15,7 @@ namespace MindHorizon.Entities.Identity
         public DateTime? RegisterDateTime { get; set; }
         public bool IsActive { get; set; }
         public GenderType Gender { get; set; }
+        public string Bio { get; set; }
 
         public virtual ICollection<Post> Post { get; set; }
         public virtual ICollection<Bookmark> Bookmarks { get; set; }
@@ -30,5 +32,5 @@ namespace MindHorizon.Entities.Identity
         [Display(Name = "زن")]
         Female = 2
     }
-}
 
+}

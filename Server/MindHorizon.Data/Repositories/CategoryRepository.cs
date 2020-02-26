@@ -1,48 +1,49 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using MindHorizon.Common;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
 using MindHorizon.ViewModels.Category;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MindHorizon.Common;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace MindHorizon.Data.Repositories
 {
-
     public class CategoryRepository : ICategoryRepository
     {
         private readonly MindHorizonDbContext _context;
-        private readonly IMapper mapper;
-
+        private readonly IMapper _mapper;
         public CategoryRepository(MindHorizonDbContext context, IMapper mapper)
         {
             _context = context;
             _context.CheckArgumentIsNull(nameof(_context));
 
-            this.mapper = mapper;
-            mapper.CheckArgumentIsNull(nameof(mapper));
+            _mapper = mapper;
+            _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
-        public async Task<List<CategoryViewModel>> GetPaginateCategoriesAsync(int offset, int limit, bool? categoryNameSortAsc, bool? parentCategoryNameSortAsc, string searchText)
+
+        public async Task<List<CategoryViewModel>> GetPaginateCategoriesAsync(int offset, int limit, bool? categoryNameSortAsc,bool? parentCategoryNameSortAsc, string searchText)
         {
-            List<CategoryViewModel> categories = await _context.Categories.Include(c => c.Parent)
+            List<CategoryViewModel> categories= await _context.Categories.Include(c => c.Parent)
                                     .Where(c => c.CategoryName.Contains(searchText) || c.Parent.CategoryName.Contains(searchText))
-                                    .ProjectTo<CategoryViewModel>(mapper.ConfigurationProvider)
+                                    .ProjectTo<CategoryViewModel>(_mapper.ConfigurationProvider)
                                     .Skip(offset).Take(limit).AsNoTracking().ToListAsync();
 
             if (categoryNameSortAsc != null)
                 categories = categories.OrderBy(c => (categoryNameSortAsc == true && categoryNameSortAsc != null) ? c.CategoryName : "")
-                                    .OrderByDescending(c => (categoryNameSortAsc == false && categoryNameSortAsc != null) ? c.CategoryName : "").ToList();
-
-
+                                     .OrderByDescending(c => (categoryNameSortAsc == false && categoryNameSortAsc != null) ? c.CategoryName : "").ToList();
 
             else if (parentCategoryNameSortAsc != null)
+            {
                 categories = categories.OrderBy(c => (parentCategoryNameSortAsc == true && parentCategoryNameSortAsc != null) ? c.ParentCategoryName : "")
                                    .OrderByDescending(c => (parentCategoryNameSortAsc == false && parentCategoryNameSortAsc != null) ? c.ParentCategoryName : "").ToList();
 
-           
+            }
+
             foreach (var item in categories)
                 item.Row = ++offset;
 
@@ -52,10 +53,9 @@ namespace MindHorizon.Data.Repositories
 
         public async Task<List<TreeViewCategory>> GetAllCategoriesAsync()
         {
-            var Categories = await (from c in _context.Categories
+            var Categories =await (from c in _context.Categories
                               where (c.ParentCategoryId == null)
-                              select new TreeViewCategory { id = c.CategoryId, title = c.CategoryName, url = c.Url }).ToListAsync();
-
+                              select new TreeViewCategory { id = c.CategoryId, title = c.CategoryName ,url=c.Url}).ToListAsync();
             foreach (var item in Categories)
             {
                 BindSubCategories(item);
@@ -68,7 +68,7 @@ namespace MindHorizon.Data.Repositories
         {
             var SubCategories = (from c in _context.Categories
                                  where (c.ParentCategoryId == category.id)
-                                 select new TreeViewCategory { id = c.CategoryId, title = c.CategoryName, url = c.Url }).ToList();
+                                 select new TreeViewCategory { id = c.CategoryId, title = c.CategoryName , url=c.Url }).ToList();
             foreach (var item in SubCategories)
             {
                 BindSubCategories(item);
@@ -78,8 +78,9 @@ namespace MindHorizon.Data.Repositories
 
         public Category FindByCategoryName(string categoryName)
         {
-            return _context.Categories.Where(c => c.CategoryName == categoryName.TrimStart().TrimEnd()).FirstOrDefault();
+           return  _context.Categories.Where(c => c.CategoryName == categoryName.TrimStart().TrimEnd()).FirstOrDefault();
         }
+
 
         public bool IsExistCategory(string categoryName, string recentCategoryId = null)
         {
@@ -100,6 +101,6 @@ namespace MindHorizon.Data.Repositories
             }
         }
 
+
     }
 }
-

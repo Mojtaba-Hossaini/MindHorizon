@@ -4,7 +4,7 @@
  * For LGPL see License.txt in the project root for license information.
  * For commercial licenses see https://www.tiny.cloud/
  *
- * Version: 5.1.6 (2020-01-28)
+ * Version: 5.0.14 (2019-08-19)
  */
 (function (domGlobals) {
     'use strict';
@@ -29,27 +29,6 @@
 
     var global = tinymce.util.Tools.resolve('tinymce.PluginManager');
 
-    var __assign = function () {
-      __assign = Object.assign || function __assign(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-          s = arguments[i];
-          for (var p in s)
-            if (Object.prototype.hasOwnProperty.call(s, p))
-              t[p] = s[p];
-        }
-        return t;
-      };
-      return __assign.apply(this, arguments);
-    };
-    function __spreadArrays() {
-      for (var s = 0, i = 0, il = arguments.length; i < il; i++)
-        s += arguments[i].length;
-      for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-          r[k] = a[j];
-      return r;
-    }
-
     var noop = function () {
     };
     var constant = function (value) {
@@ -68,6 +47,8 @@
     var never = constant(false);
     var always = constant(true);
 
+    var never$1 = never;
+    var always$1 = always;
     var none = function () {
       return NONE;
     };
@@ -81,27 +62,37 @@
       var id = function (n) {
         return n;
       };
+      var noop = function () {
+      };
+      var nul = function () {
+        return null;
+      };
+      var undef = function () {
+        return undefined;
+      };
       var me = {
         fold: function (n, s) {
           return n();
         },
-        is: never,
-        isSome: never,
-        isNone: always,
+        is: never$1,
+        isSome: never$1,
+        isNone: always$1,
         getOr: id,
         getOrThunk: call,
         getOrDie: function (msg) {
           throw new Error(msg || 'error: getOrDie called on none.');
         },
-        getOrNull: constant(null),
-        getOrUndefined: constant(undefined),
+        getOrNull: nul,
+        getOrUndefined: undef,
         or: id,
         orThunk: call,
         map: none,
+        ap: none,
         each: noop,
         bind: none,
-        exists: never,
-        forall: always,
+        flatten: none,
+        exists: never$1,
+        forall: always$1,
         filter: none,
         equals: eq,
         equals_: eq,
@@ -116,9 +107,14 @@
       return me;
     }();
     var some = function (a) {
-      var constant_a = constant(a);
+      var constant_a = function () {
+        return a;
+      };
       var self = function () {
         return me;
+      };
+      var map = function (f) {
+        return some(f(a));
       };
       var bind = function (f) {
         return f(a);
@@ -130,8 +126,8 @@
         is: function (v) {
           return a === v;
         },
-        isSome: always,
-        isNone: never,
+        isSome: always$1,
+        isNone: never$1,
         getOr: constant_a,
         getOrThunk: constant_a,
         getOrDie: constant_a,
@@ -139,31 +135,35 @@
         getOrUndefined: constant_a,
         or: self,
         orThunk: self,
-        map: function (f) {
-          return some(f(a));
+        map: map,
+        ap: function (optfab) {
+          return optfab.fold(none, function (fab) {
+            return some(fab(a));
+          });
         },
         each: function (f) {
           f(a);
         },
         bind: bind,
+        flatten: constant_a,
         exists: bind,
         forall: bind,
         filter: function (f) {
           return f(a) ? me : NONE;
+        },
+        equals: function (o) {
+          return o.is(a);
+        },
+        equals_: function (o, elementEq) {
+          return o.fold(never$1, function (b) {
+            return elementEq(a, b);
+          });
         },
         toArray: function () {
           return [a];
         },
         toString: function () {
           return 'some(' + a + ')';
-        },
-        equals: function (o) {
-          return o.is(a);
-        },
-        equals_: function (o, elementEq) {
-          return o.fold(never, function (b) {
-            return elementEq(a, b);
-          });
         }
       };
       return me;
@@ -200,11 +200,17 @@
     var isArray = isType('array');
     var isFunction = isType('function');
 
-    var nativeSlice = Array.prototype.slice;
-    var nativeIndexOf = Array.prototype.indexOf;
-    var rawIndexOf = function (ts, t) {
-      return nativeIndexOf.call(ts, t);
-    };
+    var slice = Array.prototype.slice;
+    var rawIndexOf = function () {
+      var pIndexOf = Array.prototype.indexOf;
+      var fastIndex = function (xs, x) {
+        return pIndexOf.call(xs, x);
+      };
+      var slowIndex = function (xs, x) {
+        return slowIndexOf(xs, x);
+      };
+      return pIndexOf === undefined ? slowIndex : fastIndex;
+    }();
     var contains = function (xs, x) {
       return rawIndexOf(xs, x) > -1;
     };
@@ -213,27 +219,27 @@
       var r = new Array(len);
       for (var i = 0; i < len; i++) {
         var x = xs[i];
-        r[i] = f(x, i);
+        r[i] = f(x, i, xs);
       }
       return r;
     };
     var each = function (xs, f) {
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        f(x, i);
+        f(x, i, xs);
       }
     };
     var eachr = function (xs, f) {
       for (var i = xs.length - 1; i >= 0; i--) {
         var x = xs[i];
-        f(x, i);
+        f(x, i, xs);
       }
     };
     var filter = function (xs, pred) {
       var r = [];
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        if (pred(x, i)) {
+        if (pred(x, i, xs)) {
           r.push(x);
         }
       }
@@ -254,23 +260,31 @@
     var find = function (xs, pred) {
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        if (pred(x, i)) {
+        if (pred(x, i, xs)) {
           return Option.some(x);
         }
       }
       return Option.none();
     };
+    var slowIndexOf = function (xs, x) {
+      for (var i = 0, len = xs.length; i < len; ++i) {
+        if (xs[i] === x) {
+          return i;
+        }
+      }
+      return -1;
+    };
     var forall = function (xs, pred) {
       for (var i = 0, len = xs.length; i < len; ++i) {
         var x = xs[i];
-        if (pred(x, i) !== true) {
+        if (pred(x, i, xs) !== true) {
           return false;
         }
       }
       return true;
     };
     var sort = function (xs, comparator) {
-      var copy = nativeSlice.call(xs, 0);
+      var copy = slice.call(xs, 0);
       copy.sort(comparator);
       return copy;
     };
@@ -278,7 +292,7 @@
       return xs.length === 0 ? Option.none() : Option.some(xs[0]);
     };
     var from$1 = isFunction(Array.from) ? Array.from : function (x) {
-      return nativeSlice.call(x);
+      return slice.call(x);
     };
 
     var keys = Object.keys;
@@ -673,7 +687,7 @@
         patternsState.set(createPatternSet(normalized.values));
       };
       var getPatterns = function () {
-        return __spreadArrays(map(patternsState.get().inlinePatterns, denormalizePattern), map(patternsState.get().blockPatterns, denormalizePattern));
+        return map(patternsState.get().inlinePatterns, denormalizePattern).concat(map(patternsState.get().blockPatterns, denormalizePattern));
       };
       return {
         setPatterns: setPatterns,
@@ -761,16 +775,6 @@
       });
       return createPatternSet(normalized.values);
     };
-    var getForcedRootBlock = function (editor) {
-      var block = editor.getParam('forced_root_block', 'p');
-      if (block === false) {
-        return '';
-      } else if (block === true) {
-        return 'p';
-      } else {
-        return block;
-      }
-    };
 
     var global$1 = tinymce.util.Tools.resolve('tinymce.util.Delay');
 
@@ -784,6 +788,9 @@
 
     var global$4 = tinymce.util.Tools.resolve('tinymce.dom.TreeWalker');
 
+    var isElement = function (node) {
+      return node.nodeType === domGlobals.Node.ELEMENT_NODE;
+    };
     var isText = function (node) {
       return node.nodeType === domGlobals.Node.TEXT_NODE;
     };
@@ -820,18 +827,22 @@
         return has(format, 'block');
       });
     };
+    var isInlinePattern$1 = function (pattern) {
+      return has(pattern, 'end');
+    };
     var isReplacementPattern = function (pattern) {
       return pattern.start.length === 0;
     };
-    var getParentBlock = function (editor, rng) {
-      var parentBlockOpt = Option.from(editor.dom.getParent(rng.startContainer, editor.dom.isBlock));
-      if (getForcedRootBlock(editor) === '') {
-        return parentBlockOpt.orThunk(function () {
-          return Option.some(editor.getBody());
-        });
-      } else {
-        return parentBlockOpt;
-      }
+    var findPattern = function (patterns, text) {
+      return find(patterns, function (pattern) {
+        if (text.indexOf(pattern.start) !== 0) {
+          return false;
+        }
+        if (isInlinePattern$1(pattern) && pattern.end && text.lastIndexOf(pattern.end) !== text.length - pattern.end.length) {
+          return false;
+        }
+        return true;
+      });
     };
 
     var point = function (element, offset) {
@@ -902,14 +913,6 @@
         });
       }
     };
-    var isBoundary = function (dom, node) {
-      return dom.isBlock(node) || contains([
-        'BR',
-        'IMG',
-        'HR',
-        'INPUT'
-      ], node.nodeName) || dom.getContentEditable(node) === 'false';
-    };
     var outcome = Adt.generate([
       { aborted: [] },
       { edge: ['element'] },
@@ -932,7 +935,7 @@
           return terminate();
         }
       };
-      if (isBoundary(dom, node)) {
+      if (dom.isBlock(node)) {
         return terminate();
       } else if (!isText(node)) {
         return recurse();
@@ -1028,51 +1031,39 @@
       var dom = editor.dom;
       var pattern = match.pattern;
       var rng = resolvePathRange(dom.getRoot(), match.range).getOrDie('Unable to resolve path range');
-      getParentBlock(editor, rng).each(function (block) {
-        if (pattern.type === 'block-format') {
-          if (isBlockFormatName(pattern.format, editor.formatter)) {
-            editor.undoManager.transact(function () {
-              stripPattern(editor.dom, block, pattern);
-              editor.formatter.apply(pattern.format);
-            });
-          }
-        } else if (pattern.type === 'block-command') {
+      var block = dom.getParent(rng.startContainer, dom.isBlock);
+      if (pattern.type === 'block-format') {
+        if (isBlockFormatName(pattern.format, editor.formatter)) {
           editor.undoManager.transact(function () {
             stripPattern(editor.dom, block, pattern);
-            editor.execCommand(pattern.cmd, false, pattern.value);
+            editor.formatter.apply(pattern.format);
           });
         }
-      });
+      } else if (pattern.type === 'block-command') {
+        editor.undoManager.transact(function () {
+          stripPattern(editor.dom, block, pattern);
+          editor.execCommand(pattern.cmd, false, pattern.value);
+        });
+      }
       return true;
-    };
-    var findPattern = function (patterns, text) {
-      var nuText = text.replace('\xA0', ' ');
-      return find(patterns, function (pattern) {
-        if (text.indexOf(pattern.start) !== 0 && nuText.indexOf(pattern.start) !== 0) {
-          return false;
-        }
-        return true;
-      });
     };
     var findPatterns = function (editor, patterns) {
       var dom = editor.dom;
       var rng = editor.selection.getRng();
-      return getParentBlock(editor, rng).filter(function (block) {
-        var forcedRootBlock = getForcedRootBlock(editor);
-        var matchesForcedRootBlock = forcedRootBlock === '' && dom.is(block, 'body') || dom.is(block, forcedRootBlock);
-        return block !== null && matchesForcedRootBlock;
-      }).bind(function (block) {
-        var blockText = block.textContent;
-        var matchedPattern = findPattern(patterns, blockText);
-        return matchedPattern.map(function (pattern) {
-          if (global$3.trim(blockText).length === pattern.start.length) {
-            return [];
-          }
-          return [{
-              pattern: pattern,
-              range: generatePathRange(dom.getRoot(), block, 0, block, 0)
-            }];
-        });
+      var block = dom.getParent(rng.startContainer, dom.isBlock);
+      if (!(dom.is(block, 'p') && isElement(block))) {
+        return [];
+      }
+      var blockText = block.textContent;
+      var matchedPattern = findPattern(patterns, blockText);
+      return matchedPattern.map(function (pattern) {
+        if (global$3.trim(blockText).length === pattern.start.length) {
+          return [];
+        }
+        return [{
+            pattern: pattern,
+            range: generatePathRange(dom.getRoot(), block, 0, block, 0)
+          }];
       }).getOr([]);
     };
     var applyMatches = function (editor, matches) {
@@ -1084,6 +1075,19 @@
         return applyPattern(editor, match);
       });
       editor.selection.moveToBookmark(bookmark);
+    };
+
+    var __assign = function () {
+      __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+          s = arguments[i];
+          for (var p in s)
+            if (Object.prototype.hasOwnProperty.call(s, p))
+              t[p] = s[p];
+        }
+        return t;
+      };
+      return __assign.apply(this, arguments);
     };
 
     var unique = 0;
@@ -1292,12 +1296,12 @@
       var markerPrefix = generate$1('mce_textpattern');
       var matchesWithEnds = foldr(matches, function (acc, match) {
         var endMarker = createMarker(dom, markerPrefix + ('_end' + acc.length), match.endRng);
-        return acc.concat([__assign(__assign({}, match), { endMarker: endMarker })]);
+        return acc.concat([__assign({}, match, { endMarker: endMarker })]);
       }, []);
       return foldr(matchesWithEnds, function (acc, match) {
         var idx = matchesWithEnds.length - acc.length - 1;
         var startMarker = isReplacementPattern(match.pattern) ? match.endMarker : createMarker(dom, markerPrefix + ('_start' + idx), match.startRng);
-        return acc.concat([__assign(__assign({}, match), { startMarker: startMarker })]);
+        return acc.concat([__assign({}, match, { startMarker: startMarker })]);
       }, []);
     };
     var findPatterns$1 = function (editor, patterns, space) {
@@ -1305,10 +1309,10 @@
       if (rng.collapsed === false) {
         return [];
       }
-      return getParentBlock(editor, rng).bind(function (block) {
-        var offset = rng.startOffset - (space ? 1 : 0);
-        return findPatternsRec(editor, patterns, rng.startContainer, offset, block);
-      }).fold(function () {
+      var block = editor.dom.getParent(rng.startContainer, editor.dom.isBlock);
+      var offset = rng.startOffset - (space ? 1 : 0);
+      var resultOpt = findPatternsRec(editor, patterns, rng.startContainer, offset, block);
+      return resultOpt.fold(function () {
         return [];
       }, function (result) {
         return result.matches;

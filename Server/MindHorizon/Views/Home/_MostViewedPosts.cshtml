@@ -12,9 +12,9 @@
 
 <nav class="w-25 m-auto">
     <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active most-view" id="most-viewed-day-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="day",typeOfPosts="MostViewedPosts"})">امروز</a>
-        <a class="nav-item nav-link most-view" id="most-viewed-week-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="week",typeOfPosts="MostViewedPosts"})">هفته</a>
-        <a class="nav-item nav-link most-view" id="most-viewed-month-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="month",typeOfPosts="MostViewedPosts"})">ماه</a>
+        <a class="nav-item nav-link active most-view" id="most-viewed-day-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="day",TypeOfPosts="MostViewedPosts"})">امروز</a>
+        <a class="nav-item nav-link most-view" id="most-viewed-week-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="week",TypeOfPosts="MostViewedPosts"})">هفته</a>
+        <a class="nav-item nav-link most-view" id="most-viewed-month-tab" data-toggle="tab" data-url="@Url.Action("Index","Home",values:new {duration="month",TypeOfPosts="MostViewedPosts"})">ماه</a>
     </div>
 </nav>
 <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
@@ -37,7 +37,7 @@
                             <!-- Post Content -->
                             <div class="post-content clearfix">
                                 <a href="#" class="post-cata cata-sm cata-success">@item.NameOfCategories</a>
-                                <a href="@item.PostId/@item.Url" class="post-title p-2"> @item.ShortTitle </a>
+                                <a href="/Posts/@item.PostId/@item.Url" class="post-title p-2"> @item.ShortTitle </a>
                                 <div class="post-meta d-flex float-left pb-1">
                                     <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments</a>
                                     <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> @item.NumberOfVisit</a>
@@ -51,7 +51,7 @@
             }
             else
             {
-                <p class="col-md-12 alert alert-info text-center">پربازدیدترین مطلب یافت نشد ...</p>
+        <p class="col-md-12 alert alert-info text-center">پربازدیدترین مطلب یافت نشد ...</p>
             }
 
         </div>

@@ -163,9 +163,9 @@ namespace MindHorizon.Areas.Admin.Controllers
                 foreach (var item in btSelectItem)
                 {
                     var tag = await _uw.BaseRepository<Tag>().FindByIdAsync(item);
-                    _uw.BaseRepository<Tag>().Delete(tag);
-                    
+                    _uw.BaseRepository<Tag>().Delete(tag);                  
                 }
+
                 await _uw.Commit();
                 TempData["notification"] = "حذف گروهی اطلاعات با موفقیت انجام شد.";
             }

@@ -18,7 +18,7 @@ namespace MindHorizon.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork _uw;
         private readonly IHostingEnvironment _env;
-        private const string PostNotFound = "مطلبی یافت نشد.";
+        private const string PostNotFound = "مطلب یافت نشد.";
         private readonly IMapper _mapper;
 
         public PostController(IUnitOfWork uw, IMapper mapper, IHostingEnvironment env)
@@ -43,7 +43,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetPosts(string search, string order, int offset, int limit, string sort)
         {
-            List<PostViewModel> posts;
+            List<PostViewModel> post;
             int total = _uw.BaseRepository<Post>().CountEntities();
             if (!search.HasValue())
                 search = "";
@@ -54,110 +54,112 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "ShortTitle")
             {
                 if (order == "asc")
-                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().Title, item => "", search, null);
+                    post = _uw.PostRepository.GetPaginatePosts(offset, limit,item=>item.First().Title,item=>"", search,null);
                 else
-                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().Title, search, null);
+                    post = _uw.PostRepository.GetPaginatePosts(offset, limit,item=>"", item => item.First().Title, search, null);
             }
 
             else if (sort == "بازدید")
             {
                 if (order == "asc")
-                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().NumberOfVisit, item => "", search, null);
+                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().NumberOfVisit, item => "", search, null);
                 else
-                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().NumberOfVisit, search, null);
+                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().NumberOfVisit, search, null);
             }
 
             else if (sort == "لایک")
             {
                 if (order == "asc")
-                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().NumberOfLike, item => "", search, null);
+                    post = _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().NumberOfLike, item => "", search, null);
                 else
-                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().NumberOfLike, search, null);
+                    post = _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().NumberOfLike, search, null);
             }
 
             else if (sort == "دیس لایک")
             {
                 if (order == "asc")
-                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().NumberOfDisLike, item => "", search, null);
+                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().NumberOfDisLike, item => "", search, null);
                 else
-                    posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().NumberOfDisLike, search, null);
+                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().NumberOfDisLike, search, null);
             }
 
             else if (sort == "تاریخ انتشار")
             {
                 if (order == "asc")
-                    posts =  _uw.PostRepository.GetPaginatePost(offset, limit, item => item.First().PersianPublishDate, item => "", search, null);
+                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().PersianPublishDate, item => "", search, null);
                 else
-                    posts =  _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
+                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
             }
 
             else
-                posts = _uw.PostRepository.GetPaginatePost(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
+                post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
+
+
 
             if (search != "")
-                total = posts.Count();
+                total = post.Count();
 
-            return Json(new { total = total, rows = posts });
+            return Json(new { total = total, rows = post });
         }
 
         [HttpGet]
         public async Task<IActionResult> CreateOrUpdate(string postId)
         {
-            PostViewModel PostViewModel = new PostViewModel();
+            PostViewModel postViewModel = new PostViewModel();
             ViewBag.Tags = _uw._Context.Tags.Select(t => t.TagName).ToList();
-            PostViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), null);
+            postViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), null);
             if (postId.HasValue())
             {
                 var post = await (from n in _uw._Context.Post.Include(c => c.PostCategories)
-                                  join w in _uw._Context.PostTags on n.PostId equals w.PostId into bc
-                                  from bct in bc.DefaultIfEmpty()
-                                  join t in _uw._Context.Tags on bct.TagId equals t.TagId into cg
-                                  from cog in cg.DefaultIfEmpty()
-                                  where (n.PostId == postId)
-                                  select new PostViewModel
-                                  {
-                                      PostId = n.PostId,
-                                      Title = n.Title,
-                                      Abstract = n.Abstract,
-                                      Description = n.Description,
-                                      PublishDateTime = n.PublishDateTime,
-                                      IsPublish = n.IsPublish,
-                                      ImageName = n.ImageName,
-                                      PostCategories = n.PostCategories,
-                                      Url = n.Url,
-                                      NameOfTags = cog != null ? cog.TagName : "",
-                                  }).ToListAsync();
+                            join w in _uw._Context.PostTags on n.PostId equals w.PostId into bc
+                            from bct in bc.DefaultIfEmpty()
+                            join t in _uw._Context.Tags on bct.TagId equals t.TagId into cg
+                            from cog in cg.DefaultIfEmpty()
+                            where (n.PostId == postId)
+                            select new PostViewModel
+                            {
+                                PostId = n.PostId,
+                                Title = n.Title,
+                                Abstract=n.Abstract,
+                                Description = n.Description,
+                                PublishDateTime = n.PublishDateTime,
+                                IsPublish = n.IsPublish,
+                                ImageName = n.ImageName,
+                                PostCategories = n.PostCategories,
+                                Url = n.Url,
+                                NameOfTags = cog!=null? cog.TagName:"",
+                            }).ToListAsync();
 
                 if (post != null)
                 {
-                    PostViewModel = _mapper.Map<PostViewModel>(post.FirstOrDefault());
+                    postViewModel = _mapper.Map<PostViewModel>(post.FirstOrDefault());
                     if (post.FirstOrDefault().PublishDateTime > DateTime.Now)
                     {
-                        PostViewModel.FuturePublish = true;
-                        PostViewModel.PersianPublishDate = post.FirstOrDefault().PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd");
-                        PostViewModel.PersianPublishTime = post.FirstOrDefault().PublishDateTime.Value.TimeOfDay.ToString();
+                        postViewModel.FuturePublish = true;
+                        postViewModel.PersianPublishDate = post.FirstOrDefault().PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd");
+                        postViewModel.PersianPublishTime = post.FirstOrDefault().PublishDateTime.Value.TimeOfDay.ToString();
                     }
-                    PostViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), post.FirstOrDefault().PostCategories.Select(n => n.CategoryId).ToArray());
-                    PostViewModel.NameOfTags = post.Select(t => t.NameOfTags).ToArray().CombineWith(',');
+                    postViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), post.FirstOrDefault().PostCategories.Select(n=>n.CategoryId).ToArray());
+                    postViewModel.NameOfTags = post.Select(t => t.NameOfTags).ToArray().CombineWith(',');
                 }
 
             }
 
-            return View(PostViewModel);
+            return View(postViewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrUpdate(PostViewModel viewModel, string submitButton)
+        public async Task<IActionResult> CreateOrUpdate(PostViewModel viewModel,string submitButton)
         {
             viewModel.Url = viewModel.Url.Trim();
             ViewBag.Tags = _uw._Context.Tags.Select(t => t.TagName).ToList();
-            viewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), viewModel.CategoryIds);
+            viewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(),viewModel.CategoryIds);
             if (!viewModel.FuturePublish)
             {
                 ModelState.Remove("PersianPublishTime");
                 ModelState.Remove("PersianPublishDate");
             }
-            if (viewModel.PostId.HasValue())
+            if(viewModel.PostId.HasValue())
                 ModelState.Remove("ImageFile");
 
             if (ModelState.IsValid)
@@ -170,7 +172,7 @@ namespace MindHorizon.Areas.Admin.Controllers
 
                 if (viewModel.PostId.HasValue())
                 {
-                    var post = _uw.BaseRepository<Post>().FindByConditionAsync(n => n.PostId == viewModel.PostId, null, n => n.PostCategories, n => n.PostTags).Result.FirstOrDefault();
+                    var post = _uw.BaseRepository<Post>().FindByConditionAsync(n=>n.PostId == viewModel.PostId, null,n => n.PostCategories, n=>n.PostTags).Result.FirstOrDefault();
                     if (post == null)
                         ModelState.AddModelError(string.Empty, PostNotFound);
                     else
@@ -198,7 +200,6 @@ namespace MindHorizon.Areas.Admin.Controllers
                         else
                             viewModel.ImageName = post.ImageName;
 
-                       
                         if (viewModel.NameOfTags.HasValue())
                             viewModel.PostTags = await _uw.TagRepository.InsertPostTags(viewModel.NameOfTags.Split(','), post.PostId);
 
@@ -214,7 +215,6 @@ namespace MindHorizon.Areas.Admin.Controllers
                         _uw.BaseRepository<Post>().Update(_mapper.Map(viewModel, post));
                         await _uw.Commit();
                         ViewBag.Alert = "ذخیره تغییرات با موفقیت انجام شد.";
-                        
                     }
                 }
 
@@ -236,7 +236,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                     }
 
                     if (viewModel.CategoryIds != null)
-                        viewModel.PostCategories = viewModel.CategoryIds.Select(c => new PostCategory { CategoryId = c }).ToList();
+                        viewModel.PostCategories = viewModel.CategoryIds.Select(c=>new PostCategory { CategoryId = c }).ToList();
                     else
                         viewModel.PostCategories = null;
 

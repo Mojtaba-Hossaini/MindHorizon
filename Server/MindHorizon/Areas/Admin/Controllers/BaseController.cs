@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common.Attributes;
 
 namespace MindHorizon.Areas.Admin.Controllers
@@ -16,7 +20,7 @@ namespace MindHorizon.Areas.Admin.Controllers
             return Content(TempData["notification"].ToString());
         }
 
-        [HttpGet, AjaxOnly]
+        [HttpGet,AjaxOnly]
         public IActionResult DeleteGroup()
         {
             return PartialView("_DeleteGroup");

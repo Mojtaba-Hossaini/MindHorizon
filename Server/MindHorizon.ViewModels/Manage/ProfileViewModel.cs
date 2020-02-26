@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MindHorizon.Entities.Identity;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace MindHorizon.ViewModels.Manage
 {

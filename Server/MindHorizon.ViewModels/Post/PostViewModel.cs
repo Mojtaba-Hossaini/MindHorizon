@@ -1,10 +1,12 @@
-﻿using MindHorizon.Common.Attributes;
+﻿using Microsoft.AspNetCore.Http;
+using MindHorizon.Common.Attributes;
 using MindHorizon.Entities;
 using MindHorizon.Entities.Identity;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace MindHorizon.ViewModels.Post
 {
@@ -27,7 +29,7 @@ namespace MindHorizon.ViewModels.Post
         public bool FuturePublish { get; set; }
 
         [JsonIgnore]
-        [Required(ErrorMessage = "وارد نمودن {0} الزامی است."), Display(Name = "چکیده")]
+        [Required(ErrorMessage = "وارد نمودن {0} الزامی است."),Display(Name ="چکیده")]
         public string Abstract { get; set; }
 
         [JsonIgnore]
@@ -37,7 +39,7 @@ namespace MindHorizon.ViewModels.Post
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
         public string PersianPublishDate { get; set; }
 
-        [Display(Name = "زمان انتشار"), JsonIgnore]
+        [Display(Name = "زمان انتشار"),JsonIgnore]
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
         public string PersianPublishTime { get; set; }
 
@@ -51,8 +53,8 @@ namespace MindHorizon.ViewModels.Post
         public string ImageName { get; set; }
 
         [Required(ErrorMessage = "انتخاب {0} الزامی است.")]
-        [JsonIgnore, Display(Name = "تصویر شاخص")]
-        public string ImageFile { get; set; }
+        [JsonIgnore,Display(Name ="تصویر شاخص")]
+        public string ImageFile {get;set;}
 
         [JsonIgnore]
         public bool IsPublish { get; set; }
@@ -88,9 +90,10 @@ namespace MindHorizon.ViewModels.Post
         [JsonProperty("متن مطلب")]
         public string Description { get; set; }
 
-
+        
         [JsonIgnore]
         public string[] CategoryIds { get; set; }
+
 
         [JsonIgnore]
         public string IdOfTags { get; set; }

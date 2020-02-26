@@ -4,15 +4,13 @@
  * For LGPL see License.txt in the project root for license information.
  * For commercial licenses see https://www.tiny.cloud/
  *
- * Version: 5.1.6 (2020-01-28)
+ * Version: 5.0.14 (2019-08-19)
  */
 (function (domGlobals) {
     'use strict';
 
     var global = tinymce.util.Tools.resolve('tinymce.PluginManager');
 
-    var noop = function () {
-    };
     var constant = function (value) {
       return function () {
         return value;
@@ -30,6 +28,8 @@
     var never = constant(false);
     var always = constant(true);
 
+    var never$1 = never;
+    var always$1 = always;
     var none = function () {
       return NONE;
     };
@@ -43,27 +43,37 @@
       var id = function (n) {
         return n;
       };
+      var noop = function () {
+      };
+      var nul = function () {
+        return null;
+      };
+      var undef = function () {
+        return undefined;
+      };
       var me = {
         fold: function (n, s) {
           return n();
         },
-        is: never,
-        isSome: never,
-        isNone: always,
+        is: never$1,
+        isSome: never$1,
+        isNone: always$1,
         getOr: id,
         getOrThunk: call,
         getOrDie: function (msg) {
           throw new Error(msg || 'error: getOrDie called on none.');
         },
-        getOrNull: constant(null),
-        getOrUndefined: constant(undefined),
+        getOrNull: nul,
+        getOrUndefined: undef,
         or: id,
         orThunk: call,
         map: none,
+        ap: none,
         each: noop,
         bind: none,
-        exists: never,
-        forall: always,
+        flatten: none,
+        exists: never$1,
+        forall: always$1,
         filter: none,
         equals: eq,
         equals_: eq,
@@ -78,9 +88,14 @@
       return me;
     }();
     var some = function (a) {
-      var constant_a = constant(a);
+      var constant_a = function () {
+        return a;
+      };
       var self = function () {
         return me;
+      };
+      var map = function (f) {
+        return some(f(a));
       };
       var bind = function (f) {
         return f(a);
@@ -92,8 +107,8 @@
         is: function (v) {
           return a === v;
         },
-        isSome: always,
-        isNone: never,
+        isSome: always$1,
+        isNone: never$1,
         getOr: constant_a,
         getOrThunk: constant_a,
         getOrDie: constant_a,
@@ -101,31 +116,35 @@
         getOrUndefined: constant_a,
         or: self,
         orThunk: self,
-        map: function (f) {
-          return some(f(a));
+        map: map,
+        ap: function (optfab) {
+          return optfab.fold(none, function (fab) {
+            return some(fab(a));
+          });
         },
         each: function (f) {
           f(a);
         },
         bind: bind,
+        flatten: constant_a,
         exists: bind,
         forall: bind,
         filter: function (f) {
           return f(a) ? me : NONE;
+        },
+        equals: function (o) {
+          return o.is(a);
+        },
+        equals_: function (o, elementEq) {
+          return o.fold(never$1, function (b) {
+            return elementEq(a, b);
+          });
         },
         toArray: function () {
           return [a];
         },
         toString: function () {
           return 'some(' + a + ')';
-        },
-        equals: function (o) {
-          return o.is(a);
-        },
-        equals_: function (o, elementEq) {
-          return o.fold(never, function (b) {
-            return elementEq(a, b);
-          });
         }
       };
       return me;
@@ -163,28 +182,27 @@
     var isFunction = isType('function');
     var isNumber = isType('number');
 
-    var nativeSlice = Array.prototype.slice;
-    var nativePush = Array.prototype.push;
+    var slice = Array.prototype.slice;
     var map = function (xs, f) {
       var len = xs.length;
       var r = new Array(len);
       for (var i = 0; i < len; i++) {
         var x = xs[i];
-        r[i] = f(x, i);
+        r[i] = f(x, i, xs);
       }
       return r;
     };
     var each = function (xs, f) {
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        f(x, i);
+        f(x, i, xs);
       }
     };
     var filter = function (xs, pred) {
       var r = [];
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        if (pred(x, i)) {
+        if (pred(x, i, xs)) {
           r.push(x);
         }
       }
@@ -222,19 +240,20 @@
     var find = function (xs, pred) {
       for (var i = 0, len = xs.length; i < len; i++) {
         var x = xs[i];
-        if (pred(x, i)) {
+        if (pred(x, i, xs)) {
           return Option.some(x);
         }
       }
       return Option.none();
     };
+    var push = Array.prototype.push;
     var flatten = function (xs) {
       var r = [];
       for (var i = 0, len = xs.length; i < len; ++i) {
         if (!isArray(xs[i])) {
           throw new Error('Arr.flatten item ' + i + ' was not an array, input: ' + xs);
         }
-        nativePush.apply(r, xs[i]);
+        push.apply(r, xs[i]);
       }
       return r;
     };
@@ -243,7 +262,7 @@
       return flatten(output);
     };
     var reverse = function (xs) {
-      var r = nativeSlice.call(xs, 0);
+      var r = slice.call(xs, 0);
       r.reverse();
       return r;
     };
@@ -254,7 +273,7 @@
       return xs.length === 0 ? Option.none() : Option.some(xs[xs.length - 1]);
     };
     var from$1 = isFunction(Array.from) ? Array.from : function (x) {
-      return nativeSlice.call(x);
+      return slice.call(x);
     };
 
     var compareDocumentPosition = function (a, b, match) {
@@ -271,21 +290,19 @@
       documentPositionContainedBy: documentPositionContainedBy
     };
 
-    var Cell = function (initial) {
-      var value = initial;
-      var get = function () {
-        return value;
-      };
-      var set = function (v) {
-        value = v;
-      };
-      var clone = function () {
-        return Cell(get());
-      };
-      return {
-        get: get,
-        set: set,
-        clone: clone
+    var cached = function (f) {
+      var called = false;
+      var r;
+      return function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+          args[_i] = arguments[_i];
+        }
+        if (!called) {
+          called = true;
+          r = f.apply(null, args);
+        }
+        return r;
       };
     };
 
@@ -382,7 +399,6 @@
     var osx = 'OSX';
     var solaris = 'Solaris';
     var freebsd = 'FreeBSD';
-    var chromeos = 'ChromeOS';
     var isOS = function (name, current) {
       return function () {
         return current === name;
@@ -406,8 +422,7 @@
         isOSX: isOS(osx, current),
         isLinux: isOS(linux, current),
         isSolaris: isOS(solaris, current),
-        isFreeBSD: isOS(freebsd, current),
-        isChromeOS: isOS(chromeos, current)
+        isFreeBSD: isOS(freebsd, current)
       };
     };
     var OperatingSystem = {
@@ -419,19 +434,18 @@
       linux: constant(linux),
       osx: constant(osx),
       solaris: constant(solaris),
-      freebsd: constant(freebsd),
-      chromeos: constant(chromeos)
+      freebsd: constant(freebsd)
     };
 
-    var DeviceType = function (os, browser, userAgent, mediaMatch) {
+    var DeviceType = function (os, browser, userAgent) {
       var isiPad = os.isiOS() && /ipad/i.test(userAgent) === true;
       var isiPhone = os.isiOS() && !isiPad;
-      var isMobile = os.isiOS() || os.isAndroid();
-      var isTouch = isMobile || mediaMatch('(pointer:coarse)');
-      var isTablet = isiPad || !isiPhone && isMobile && mediaMatch('(min-device-width:768px)');
-      var isPhone = isiPhone || isMobile && !isTablet;
+      var isAndroid3 = os.isAndroid() && os.version.major === 3;
+      var isAndroid4 = os.isAndroid() && os.version.major === 4;
+      var isTablet = isiPad || isAndroid3 || isAndroid4 && /mobile/i.test(userAgent) === true;
+      var isTouch = os.isiOS() || os.isAndroid();
+      var isPhone = isTouch && !isTablet;
       var iOSwebview = browser.isSafari() && os.isiOS() && /safari/i.test(userAgent) === false;
-      var isDesktop = !isPhone && !isTablet && !iOSwebview;
       return {
         isiPad: constant(isiPad),
         isiPhone: constant(isiPhone),
@@ -440,8 +454,7 @@
         isTouch: constant(isTouch),
         isAndroid: os.isAndroid,
         isiOS: os.isiOS,
-        isWebView: constant(iOSwebview),
-        isDesktop: constant(isDesktop)
+        isWebView: constant(iOSwebview)
       };
     };
 
@@ -560,8 +573,8 @@
       },
       {
         name: 'OSX',
-        search: checkContains('mac os x'),
-        versionRegexes: [/.*?mac\ os\ x\ ?([0-9]+)_([0-9]+).*/]
+        search: checkContains('os x'),
+        versionRegexes: [/.*?os\ x\ ?([0-9]+)_([0-9]+).*/]
       },
       {
         name: 'Linux',
@@ -577,11 +590,6 @@
         name: 'FreeBSD',
         search: checkContains('freebsd'),
         versionRegexes: []
-      },
-      {
-        name: 'ChromeOS',
-        search: checkContains('cros'),
-        versionRegexes: [/.*?chrome\/([0-9]+)\.([0-9]+).*/]
       }
     ];
     var PlatformInfo = {
@@ -589,12 +597,12 @@
       oses: constant(oses)
     };
 
-    var detect$2 = function (userAgent, mediaMatch) {
+    var detect$2 = function (userAgent) {
       var browsers = PlatformInfo.browsers();
       var oses = PlatformInfo.oses();
       var browser = UaString.detectBrowser(browsers, userAgent).fold(Browser.unknown, Browser.nu);
       var os = UaString.detectOs(oses, userAgent).fold(OperatingSystem.unknown, OperatingSystem.nu);
-      var deviceType = DeviceType(os, browser, userAgent, mediaMatch);
+      var deviceType = DeviceType(os, browser, userAgent);
       return {
         browser: browser,
         os: os,
@@ -603,13 +611,11 @@
     };
     var PlatformDetection = { detect: detect$2 };
 
-    var mediaMatch = function (query) {
-      return domGlobals.window.matchMedia(query).matches;
-    };
-    var platform = Cell(PlatformDetection.detect(domGlobals.navigator.userAgent, mediaMatch));
-    var detect$3 = function () {
-      return platform.get();
-    };
+    var detect$3 = cached(function () {
+      var userAgent = domGlobals.navigator.userAgent;
+      return PlatformDetection.detect(userAgent);
+    });
+    var PlatformDetection$1 = { detect: detect$3 };
 
     var fromHtml = function (html, scope) {
       var doc = scope || domGlobals.document;
@@ -694,7 +700,7 @@
     var ieContains = function (e1, e2) {
       return Node.documentPositionContainedBy(e1.dom(), e2.dom());
     };
-    var browser = detect$3().browser;
+    var browser = PlatformDetection$1.detect().browser;
     var contains$1 = browser.isIE() ? ieContains : regularContains;
     var is$1 = is;
 
@@ -704,8 +710,17 @@
 
     var global$3 = tinymce.util.Tools.resolve('tinymce.util.VK');
 
-    var lift2 = function (oa, ob, f) {
-      return oa.isSome() && ob.isSome() ? Option.some(f(oa.getOrDie(), ob.getOrDie())) : Option.none();
+    var liftN = function (arr, f) {
+      var r = [];
+      for (var i = 0; i < arr.length; i++) {
+        var x = arr[i];
+        if (x.isSome()) {
+          r.push(x.getOrDie());
+        } else {
+          return Option.none();
+        }
+      }
+      return Option.some(f.apply(null, r));
     };
 
     var fromElements = function (elements, scope) {
@@ -744,7 +759,7 @@
       for (var k = 0, len = props.length; k < len; k++) {
         var i = props[k];
         var x = obj[i];
-        f(x, i);
+        f(x, i, obj);
       }
     };
 
@@ -986,6 +1001,8 @@
       getSelectedListRoots: getSelectedListRoots
     };
 
+    var global$6 = tinymce.util.Tools.resolve('tinymce.Env');
+
     var createTextBlock = function (editor, contentNode) {
       var dom = editor.dom;
       var blockElements = editor.schema.getBlockElements();
@@ -1028,7 +1045,7 @@
       if (!editor.settings.forced_root_block) {
         fragment.appendChild(dom.create('br'));
       } else {
-        if (!hasContentNode) {
+        if (!hasContentNode && (!global$6.ie || global$6.ie > 10)) {
           textBlock.appendChild(dom.create('br', { 'data-mce-bogus': '1' }));
         }
       }
@@ -1118,7 +1135,10 @@
       }
     };
     var appendSegments = function (head$1, tail) {
-      lift2(last(head$1), head(tail), joinSegment);
+      liftN([
+        last(head$1),
+        head(tail)
+      ], joinSegment);
     };
     var createSegment = function (scope, listType) {
       var segment = {
@@ -1284,6 +1304,24 @@
       });
     };
 
+    var Cell = function (initial) {
+      var value = initial;
+      var get = function () {
+        return value;
+      };
+      var set = function (v) {
+        value = v;
+      };
+      var clone = function () {
+        return Cell(get());
+      };
+      return {
+        get: get,
+        set: set,
+        clone: clone
+      };
+    };
+
     var parseItem = function (depth, itemSelection, selectionState, item) {
       return firstChild(item).filter(isList$1).fold(function () {
         itemSelection.each(function (selection) {
@@ -1346,7 +1384,10 @@
     };
     var getItemSelection = function (editor) {
       var selectedListItems = map(Selection.getSelectedListItems(editor), Element.fromDom);
-      return lift2(find(selectedListItems, not(hasFirstChildList)), find(reverse(selectedListItems), not(hasFirstChildList)), function (start, end) {
+      return liftN([
+        find(selectedListItems, not(hasFirstChildList)),
+        find(reverse(selectedListItems), not(hasFirstChildList))
+      ], function (start, end) {
         return {
           start: start,
           end: end
@@ -1366,9 +1407,9 @@
       });
     };
 
-    var global$6 = tinymce.util.Tools.resolve('tinymce.dom.DOMUtils');
+    var global$7 = tinymce.util.Tools.resolve('tinymce.dom.DOMUtils');
 
-    var DOM = global$6.DOM;
+    var DOM = global$7.DOM;
     var splitList = function (editor, ul, li) {
       var tmpRng, fragment, bookmarks, node, newBlock;
       var removeAndKeepBookmarks = function (targetNode) {
@@ -1494,9 +1535,9 @@
       return selectionIndentation(editor, 'Flatten');
     };
 
-    var global$7 = tinymce.util.Tools.resolve('tinymce.dom.BookmarkManager');
+    var global$8 = tinymce.util.Tools.resolve('tinymce.dom.BookmarkManager');
 
-    var DOM$1 = global$6.DOM;
+    var DOM$1 = global$7.DOM;
     var createBookmark = function (rng) {
       var bookmark = {};
       var setupEndPoint = function (start) {
@@ -1660,7 +1701,7 @@
           return;
         }
         var nextSibling = node.nextSibling;
-        if (global$7.isBookmarkNode(node)) {
+        if (global$8.isBookmarkNode(node)) {
           if (NodeType.isTextBlock(editor, nextSibling) || !nextSibling && node.parentNode === root) {
             block = null;
             return;
@@ -1818,7 +1859,7 @@
       mergeWithAdjacentLists: mergeWithAdjacentLists
     };
 
-    var DOM$2 = global$6.DOM;
+    var DOM$2 = global$7.DOM;
     var normalizeList = function (dom, ul) {
       var sibling;
       var parentNode = ul.parentNode;

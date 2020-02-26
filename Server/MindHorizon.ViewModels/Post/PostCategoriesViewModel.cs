@@ -1,5 +1,7 @@
 ﻿using MindHorizon.ViewModels.Category;
+using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MindHorizon.ViewModels.Post
 {

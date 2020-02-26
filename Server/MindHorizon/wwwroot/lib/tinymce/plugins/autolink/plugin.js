@@ -4,7 +4,7 @@
  * For LGPL see License.txt in the project root for license information.
  * For commercial licenses see https://www.tiny.cloud/
  *
- * Version: 5.1.6 (2020-01-28)
+ * Version: 5.0.14 (2019-08-19)
  */
 (function () {
     'use strict';
@@ -150,7 +150,7 @@
           return handleEnter(editor);
         }
       });
-      if (global$1.browser.isIE()) {
+      if (global$1.ie && global$1.ie <= 11) {
         editor.on('focus', function () {
           if (!autoUrlDetectState) {
             autoUrlDetectState = true;

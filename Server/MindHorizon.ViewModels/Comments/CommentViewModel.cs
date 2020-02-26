@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using MindHorizon.Entities;
+using System.Text;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace MindHorizon.ViewModels.Comments
@@ -24,18 +26,18 @@ namespace MindHorizon.ViewModels.Comments
         [JsonProperty("ردیف")]
         public int Row { get; set; }
 
-        [JsonProperty("نام"), Display(Name = "نام")]
+        [JsonProperty("نام"),Display(Name="نام")]
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
         public string Name { get; set; }
 
 
-        [JsonProperty("ایمیل"), Display(Name = "ایمیل")]
+        [JsonProperty("ایمیل"),Display(Name = "ایمیل")]
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
-        [EmailAddress(ErrorMessage = "ایمیل وارد شده معتبر نمی باشد.")]
+        [EmailAddress(ErrorMessage ="ایمیل وارد شده معتبر نمی باشد.")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
-        [JsonProperty("دیدگاه"), Display(Name = "دیدگاه")]
+        [JsonProperty("دیدگاه") , Display(Name = "دیدگاه")]
         public string Desription { get; set; }
 
         [JsonIgnore]

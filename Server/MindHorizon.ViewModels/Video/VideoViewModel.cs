@@ -24,7 +24,7 @@ namespace MindHorizon.ViewModels.Video
         public string Url { get; set; }
 
         [Display(Name = "پوستر ویدیو"),JsonIgnore]
-        [Required(ErrorMessage = "انتخاب {0} الزامی است.")]
+        //[Required(ErrorMessage = "انتخاب {0} الزامی است.")]
         public IFormFile PosterFile { get; set; }
         
         public string Poster { get; set; }

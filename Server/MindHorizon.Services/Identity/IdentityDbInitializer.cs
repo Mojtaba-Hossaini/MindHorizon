@@ -3,13 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Threading.Tasks;
+using System;
+using MindHorizon.Services.Contracts;
+using MindHorizon.Entities.Identity;
 using MindHorizon.Common;
 using MindHorizon.Data;
-using MindHorizon.Entities.Identity;
-using MindHorizon.Services.Contracts;
 using MindHorizon.ViewModels.Settings;
-using System;
-using System.Threading.Tasks;
 
 namespace MindHorizon.Services.Identity
 {
@@ -113,11 +114,11 @@ namespace MindHorizon.Services.Identity
                 Email = email,
                 EmailConfirmed = true,
                 LockoutEnabled = true,
-                RegisterDateTime = DateTime.Now,
-                FirstName = firstName,
-                LastName = lastName,
-                Gender = GenderType.Male,
-                IsActive = true
+                RegisterDateTime=DateTime.Now,
+                FirstName= firstName,
+                LastName= lastName,
+                Gender=GenderType.Female,
+                IsActive=true
             };
             var adminUserResult = await _applicationUserManager.CreateAsync(adminUser, password);
             if (adminUserResult == IdentityResult.Failed())

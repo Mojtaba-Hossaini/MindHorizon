@@ -1,6 +1,8 @@
 ﻿using MindHorizon.Entities;
 using MindHorizon.ViewModels.Tag;
+using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MindHorizon.Data.Contracts

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using MindHorizon.Common;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
+using MindHorizon.ViewModels.Comments;
 using MindHorizon.ViewModels.Post;
 using System;
 using System.Collections.Generic;
@@ -26,15 +28,14 @@ namespace MindHorizon.Data.Repositories
             _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
-        public int CountPostPublished() => _context.Post.Where(n => n.IsPublish == true && n.PublishDateTime <= DateTime.Now).Count();
-
-        public  List<PostViewModel> GetPaginatePost(int offset, int limit, Func<IGrouping<string, PostViewModel>, object> orderByAscFunc, Func<IGrouping<string, PostViewModel>, object> orderByDescFunc, string searchText, bool? isPublish)
+        public int CountPostsPublished() => _context.Post.Where(n => n.IsPublish == true && n.PublishDateTime <= DateTime.Now).Count();
+        public List<PostViewModel> GetPaginatePosts(int offset, int limit, Func<IGrouping<string, PostViewModel>, Object> orderByAscFunc, Func<IGrouping<string, PostViewModel>, Object> orderByDescFunc, string searchText,bool? isPublish)
         {
             string NameOfCategories = "";
             string NameOfTags = "";
-            List<PostViewModel> PostViewModel = new List<PostViewModel>();
+            List<PostViewModel> postViewModel = new List<PostViewModel>();
 
-            var postGroup = (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User).Include(c => c.Comments)
+            var postGroup = (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(u=>u.User).Include(c=>c.Comments)
                                    join e in _context.PostCategories on n.PostId equals e.PostId into bc
                                    from bct in bc.DefaultIfEmpty()
                                    join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
@@ -43,26 +44,26 @@ namespace MindHorizon.Data.Repositories
                                    from act in ac.DefaultIfEmpty()
                                    join t in _context.Tags on act.TagId equals t.TagId into tg
                                    from tog in tg.DefaultIfEmpty()
-                                   where (n.Title.Contains(searchText) && isPublish == null ? (n.IsPublish == true || n.IsPublish == false) : (isPublish == true ? n.IsPublish == true && n.PublishDateTime<= DateTime.Now : n.IsPublish == false))
+                                   where (n.Title.Contains(searchText) && isPublish==null?(n.IsPublish==true || n.IsPublish==false) : (isPublish==true?n.IsPublish==true && n.PublishDateTime<=DateTime.Now : n.IsPublish==false) )
                                    select (new PostViewModel
                                    {
-                                       PostId =  n.PostId,
-                                       Title =  n.Title,
-                                       Abstract =  n.Abstract,
-                                       ShortTitle = n.Title.Length > 45 ? n.Title.Substring(0, 45) + "..." : n.Title,
-                                       Url =  n.Url,
-                                       ImageName = n.ImageName,
-                                       Description = n.Description,
+                                       PostId = n.PostId,
+                                       Title= n.Title,
+                                       Abstract= n.Abstract,
+                                       ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
+                                       Url= n.Url,
+                                       ImageName= n.ImageName,
+                                       Description= n.Description,
                                        NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
                                        NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
                                        NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
-                                       NumberOfComments = n.Comments.Count(),
+                                       NumberOfComments=n.Comments.Count(),
                                        NameOfCategories = cog != null ? cog.CategoryName : "",
-                                       NameOfTags = tog != null ? tog.TagName : "",
-                                       AuthorName = n.User.FirstName + " " + n.User.LastName,
-                                       IsPublish = n.IsPublish,
-                                       PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
-                                       PersianPublishDate = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),
+                                       NameOfTags= tog!=null ? tog.TagName :"",
+                                       AuthorName=n.User.FirstName+" "+ n.User.LastName,
+                                       IsPublish= n.IsPublish,
+                                       PublishDateTime=n.PublishDateTime==null? new DateTime(01,01,01):n.PublishDateTime,
+                                       PersianPublishDate = n.PublishDateTime==null?"-": n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),
                                    })).GroupBy(b => b.PostId).OrderBy(orderByAscFunc).OrderByDescending(orderByDescFunc).Select(g => new { PostId = g.Key, PostGroup = g }).Skip(offset).Take(limit).ToList();
 
             foreach (var item in postGroup)
@@ -97,21 +98,21 @@ namespace MindHorizon.Data.Repositories
                     NumberOfDisLike = item.PostGroup.First().NumberOfDisLike,
                     NumberOfLike = item.PostGroup.First().NumberOfLike,
                     PersianPublishDate = item.PostGroup.First().PersianPublishDate,
-                    Status = item.PostGroup.First().IsPublish == false ? "پیش نویس" : (item.PostGroup.First().PublishDateTime > DateTime.Now ? "انتشار در آینده" : "منتشر شده"),
+                    Status = item.PostGroup.First().IsPublish==false?"پیش نویس": (item.PostGroup.First().PublishDateTime > DateTime.Now ? "انتشار در آینده" : "منتشر شده"),
                     NameOfCategories = NameOfCategories,
                     NameOfTags = NameOfTags,
-                    ImageName = item.PostGroup.First().ImageName,
+                    ImageName= item.PostGroup.First().ImageName,
                     AuthorName = item.PostGroup.First().AuthorName,
-                    NumberOfComments = item.PostGroup.First().NumberOfComments,
-                    PublishDateTime = item.PostGroup.First().PublishDateTime
+                    NumberOfComments=item.PostGroup.First().NumberOfComments,
+                    PublishDateTime= item.PostGroup.First().PublishDateTime,
                 };
-                PostViewModel.Add(post);
+                postViewModel.Add(post);
             }
 
-             foreach (var item in PostViewModel)
+            foreach (var item in postViewModel)
                 item.Row = ++offset;
 
-            return PostViewModel;
+            return postViewModel;
 
         }
 
@@ -153,12 +154,11 @@ namespace MindHorizon.Data.Repositories
             }
 
             var postGroup = await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
-                                   join v in _context.Visits on n.PostId equals v.PostId
                                    join e in _context.PostCategories on n.PostId equals e.PostId into bc
                                    from bct in bc.DefaultIfEmpty()
                                    join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
                                    from cog in cg.DefaultIfEmpty()
-                                   where (v.LastVisitDateTime <= EndMiladiDate && StartMiladiDate <= v.LastVisitDateTime)
+                                   where (n.PublishDateTime <= EndMiladiDate && StartMiladiDate <= n.PublishDateTime)
                                    select (new
                                    {
                                        n.PostId,
@@ -202,6 +202,7 @@ namespace MindHorizon.Data.Repositories
             return postViewModel;
         }
 
+
         public async Task<List<PostViewModel>> MostTalkPosts(int offset, int limit, string duration)
         {
             DateTime StartMiladiDate;
@@ -223,8 +224,7 @@ namespace MindHorizon.Data.Repositories
             }
 
             return await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
-                          join t in _context.Comments on n.PostId equals t.PostId
-                          where (t.PostageDateTime <= EndMiladiDate && StartMiladiDate <= t.PostageDateTime)
+                          where (n.PublishDateTime <= EndMiladiDate && StartMiladiDate <= n.PublishDateTime)
                           select (new PostViewModel
                           {
                               PostId = n.PostId,
@@ -263,36 +263,36 @@ namespace MindHorizon.Data.Repositories
         {
             string NameOfCategories = "";
             var postGroup = await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User).Include(c => c.Comments)
-                                   join e in _context.PostCategories on n.PostId equals e.PostId into bc
-                                   from bct in bc.DefaultIfEmpty()
-                                   join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
-                                   from cog in cg.DefaultIfEmpty()
-                                   join a in _context.PostTags on n.PostId equals a.PostId into ac
-                                   from act in ac.DefaultIfEmpty()
-                                   join t in _context.Tags on act.TagId equals t.TagId into tg
-                                   from tog in tg.DefaultIfEmpty()
-                                   where (n.PostId == postId)
-                                   select (new PostViewModel
-                                   {
-                                       PostId = n.PostId,
-                                       Title = n.Title,
-                                       Abstract = n.Abstract,
-                                       ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
-                                       Url = n.Url,
-                                       ImageName = n.ImageName,
-                                       Description = n.Description,
-                                       NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
-                                       NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
-                                       NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
-                                       NumberOfComments = n.Comments.Where(c => c.IsConfirm == true).Count(),
-                                       NameOfCategories = cog != null ? cog.CategoryName : "",
-                                       NameOfTags = tog != null ? tog.TagName : "",
-                                       IdOfTags = tog != null ? tog.TagId : "",
-                                       AuthorInfo = n.User,
-                                       IsPublish = n.IsPublish,
-                                       PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
-                                       PersianPublishDate = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),
-                                   })).GroupBy(b => b.PostId).Select(g => new { PostId = g.Key, PostGroup = g }).AsNoTracking().ToListAsync();
+                             join e in _context.PostCategories on n.PostId equals e.PostId into bc
+                             from bct in bc.DefaultIfEmpty()
+                             join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
+                             from cog in cg.DefaultIfEmpty()
+                             join a in _context.PostTags on n.PostId equals a.PostId into ac
+                             from act in ac.DefaultIfEmpty()
+                             join t in _context.Tags on act.TagId equals t.TagId into tg
+                             from tog in tg.DefaultIfEmpty()
+                             where (n.PostId == postId)
+                             select (new PostViewModel
+                             {
+                                 PostId = n.PostId,
+                                 Title = n.Title,
+                                 Abstract = n.Abstract,
+                                 ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
+                                 Url = n.Url,
+                                 ImageName = n.ImageName,
+                                 Description = n.Description,
+                                 NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
+                                 NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
+                                 NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
+                                 NumberOfComments = n.Comments.Where(c=>c.IsConfirm==true).Count(),
+                                 NameOfCategories = cog != null ? cog.CategoryName : "",
+                                 NameOfTags = tog != null ? tog.TagName : "",
+                                 IdOfTags = tog != null ? tog.TagId : "",
+                                 AuthorInfo =n.User,
+                                 IsPublish = n.IsPublish,
+                                 PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
+                                 PersianPublishDate = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),
+                             })).GroupBy(b => b.PostId).Select(g => new { PostId = g.Key, PostGroup = g }).AsNoTracking().ToListAsync();
 
 
             foreach (var a in postGroup.First().PostGroup.Select(a => a.NameOfCategories).Distinct())
@@ -317,10 +317,10 @@ namespace MindHorizon.Data.Repositories
                 PersianPublishDate = postGroup.First().PostGroup.First().PersianPublishDate,
                 Status = postGroup.First().PostGroup.First().IsPublish == false ? "پیش نویس" : (postGroup.First().PostGroup.First().PublishDateTime > DateTime.Now ? "انتشار در آینده" : "منتشر شده"),
                 NameOfCategories = NameOfCategories,
-                TagNamesList = postGroup.First().PostGroup.Select(a => a.NameOfTags).Distinct().ToList(),
+                TagNamesList = postGroup.First().PostGroup.Select(a=>a.NameOfTags).Distinct().ToList(),
                 TagIdsList = postGroup.First().PostGroup.Select(a => a.IdOfTags).Distinct().ToList(),
                 ImageName = postGroup.First().PostGroup.First().ImageName,
-                AuthorInfo = postGroup.First().PostGroup.First().AuthorInfo,
+                AuthorInfo= postGroup.First().PostGroup.First().AuthorInfo,
                 NumberOfComments = postGroup.First().PostGroup.First().NumberOfComments,
                 PublishDateTime = postGroup.First().PostGroup.First().PublishDateTime,
             };
@@ -331,36 +331,14 @@ namespace MindHorizon.Data.Repositories
         public async Task<List<PostViewModel>> GetNextAndPreviousPost(DateTime? PublishDateTime)
         {
             var postList = new List<PostViewModel>();
-            postList.Add(await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
-                                where (n.IsPublish == true && n.PublishDateTime <= DateTime.Now && n.PublishDateTime < PublishDateTime)
-                                select (new PostViewModel
-                                {
-                                    PostId = n.PostId,
-                                    ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
-                                    Url = n.Url,
-                                    Title = n.Title,
-                                    NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
-                                    NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
-                                    NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
-                                    NumberOfComments = n.Comments.Count(),
-                                    ImageName = n.ImageName,
-                                    PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
-                                })).OrderByDescending(o => o.PublishDateTime).AsNoTracking().FirstOrDefaultAsync());
+            postList.Add( await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
+                          where (n.IsPublish == true && n.PublishDateTime <= DateTime.Now && n.PublishDateTime< PublishDateTime)
+                          select (new PostViewModel{PostId = n.PostId,ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,Url = n.Url,Title = n.Title,NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),NumberOfComments = n.Comments.Count(),ImageName = n.ImageName,PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
+                          })).OrderByDescending(o => o.PublishDateTime).AsNoTracking().FirstOrDefaultAsync());
 
             postList.Add(await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
                                 where (n.IsPublish == true && n.PublishDateTime <= DateTime.Now && n.PublishDateTime > PublishDateTime)
-                                select (new PostViewModel
-                                {
-                                    PostId = n.PostId,
-                                    ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
-                                    Url = n.Url,
-                                    Title = n.Title,
-                                    NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
-                                    NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
-                                    NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
-                                    NumberOfComments = n.Comments.Count(),
-                                    ImageName = n.ImageName,
-                                    PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
+                                select (new PostViewModel{PostId = n.PostId,ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,Url = n.Url,Title = n.Title,NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),NumberOfComments = n.Comments.Count(),ImageName = n.ImageName,PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
                                 })).OrderBy(o => o.PublishDateTime).AsNoTracking().FirstOrDefaultAsync());
 
             return postList;
@@ -369,8 +347,8 @@ namespace MindHorizon.Data.Repositories
         public async Task<List<Comment>> GetPostCommentsAsync(string postId)
         {
             var comments = await (from c in _context.Comments
-                                  where (c.ParentCommentId == null && c.PostId == postId && c.IsConfirm == true)
-                                  select new Comment { CommentId = c.CommentId, Desription = c.Desription, Email = c.Email, PostageDateTime = c.PostageDateTime, Name = c.Name, IsConfirm = c.IsConfirm }).ToListAsync();
+                                    where (c.ParentCommentId == null && c.PostId== postId && c.IsConfirm==true)
+                                    select new Comment { CommentId = c.CommentId, Desription = c.Desription, Email=c.Email , PostageDateTime=c.PostageDateTime, Name = c.Name , PostId=c.PostId }).ToListAsync();
             foreach (var item in comments)
                 await BindSubComments(item);
 
@@ -380,8 +358,8 @@ namespace MindHorizon.Data.Repositories
         public async Task BindSubComments(Comment comment)
         {
             var subComments = await (from c in _context.Comments
-                                     where (c.ParentCommentId == comment.CommentId && c.IsConfirm == true)
-                                     select new Comment { CommentId = c.CommentId, Desription = c.Desription, Email = c.Email, PostageDateTime = c.PostageDateTime, Name = c.Name, IsConfirm = c.IsConfirm }).ToListAsync();
+                                 where (c.ParentCommentId == comment.CommentId && c.IsConfirm==true)
+                                 select new Comment { CommentId = c.CommentId, Desription = c.Desription, Email = c.Email, PostageDateTime = c.PostageDateTime ,Name=c.Name, PostId = c.PostId }).ToListAsync();
 
             foreach (var item in subComments)
             {
@@ -389,23 +367,17 @@ namespace MindHorizon.Data.Repositories
                 comment.comments.Add(item);
             }
         }
-
-        public async Task<List<PostViewModel>> GetRelatedPost(int number, List<string> tagIdList, string postId)
+        public async Task<List<PostViewModel>> GetRelatedPosts(int number, List<string> tagIdList,string postId)
         {
             var postList = new List<PostViewModel>();
             int randomRow;
             int postCount = _context.Post.Include(t => t.PostTags).Where(n => n.IsPublish == true && n.PublishDateTime <= DateTime.Now && tagIdList.Any(y => n.PostTags.Select(x => x.TagId).Contains(y)) && n.PostId != postId).Count();
-            for (int i = 0; i < number && i < postCount; i++)
+            for (int i = 0; i < number && i< postCount; i++)
             {
                 randomRow = CustomMethods.RandomNumber(1, postCount + 1);
-                var post = await _context.Post.Include(t => t.PostTags).Include(c => c.Comments).Include(l => l.Likes).Include(l => l.Visits).Where(n => n.IsPublish == true && n.PublishDateTime <= DateTime.Now && tagIdList.Any(y => n.PostTags.Select(x => x.TagId).Contains(y)) && n.PostId != postId)
+                var post = await _context.Post.Include(t => t.PostTags).Include(c=>c.Comments).Include(l=>l.Likes).Include(l => l.Visits).Where(n => n.IsPublish == true && n.PublishDateTime <= DateTime.Now && tagIdList.Any(y => n.PostTags.Select(x => x.TagId).Contains(y)) && n.PostId != postId)
                     .Select(n => new PostViewModel
-                    {
-                        Title = n.Title,
-                        Url = n.Url,
-                        PostId = n.PostId,
-                        ImageName = n.ImageName,
-                        PublishDateTime = n.PublishDateTime,
+                    { Title = n.Title, Url = n.Url, PostId = n.PostId, ImageName = n.ImageName, PublishDateTime=n.PublishDateTime,
                         NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
                         NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
                         NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
@@ -417,6 +389,90 @@ namespace MindHorizon.Data.Repositories
             }
 
             return postList;
+        }
+
+
+        public async Task<List<PostViewModel>> GetPostsInCategoryAndTag(string categoryId,string TagId)
+        {
+            string NameOfCategories = "";
+            List<PostViewModel> postViewModel = new List<PostViewModel>();
+            var postGroup = await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User).Include(c => c.Comments)
+                                   join e in _context.PostCategories on n.PostId equals e.PostId into bc
+                                   from bct in bc.DefaultIfEmpty()
+                                   join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
+                                   from cog in cg.DefaultIfEmpty()
+                                   join a in _context.PostTags on n.PostId equals a.PostId into ac
+                                   from act in ac.DefaultIfEmpty()
+                                   join t in _context.Tags on act.TagId equals t.TagId into tg
+                                   from tog in tg.DefaultIfEmpty()
+                                   where (bct.CategoryId.Contains(categoryId) && act.TagId.Contains(TagId))
+                                   select (new PostViewModel
+                                   {
+                                       PostId = n.PostId,
+                                       Title = n.Title,
+                                       Abstract = n.Abstract,
+                                       ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
+                                       Url = n.Url,
+                                       ImageName = n.ImageName,
+                                       Description = n.Description,
+                                       NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
+                                       NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
+                                       NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
+                                       NumberOfComments = n.Comments.Where(c => c.IsConfirm == true).Count(),
+                                       NameOfCategories = cog != null ? cog.CategoryName : "",
+                                       NameOfTags = tog != null ? tog.TagName : "",
+                                       IdOfTags = tog != null ? tog.TagId : "",
+                                       AuthorName = n.User.FirstName+" "+ n.User.LastName,
+                                       IsPublish = n.IsPublish,
+                                       PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
+                                       PersianPublishDate = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),
+                                   })).GroupBy(b => b.PostId).Select(g => new { PostId = g.Key, PostGroup = g }).AsNoTracking().ToListAsync();
+
+
+            foreach (var item in postGroup)
+            {
+                NameOfCategories = "";
+                foreach (var a in item.PostGroup.Select(a => a.NameOfCategories).Distinct())
+                {
+                    if (NameOfCategories == "")
+                        NameOfCategories = a;
+                    else
+                        NameOfCategories = NameOfCategories + " - " + a;
+                }
+
+                PostViewModel post = new PostViewModel()
+                {
+                    PostId = item.PostId,
+                    Title = item.PostGroup.First().Title,
+                    ShortTitle = item.PostGroup.First().ShortTitle,
+                    Abstract = item.PostGroup.First().Abstract,
+                    Url = item.PostGroup.First().Url,
+                    Description = item.PostGroup.First().Description,
+                    NumberOfVisit = item.PostGroup.First().NumberOfVisit,
+                    NumberOfDisLike = item.PostGroup.First().NumberOfDisLike,
+                    NumberOfLike = item.PostGroup.First().NumberOfLike,
+                    PersianPublishDate = item.PostGroup.First().PersianPublishDate,
+                    Status = item.PostGroup.First().IsPublish == false ? "پیش نویس" : (item.PostGroup.First().PublishDateTime > DateTime.Now ? "انتشار در آینده" : "منتشر شده"),
+                    NameOfCategories = NameOfCategories,
+                    ImageName = item.PostGroup.First().ImageName,
+                    AuthorName = item.PostGroup.First().AuthorName,
+                    NumberOfComments = item.PostGroup.First().NumberOfComments,
+                    PublishDateTime = item.PostGroup.First().PublishDateTime,
+                };
+                postViewModel.Add(post);
+            }
+            return postViewModel;
+        }
+
+
+        public async Task<List<PostViewModel>> GetUserBookmarksAsync(int userId)
+        {
+            return await (from u in _context.Users
+                          join b in _context.Bookmarks on u.Id equals b.UserId
+                          join n in _context.Post on b.PostId equals n.PostId
+                          where (u.Id == userId)
+                          select new PostViewModel { PostId = n.PostId, Title = n.Title, PersianPublishDate = n.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm"), Url = n.Url }).ToListAsync();
+
         }
     }
 }

@@ -4,10 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using MindHorizon.Data.Mapping;
 using MindHorizon.Entities;
 using MindHorizon.Entities.Identity;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace MindHorizon.Data
 {
-    public class MindHorizonDbContext: IdentityDbContext<User, Role, int, UserClaim, UserRole, IdentityUserLogin<int>, RoleClaim, IdentityUserToken<int>>
+    public class MindHorizonDbContext : IdentityDbContext<User,Role,int,UserClaim,UserRole,IdentityUserLogin<int>,RoleClaim,IdentityUserToken<int>>
     {
         public MindHorizonDbContext(DbContextOptions options) : base(options)
         {
@@ -22,7 +25,7 @@ namespace MindHorizon.Data
             builder.Entity<Video>().Property(b => b.PublishDateTime).HasDefaultValueSql("CONVERT(datetime,GetDate())");
             builder.Entity<User>().Property(b => b.RegisterDateTime).HasDefaultValueSql("CONVERT(datetime,GetDate())");
             builder.Entity<User>().Property(b => b.IsActive).HasDefaultValueSql("1");
-        }
+            }
 
         public virtual DbSet<Category> Categories { set; get; }
         public virtual DbSet<Post> Post { set; get; }
@@ -31,7 +34,6 @@ namespace MindHorizon.Data
         public virtual DbSet<Like> Likes { get; set; }
         public virtual DbSet<PostCategory> PostCategories { get; set; }
         public virtual DbSet<PostImage> PostImages { get; set; }
-        public virtual DbSet<PostLetter> PostLetters { get; set; }
         public virtual DbSet<PostTag> PostTags { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<Visit> Visits { get; set; }

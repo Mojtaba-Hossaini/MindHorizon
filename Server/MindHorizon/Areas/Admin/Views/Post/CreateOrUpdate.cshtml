@@ -65,7 +65,7 @@
             @if (Model.PostId.HasValue())
             {
                 <li>
-                    <a class="h4 mb-0 text-white d-lg-inline-block"  asp-action="CreateOrUpdate" asp-route-postId="@Model.PostId">ویرایش مطلب </a>
+                    <a class="h4 mb-0 text-white d-lg-inline-block" asp-action="CreateOrUpdate" asp-route-postId="@Model.PostId">ویرایش مطلب </a>
                 </li>
             }
             else
@@ -92,11 +92,11 @@
             <div class="card-header font_Vazir_Medium">
                 @if (Model.PostId.HasValue())
                 {
-                    <span>ویرایش مطلب</span>
+                <span>ویرایش مطلب</span>
                 }
                 else
                 {
-                    <span>افزودن مطلب </span>
+            <span>افزودن مطلب </span>
                 }
             </div>
             <form asp-action="CreateOrUpdate" asp-controller="Post">
@@ -119,7 +119,6 @@
                                 <input asp-for="Title" class="form-control" placeholder="عنوان مطلب" />
                                 <span asp-validation-for="Title" class="text-danger"></span>
                             </div>
-
                             <div class="form-group">
                                 <input asp-for="Abstract" class="form-control" placeholder="چکیده مطلب" maxlength="100"/>
                                 <span asp-validation-for="Abstract" class="text-danger"></span>
@@ -176,24 +175,6 @@
                                     <input type="submit" value="ذخیره پیش نویس" class="btn btn-success btn-sm" name="submitButton" />
                                 </div>
                             </div>
-                            @*<div class="card mb-2">
-                                <div class="card-header pt-2 pb-2 bg-light">نوع مطلب</div>
-                                <div class="card-body">
-                                    <p>نوع مطلب را انتخاب کنید.</p>
-                                    <label class="col-md-8" style="vertical-align:20px;">داخلی</label>
-                                    <label class="custom-toggle">
-                                        <input type="radio" asp-for="IsInternal" value="true" />
-                                        <span class="custom-toggle-slider rounded-circle"></span>
-                                    </label>
-                                    <label class="col-md-8" style="vertical-align:20px;">خارجی</label>
-                                    <label class="custom-toggle">
-                                        <input type="radio" asp-for="IsInternal" value="false" />
-                                        <span class="custom-toggle-slider rounded-circle"></span>
-                                    </label>
-                                    <span class="clearfix"></span>
-                                    <span asp-validation-for="IsInternal" class="text-danger"></span>
-                                </div>
-                            </div>*@
                             <div class="card mb-2">
                                 <div class="card-header pt-2 pb-2 bg-light">دسته بندی</div>
                                 <div class="card-body">
@@ -283,7 +264,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">بستن</button>
-                <button type="button" id="cropImageBtn" class="btn btn-sm btn-primary mr-2">برش و انتخاب</button>
+                <button type="button" id="cropImageBtn" class="btn btn-sm btn-primary mr-2">برش</button>
             </div>
         </div>
     </div>

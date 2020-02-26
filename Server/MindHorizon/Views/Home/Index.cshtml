@@ -1,41 +1,36 @@
 ﻿@model MindHorizon.ViewModels.Home.HomePageViewModel
 @using MindHorizon.Common
 @using MindHorizon.ViewModels.Home
-
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<script src="~/js/Ajax.js"></script>
 
-<!-- ##### Hero Area Start ##### -->
 <section class="hero--area section-padding-60">
-    @if (Model.Post.Count() != 0)
+    @if (Model.Posts.Count() != 0)
     {
         <div class="container">
             <div class="row no-gutters">
                 <div class="col-12 col-md-7 col-lg-8">
                     <div class="tab-content">
-                        @{ int i = 1;}
-                        @foreach (var item in Model.Post)
+                        @{int i = 1;}
+                        @foreach (var item in Model.Posts)
                         {
-                            <div class="tab-pane fade show @(i == 1 ? "active" : "")" id="@("post-"+i)" role="tabpanel" aria-labelledby="@("post-"+i+"-tab")">
+                            <div class="tab-pane fade show @(i==1?"active":"")" id="@("post-"+i)" role="tabpanel" aria-labelledby="@("post-"+i+"-tab")">
                                 <!-- Single Feature Post -->
                                 <div class="single-feature-post video-post bg-img" style="background-image: url(/postImage/@item.ImageName);">
                                     <!-- Post Content -->
                                     <div class="post-content">
-                                        <a href="/Posts/@item.PostId/@item.Url" class="post-cata">@item.NameOfCategories</a>
-                                        <a href="/Posts/@item.PostId/@item.Url" class="post-title">@item.Title</a>
+                                        <a href="#" class="post-cata">@item.NameOfCategories</a>
+                                        <a href="/Posts/@item.PostId/@item.Url" class="post-title"> @item.Title </a>
                                         <div class="post-meta d-flex float-left">
-                                            <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments</a>
+                                            <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments </a>
                                             <a href="#"><i class="fa fa-eye" aria-hidden="true"></i> @item.NumberOfVisit</a>
                                             <a href="#"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> @item.NumberOfLike</a>
                                             <a href="#"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> @item.NumberOfDisLike</a>
                                         </div>
                                     </div>
-
-                                    <!-- Video Duration -->
-                                    <span class="video-duration">@item.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy")</span>
+                                    <span class="news-duration">@item.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy")</span>
                                 </div>
                             </div>
                             i++;
@@ -45,25 +40,25 @@
                     </div>
                 </div>
 
+                @{i = 1;}
                 <div class="col-12 col-md-5 col-lg-4">
                     <ul class="nav vizew-nav-tab" role="tablist">
-                        @{i = 1;}
-                        @foreach (var item in Model.Post)
+                        @foreach (var item in Model.Posts)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link @(i == 1 ? "active" : "")" id="@("post-"+i+"-tab")" data-toggle="pill" href="@("#post-"+i)" role="tab" aria-controls="post-1" aria-selected="true">
+                            <li class="nav-item w-100">
+                                <a class="nav-link  @(i==1?"active":"")" id="@("post-"+i+"-tab")" data-toggle="pill" href="@("#post-"+i)" role="tab" aria-controls="post-1" aria-selected="true">
                                     <!-- Single Blog Post -->
                                     <div class="single-blog-post style-2 d-flex align-items-center">
                                         <div class="post-thumbnail">
                                             <img src="~/postImage/@item.ImageName" alt="@item.ImageName">
                                         </div>
                                         <div class="post-content">
-                                            <h6 class="post-title">@item.Title </h6>
+                                            <h6 class="post-title"> @item.Title </h6>
                                             <div class="post-meta d-flex justify-content-between">
-                                                <span><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments</span>
+                                                <span><i class="fa fa-comments-o" aria-hidden="true"></i> @item.NumberOfComments </span>
                                                 <span><i class="fa fa-eye" aria-hidden="true"></i> @item.NumberOfVisit</span>
                                                 <span><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> @item.NumberOfLike</span>
-                                                <span><i class="fa fa-thumbs-o-down" aria-hidden="true"></i>@item.NumberOfDisLike</span>
+                                                <span><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> @item.NumberOfDisLike</span>
                                             </div>
                                         </div>
                                     </div>
@@ -71,10 +66,6 @@
                             </li>
                             i++;
                         }
-
-
-
-
 
                     </ul>
                 </div>
@@ -86,7 +77,7 @@
 <!-- ##### Hero Area End ##### -->
 <!-- ##### Trending Posts Area Start ##### -->
 <section class="trending-posts-area">
-    <div class="container" id="MostViewedPostsDiv">
+    <div id="MostViewedPostsDiv" class="container">
         @await Html.PartialAsync("_MostViewedPosts", Model.MostViewedPosts)
     </div>
 </section>
@@ -100,7 +91,7 @@
                     @if (Model.Videos.Count() != 0)
                     {
                         <div class="section-heading style-2">
-                            <h4> جدیدترین ویدئوها </h4>
+                            <h4> جدیدترین ویدیوها </h4>
                             <div class="line"></div>
                         </div>
 
@@ -128,23 +119,21 @@
                         <h4>آخرین مطالب</h4>
                         <div class="line"></div>
                     </div>
-                    @if (Model.Post.Count() == 0)
+                    @if (Model.Posts.Count() == 0)
                     {
-                        <p class="alert alert-info text-center">هیچ مطلبی تا کنون منتشر نشده است</p>
+                <p class="alert alert-info text-center">هیچ مطلبی انتشار داده نشده است.</p>
                     }
                     else
                     {
-                        <div id="PostPaginate">
-                            @await Html.PartialAsync("_PostPaginate", new PostPaginateViewModel(Model.CountPostsPublished, Model.Post.Take(5).ToList()))
+                        <div id="PostsPaginate">
+                            @await Html.PartialAsync("_PostsPaginate", new PostPaginateViewModel(Model.CountPostsPublished, Model.Posts.Take(5).ToList()))
                         </div>
-
 
                         <div id="page" class="mt-5">
                             <ul class="pagination"></ul>
                         </div>
-                    }
-                    <!-- Single Post Area -->
 
+                    }
 
                 </div>
             </div>
@@ -152,20 +141,17 @@
             <div class="col-12 col-md-5 col-lg-4">
                 <div class="sidebar-area">
 
-                    <!-- *****  Most Popular Posts ***** -->
+                    <!-- ***** MostPopularPosts***** -->
                     @if (Model.MostPopularPosts.Count() != 0)
                     {
                         @await Html.PartialAsync("_MostPopularPosts", Model.MostPopularPosts)
                     }
 
-
-
                     <!-- ***** Single Widget ***** -->
                     <div id="MostTalkPostsDiv">
-
                         @await Html.PartialAsync("_MostTalkPosts", Model.MostTalkPosts)
-
                     </div>
+
                 </div>
 
             </div>
@@ -174,7 +160,6 @@
     </div>
 </section>
 <script src="~/js/pagination.min.js"></script>
-
 <script type="text/javascript">
 $(function() {
 	$('#page').Pagination({
@@ -183,18 +168,18 @@ $(function() {
     	}, function(obj){
               var offset=(obj.page-1)*5;
               $.ajax({
-                url: '/Home/GetPostPaginate?offset='+offset+'&&limit=5',
+                url: '/Home/GetPostsPaginate?offset='+offset+'&&limit=5',
                 beforeSend: function () { $('#modal-placeholder').after('<div class="preloader d-flex align-items-center justify-content-center"><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>');},
                 complete: function () { $('.preloader').remove();},
                 error: function () {
                      ShowSweetErrorAlert();
                 }
              }).done(function (result) {
-                $("#PostPaginate").html(result);
+                $("#PostsPaginate").html(result);
              });
     	});
 });
 
 </script>
 
-<!-- ##### Vizew Psot Area End ##### -->
+

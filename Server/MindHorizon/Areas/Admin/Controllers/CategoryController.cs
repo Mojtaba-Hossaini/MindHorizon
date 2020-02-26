@@ -1,30 +1,30 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common;
 using MindHorizon.Common.Attributes;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
 using MindHorizon.ViewModels.Category;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
-
     public class CategoryController : BaseController
     {
         private readonly IUnitOfWork _uw;
-        private readonly IMapper mapper;
         private const string CategoryNotFound = "دسته ی درخواستی یافت نشد.";
-        private const string CategoryDuplicate = "نام  دسته تکراری است.";
+        private const string CategoryDuplicate = "نام دسته تکراری است.";
+        private readonly IMapper _mapper;
         public CategoryController(IUnitOfWork uw, IMapper mapper)
         {
             _uw = uw;
             _uw.CheckArgumentIsNull(nameof(_uw));
-            this.mapper = mapper;
-            mapper.CheckArgumentIsNull(nameof(mapper));
+
+            _mapper = mapper;
+            _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
         [HttpGet]
@@ -33,7 +33,7 @@ namespace MindHorizon.Areas.Admin.Controllers
             return View();
         }
 
-
+   
         [HttpGet]
         public async Task<IActionResult> GetCategories(string search, string order, int offset, int limit, string sort)
         {
@@ -70,19 +70,17 @@ namespace MindHorizon.Areas.Admin.Controllers
             return Json(new { total = total, rows = categories });
         }
 
-        [HttpGet, AjaxOnly]
+        [HttpGet,AjaxOnly]
         public async Task<IActionResult> RenderCategory(string categoryId)
         {
             var categoryViewModel = new CategoryViewModel();
-            ViewBag.Categories = _uw.CategoryRepository.GetAllCategoriesAsync();
+            ViewBag.Categories = await _uw.CategoryRepository.GetAllCategoriesAsync();
             if (categoryId.HasValue())
             {
                 var category = await _uw.BaseRepository<Category>().FindByIdAsync(categoryId);
                 _uw._Context.Entry(category).Reference(c => c.Parent).Load();
                 if (category != null)
-                    categoryViewModel = mapper.Map<CategoryViewModel>(category);
-
-
+                    categoryViewModel = _mapper.Map<CategoryViewModel>(category);
                 else
                     ModelState.AddModelError(string.Empty, CategoryNotFound);
             }
@@ -123,10 +121,9 @@ namespace MindHorizon.Areas.Admin.Controllers
                         var category = await _uw.BaseRepository<Category>().FindByIdAsync(viewModel.CategoryId);
                         if (category != null)
                         {
-
-                            _uw.BaseRepository<Category>().Update(mapper.Map(viewModel, category));
+                            _uw.BaseRepository<Category>().Update(_mapper.Map(viewModel, category));
                             await _uw.Commit();
-                            TempData["notification"] = "ویرایش اطلاعات با موفقیت انجام شد.";
+                            TempData["notification"] = EditSuccess;
                         }
                         else
                             ModelState.AddModelError(string.Empty, CategoryNotFound);
@@ -135,16 +132,16 @@ namespace MindHorizon.Areas.Admin.Controllers
                     else
                     {
                         viewModel.CategoryId = StringExtensions.GenerateId(10);
-                        await _uw.BaseRepository<Category>().CreateAsync(mapper.Map<Category>(viewModel));
+                        await _uw.BaseRepository<Category>().CreateAsync(_mapper.Map<Category>(viewModel));
                         await _uw.Commit();
-                        TempData["notification"] = "درج اطلاعات با موفقیت انجام شد.";
+                        TempData["notification"] = InsertSuccess;
                     }
                 }
-
             }
 
             return PartialView("_RenderCategory", viewModel);
         }
+
 
         [HttpGet, AjaxOnly]
         public async Task<IActionResult> Delete(string categoryId)
@@ -171,6 +168,7 @@ namespace MindHorizon.Areas.Admin.Controllers
             else
             {
                 var category = await _uw.BaseRepository<Category>().FindByIdAsync(model.CategoryId);
+
                 if (category == null)
                     ModelState.AddModelError(string.Empty, CategoryNotFound);
                 else
@@ -184,7 +182,7 @@ namespace MindHorizon.Areas.Admin.Controllers
 
                     _uw.BaseRepository<Category>().Delete(category);
                     await _uw.Commit();
-                    TempData["notification"] = "حذف اطلاعات با موفقیت انجام شد.";
+                    TempData["notification"] =DeleteSuccess;
                     return PartialView("_DeleteConfirmation", category);
                 }
             }
@@ -216,5 +214,6 @@ namespace MindHorizon.Areas.Admin.Controllers
 
             return PartialView("_DeleteGroup");
         }
+
     }
 }

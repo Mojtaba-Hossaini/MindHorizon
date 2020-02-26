@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common.Attributes;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace MindHorizon.ViewModels.Manage
 {
-    public class SignInViewModel
+    public class SignInViewModel 
     {
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
         [Display(Name = "نام کاربری")]

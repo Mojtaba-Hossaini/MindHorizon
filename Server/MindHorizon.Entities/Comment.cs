@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
 
 namespace MindHorizon.Entities
 {
@@ -27,5 +28,7 @@ namespace MindHorizon.Entities
         public virtual Comment comment { get; set; }
         public virtual ICollection<Comment> comments { get; set; }
         public virtual Post Post { get; set; }
+
+
     }
 }

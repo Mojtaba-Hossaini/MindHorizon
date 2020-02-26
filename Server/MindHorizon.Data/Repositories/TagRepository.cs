@@ -53,7 +53,8 @@ namespace MindHorizon.Data.Repositories
             }
         }
 
-        public async Task<List<PostTag>> InsertPostTags(string[] tags, string postId = null)
+
+        public async Task<List<PostTag>> InsertPostTags(string[] tags,string postId=null)
         {
             string tagId;
             List<PostTag> postTags = new List<PostTag>();
@@ -64,7 +65,7 @@ namespace MindHorizon.Data.Repositories
             {
                 tagId = StringExtensions.GenerateId(10);
                 _context.Tags.Add(new Tag { TagName = item, TagId = tagId });
-                postTags.Add(new PostTag { TagId = tagId, PostId = postId });
+                postTags.Add(new PostTag { TagId = tagId,PostId= postId });
             }
             await _context.SaveChangesAsync();
             return postTags;

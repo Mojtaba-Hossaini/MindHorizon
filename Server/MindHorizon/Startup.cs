@@ -18,13 +18,10 @@ namespace MindHorizon
     public class Startup
     {
         public IConfiguration Configuration { get; }
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<SiteSettings>(Configuration.GetSection(nameof(SiteSettings)));
@@ -32,6 +29,7 @@ namespace MindHorizon
             services.AddCustomServices();
             services.AddCustomIdentityServices();
             services.AddAutoMapper();
+            services.ConfigureWritable<SiteSettings>(Configuration.GetSection("SiteSettings"));
             services.AddMvc();
         }
 
@@ -51,11 +49,11 @@ namespace MindHorizon
                   name: "areas",
                   template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
                 );
-
                 routes.MapRoute(
-                  name: "default",
-                  template: "{controller=Home}/{action=Index}/{id?}"
-                );
+                 name: "default",
+                 template: "{controller=Home}/{action=Index}/{id?}"
+               );
+
             });
         }
     }

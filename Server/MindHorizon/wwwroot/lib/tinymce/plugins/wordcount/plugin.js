@@ -4,15 +4,13 @@
  * For LGPL see License.txt in the project root for license information.
  * For commercial licenses see https://www.tiny.cloud/
  *
- * Version: 5.1.6 (2020-01-28)
+ * Version: 5.0.14 (2019-08-19)
  */
 (function () {
     'use strict';
 
     var global = tinymce.util.Tools.resolve('tinymce.PluginManager');
 
-    var noop = function () {
-    };
     var constant = function (value) {
       return function () {
         return value;
@@ -87,6 +85,8 @@
     var PUNCTUATION = new RegExp('^' + regExps.punctuation + '$');
     var WHITESPACE = /^\s+$/;
 
+    var never$1 = never;
+    var always$1 = always;
     var none = function () {
       return NONE;
     };
@@ -100,27 +100,37 @@
       var id = function (n) {
         return n;
       };
+      var noop = function () {
+      };
+      var nul = function () {
+        return null;
+      };
+      var undef = function () {
+        return undefined;
+      };
       var me = {
         fold: function (n, s) {
           return n();
         },
-        is: never,
-        isSome: never,
-        isNone: always,
+        is: never$1,
+        isSome: never$1,
+        isNone: always$1,
         getOr: id,
         getOrThunk: call,
         getOrDie: function (msg) {
           throw new Error(msg || 'error: getOrDie called on none.');
         },
-        getOrNull: constant(null),
-        getOrUndefined: constant(undefined),
+        getOrNull: nul,
+        getOrUndefined: undef,
         or: id,
         orThunk: call,
         map: none,
+        ap: none,
         each: noop,
         bind: none,
-        exists: never,
-        forall: always,
+        flatten: none,
+        exists: never$1,
+        forall: always$1,
         filter: none,
         equals: eq,
         equals_: eq,
@@ -155,18 +165,18 @@
     };
     var isFunction = isType('function');
 
-    var nativeSlice = Array.prototype.slice;
+    var slice = Array.prototype.slice;
     var map = function (xs, f) {
       var len = xs.length;
       var r = new Array(len);
       for (var i = 0; i < len; i++) {
         var x = xs[i];
-        r[i] = f(x, i);
+        r[i] = f(x, i, xs);
       }
       return r;
     };
     var from = isFunction(Array.from) ? Array.from : function (x) {
-      return nativeSlice.call(x);
+      return slice.call(x);
     };
 
     var SETS$1 = SETS;
@@ -306,7 +316,7 @@
       };
     };
     var getWords = function (chars, extract, options) {
-      options = __assign(__assign({}, getDefaultOptions()), options);
+      options = __assign({}, getDefaultOptions(), options);
       var filteredChars = [];
       var extractedChars = [];
       for (var i = 0; i < chars.length; i++) {
@@ -407,10 +417,10 @@
     var updateCount = function (editor, api) {
       fireWordCountUpdate(editor, api);
     };
-    var setup = function (editor, api, delay) {
+    var setup = function (editor, api) {
       var debouncedUpdate = global$2.debounce(function () {
         return updateCount(editor, api);
-      }, delay);
+      }, 300);
       editor.on('init', function () {
         updateCount(editor, api);
         global$2.setEditorTimeout(editor, function () {
@@ -476,14 +486,11 @@
       });
     };
 
-    function Plugin (delay) {
-      if (delay === void 0) {
-        delay = 300;
-      }
+    function Plugin () {
       global.add('wordcount', function (editor) {
         var api = get(editor);
         register(editor, api);
-        setup(editor, api, delay);
+        setup(editor, api);
         return api;
       });
     }

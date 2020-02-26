@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MindHorizon.Entities;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace MindHorizon.Data.Mapping
 {
@@ -20,4 +23,5 @@ namespace MindHorizon.Data.Mapping
                .HasForeignKey(f => f.CategoryId);
         }
     }
+
 }

@@ -5,7 +5,7 @@
 }
 </style>
     <div id="toolbar">
-        <a  class="btn btn-success text-white" asp-action="CreateOrUpdate">
+        <a class="btn btn-success text-white" asp-action="CreateOrUpdate">
             <i class="fa fa-plus"></i> | افزودن مطلب جدید
         </a>
 
@@ -110,6 +110,7 @@
             '</a >'
         ].join('')
     }
+
     function commentFormatter(value, row, index) {
         return [
             '<a class="btn btn-primary btn-sm text-white">',
@@ -118,8 +119,8 @@
         ].join('')
     }
 
-    
 
+    
      function checkBoxFormat(value, row) {
        return '<input type="checkbox" name="btSelectItem" value="' + row.Id + '" />';
     }
@@ -153,7 +154,7 @@
                         valign: 'middle',
                         footerFormatter: totalTextFormatter
                     }, {
-                        title: 'جزئیات اطلاعات مطلب',
+                        title: 'جزئیات اطلاعات مطالب',
                         colspan: 9,
                         align: 'center'
                     }],
@@ -167,12 +168,6 @@
                         title: 'بازدید',
                         sortable: true,
                         align: 'center'
-                        },{
-                        field: 'نظرات',
-                        title: 'نظرات',
-                        sortable: true,
-                        align: 'center',
-                        formatter:commentFormatter
                     },{
                         field: 'لایک',
                         title: 'لایک',
@@ -185,6 +180,12 @@
                         sortable: true,
                         align: 'center',
                         formatter:dislikeFormatter
+                    },{
+                        field: 'نظرات',
+                        title: 'نظرات',
+                        sortable: true,
+                        align: 'center',
+                        formatter:commentFormatter
                     },{
                         field: 'تاریخ انتشار',
                         title: 'تاریخ انتشار',
