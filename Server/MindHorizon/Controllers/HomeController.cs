@@ -93,11 +93,19 @@ namespace MindHorizon.Controllers
                 if (category == null)
                     return NotFound();
                 else
-                {
-                    ViewBag.Category = category.CategoryName;
-                    return View("PostsInCategoryAndTag", await _uw.PostRepository.GetPostsInCategoryAndTag(categoryId, ""));
-                }
+                    return View("PostsInCategoryAndTag", new CategoryOrTagInfoViewModel { Id = category.CategoryId, Title = category.CategoryName, IsCategory = true });
+
+
+
+
             }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetPostsInCategoryAndTag(int pageIndex, int pageSize, string categoryId)
+        {
+            //System.Threading.Thread.Sleep(4000);
+            return Json(await _uw.PostRepository.GetPostsInCategoryAndTag(categoryId, "", pageIndex, pageSize));
         }
 
         [Route("Tag/{tagId}")]
@@ -113,7 +121,7 @@ namespace MindHorizon.Controllers
                 else
                 {
                     ViewBag.Tag = tag.TagName;
-                    return View("PostsInCategoryAndTag", await _uw.PostRepository.GetPostsInCategoryAndTag("", tagId));
+                    return View("PostsInCategoryAndTag", await _uw.PostRepository.GetPostsInCategoryAndTag("", tagId, 0, 100));
                 }
             }
         }
@@ -183,6 +191,10 @@ namespace MindHorizon.Controllers
             else
                 return PartialView("_SignIn");
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Search(string searchText) => View(await _uw.PostRepository.SearchInPosts(searchText));
 
     }
 }

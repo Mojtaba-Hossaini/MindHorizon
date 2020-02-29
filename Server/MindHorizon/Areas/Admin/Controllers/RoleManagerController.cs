@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common;
 using MindHorizon.Common.Attributes;
 using MindHorizon.Entities.Identity;
 using MindHorizon.Services.Contracts;
+using MindHorizon.ViewModels.DynamicAccess;
 using MindHorizon.ViewModels.RoleManager;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت نقش ها")]
     public class RoleManagerController : BaseController
     {
         private readonly IApplicationRoleManager _roleManager;
@@ -27,14 +31,16 @@ namespace MindHorizon.Areas.Admin.Controllers
             _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
-        [HttpGet]
+        [HttpGet, DisplayName("نمایش مدیریت نقش ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult Index()
         {
             return View();
         }
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("دریافت نقش ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<JsonResult> GetRoles(string search, string order, int offset, int limit, string sort)
         {
             List<RolesViewModel> roles;
@@ -64,7 +70,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet,AjaxOnly]
+        [HttpGet, DisplayName("ورود به صفحه ایجاد یا ویرایش نقش ها"), AjaxOnly]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> RenderRole(int? roleId)
         {
             var roleViewModel = new RolesViewModel();
@@ -80,7 +87,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, AjaxOnly]
+        [HttpPost, AjaxOnly, DisplayName("ایجاد یا ویرایش نقش ")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrUpdate(RolesViewModel viewModel)
         {
             if (ModelState.IsValid)
@@ -105,7 +114,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet, AjaxOnly]
+        [HttpGet, AjaxOnly, DisplayName("وورد به بخش حذف نقش")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Delete(string roleId)
         {
             if (!roleId.HasValue())
@@ -122,7 +132,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("Delete"), AjaxOnly]
+        [HttpPost, ActionName("Delete"), AjaxOnly, DisplayName("حذف نقش")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Role model)
         {
             var role = await _roleManager.FindByIdAsync(model.Id.ToString());
@@ -143,7 +155,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("DeleteGroup"), AjaxOnly]
+        [HttpPost, ActionName("DeleteGroup"), AjaxOnly, DisplayName("حذف گروهی نقش ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGroupConfirmed(string[] btSelectItem)
         {
             if (btSelectItem.Count() == 0)

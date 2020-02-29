@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
 using MindHorizon.ViewModels.Comments;
+using MindHorizon.ViewModels.DynamicAccess;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت نظرات")]
     public class CommentsController : BaseController
     {
         private readonly IUnitOfWork _uw;
@@ -26,13 +30,17 @@ namespace MindHorizon.Areas.Admin.Controllers
             _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
+
+        [HttpGet, DisplayName("مشاهده نظرات")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult Index(string postId, bool? isConfirmed)
         {
             return View(nameof(Index) , new CommentViewModel { PostId = postId, IsConfirm = isConfirmed});
         }
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("دریافت نظرات")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult GetComments(string search, string order, int offset, int limit, string sort, string postId, bool? isConfirmed)
         {
             List <CommentViewModel> comments;
@@ -80,7 +88,8 @@ namespace MindHorizon.Areas.Admin.Controllers
             return Json(new { total = total, rows = comments });
         }
 
-        [HttpGet]
+        [HttpGet, DisplayName("ورود به صفحه حذف نظر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Delete(string commentId)
         {
             if (!commentId.HasValue())
@@ -97,7 +106,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Delete"),DisplayName("حذف نظر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Comment model)
         {
             if (model.CommentId == null)
@@ -120,7 +131,8 @@ namespace MindHorizon.Areas.Admin.Controllers
 
 
 
-        [HttpGet]
+        [HttpGet, DisplayName(" نمایش تایید یا عدم تایید نظر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> ConfirmOrInconfirm(string commentId)
         {
             if (!commentId.HasValue())
@@ -137,7 +149,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost, DisplayName("ذخیره تایید یا عدم تایید نظرات")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmOrInconfirm(Comment model)
         {
             if (model.CommentId == null)
@@ -164,7 +178,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("DeleteGroup")]
+        [HttpPost, ActionName("DeleteGroup"), DisplayName("حذف گروهی نظرات")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGroupConfirmed(string[] btSelectItem)
         {
             if (btSelectItem.Count() == 0)
@@ -184,13 +200,16 @@ namespace MindHorizon.Areas.Admin.Controllers
             return PartialView("_DeleteGroup");
         }
 
-        [HttpGet]
+        [HttpGet, DisplayName("ارسال نظر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult SendComment(string parentCommentId, string postId)
         {
             return PartialView("_SendComment",new CommentViewModel(parentCommentId, postId));
         }
 
-        [HttpPost]
+        [HttpPost, DisplayName("ذخیره ارسال نظر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendComment(CommentViewModel viewModel)
         {
             if (ModelState.IsValid)

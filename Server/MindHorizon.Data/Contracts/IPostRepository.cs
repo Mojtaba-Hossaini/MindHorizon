@@ -1,4 +1,5 @@
 ﻿using MindHorizon.Entities;
+using MindHorizon.ViewModels.Home;
 using MindHorizon.ViewModels.Post;
 using System;
 using System.Collections.Generic;
@@ -25,8 +26,10 @@ namespace MindHorizon.Data.Contracts
         Task BindSubComments(Comment comment);
         Task<List<PostViewModel>> GetNextAndPreviousPost(DateTime? PublishDateTime);
         Task<List<PostViewModel>> GetRelatedPosts(int number, List<string> tagIdList, string postId);
-        Task<List<PostViewModel>> GetPostsInCategoryAndTag(string categoryId, string TagId);
+        Task<List<PostsInCategoriesAndTagsViewModel>> GetPostsInCategoryAndTag(string categoryId, string TagId, int pageIndex, int pageSize)
         Task<List<PostViewModel>> GetUserBookmarksAsync(int userId);
+        Task<List<PostViewModel>> SearchInPosts(string textSearch);
         PostViewModel NumberOfLikeAndDislike(string postId);
+
     }
 }

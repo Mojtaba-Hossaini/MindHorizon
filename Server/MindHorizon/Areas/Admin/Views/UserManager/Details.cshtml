@@ -74,7 +74,7 @@
                                                 }
                                             </div>
                                             <div class="col-md-12 col-sm-12 col-xs-12 user-detail-section1 text-center">
-                                                <a href="#" class="btn btn-success btn-sm btn-block mt-2"> ویرایش اطلاعات </a>
+                                                <a asp-action="RenderUser" asp-controller="UserManager" asp-route-userId="@Model.Id" class="btn btn-success btn-sm btn-block mt-2"> ویرایش اطلاعات </a>
                                                 <a asp-action="ResetPassword" asp-controller="UserManager" asp-route-userId="@Model.Id" class="btn btn-warning btn-sm btn-block mb-2">بازنشانی کلمه عبور</a>
                                             </div>
                                         </div>

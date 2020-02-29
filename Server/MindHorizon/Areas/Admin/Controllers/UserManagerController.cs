@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,12 @@ using MindHorizon.Common;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities.Identity;
 using MindHorizon.Services.Contracts;
+using MindHorizon.ViewModels.DynamicAccess;
 using MindHorizon.ViewModels.UserManager;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت کاربران")]
     public class UserManagerController : BaseController
     {
         private readonly IApplicationUserManager _userManager;
@@ -37,13 +41,16 @@ namespace MindHorizon.Areas.Admin.Controllers
             _env.CheckArgumentIsNull(nameof(_env));
         }
 
-        [HttpGet]
+        [HttpGet, DisplayName("مشاهده کاربران")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult Index()
         {
             return View();
         }
 
 
+        [HttpGet, DisplayName("دریافت کاربران")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public JsonResult GetUsers(string search, string order, int offset, int limit, string sort)
         {
             List<UsersViewModel> allUsers;
@@ -108,7 +115,8 @@ namespace MindHorizon.Areas.Admin.Controllers
 
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("ورود به صفحه ایجاد یا ویرایش کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> RenderUser(int? userId)
         {
             var user = new UsersViewModel();
@@ -124,7 +132,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost, DisplayName("ذخیره ایجاد یا ویرایش کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrUpdate(UsersViewModel viewModel)
         {
             ViewBag.Roles = _roleManager.GetAllRoles();
@@ -186,7 +196,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("ورود به صفحه حذف کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Delete(string userId)
         {
             if (!userId.HasValue())
@@ -203,7 +214,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Delete"), DisplayName("حذف کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(User model)
         {
             var user = await _userManager.FindByIdAsync(model.Id.ToString());
@@ -227,7 +240,9 @@ namespace MindHorizon.Areas.Admin.Controllers
 
 
 
-        [HttpPost, ActionName("DeleteGroup")]
+        [HttpPost, ActionName("DeleteGroup"), DisplayName("حذف گروهی کاربران")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGroupConfirmed(string[] btSelectItem)
         {
             if (btSelectItem.Count() == 0)
@@ -246,6 +261,8 @@ namespace MindHorizon.Areas.Admin.Controllers
             return PartialView("_DeleteGroup");
         }
 
+        [HttpGet, DisplayName("جزئیات کاربران")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Details(int userId)
         {
             if (userId == 0)
@@ -267,7 +284,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet, DisplayName("فعال یا غیر فعال سازی امکان قفل حساب کاربری")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> ChangeLockOutEnable(int userId)
         {
             var User = await _userManager.FindByIdAsync(userId.ToString());
@@ -301,7 +319,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet, DisplayName("فعال یا غیر فعال کردن کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> InActiveOrActiveUser(int userId)
         {
             var User = await _userManager.FindByIdAsync(userId.ToString());
@@ -332,7 +351,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         /// </summary>
         /// <param name="UserId"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet, DisplayName("فعال یا غیر فعال کردن احراز هویت دو مرحله ای")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> ChangeTwoFactorEnabled(int userId)
         {
             var User = await _userManager.FindByIdAsync(userId.ToString());
@@ -363,7 +383,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet, DisplayName("فعال یا غیر فعالسازی ایمیل کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> ChangeEmailConfirmed(int userId)
         {
             var User = await _userManager.FindByIdAsync(userId.ToString());
@@ -394,7 +415,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet, DisplayName("تایید یا عدم تایید شماره تلفن کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> ChangePhoneNumberConfirmed(int userId)
         {
             var User = await _userManager.FindByIdAsync(userId.ToString());
@@ -425,7 +447,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet, DisplayName("قفل کردن یا باز کردن حساب کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> LockOrUnLockUserAccount(int userId)
         {
             var User = await _userManager.FindByIdAsync(userId.ToString());
@@ -464,7 +487,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         /// </summary>
         /// <param name="UserId"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet, DisplayName("ورود به صفحه تغییر رمز کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> ResetPassword(int userId)
         {
             var User = await _userManager.FindByIdAsync(userId.ToString());
@@ -489,6 +513,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [DisplayName("ذخیره تغییر رمز عبور")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel viewModel)
         {
             if (ModelState.IsValid)

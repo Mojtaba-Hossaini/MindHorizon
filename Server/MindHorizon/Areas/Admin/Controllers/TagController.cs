@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
+using MindHorizon.ViewModels.DynamicAccess;
 using MindHorizon.ViewModels.Tag;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت برچسب ها")]
     public class TagController : BaseController
     {
         private readonly IUnitOfWork _uw;
@@ -27,13 +31,16 @@ namespace MindHorizon.Areas.Admin.Controllers
             _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
+        [HttpGet, DisplayName("نمایش برچسب ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult Index()
         {
             return View();
         }
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("دریافت برچسب ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> GetTags(string search, string order, int offset, int limit, string sort)
         {
             List<TagViewModel> tags;
@@ -63,7 +70,8 @@ namespace MindHorizon.Areas.Admin.Controllers
 
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("ورود به صفحه ایجاد یا ویرایش برچسب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> RenderTag(string tagId)
         {
             var tagViewModel = new TagViewModel();
@@ -78,7 +86,9 @@ namespace MindHorizon.Areas.Admin.Controllers
             return PartialView("_RenderTag", tagViewModel);
         }
 
-        [HttpPost]
+        [HttpPost, DisplayName("ذخیره ایجاد یا ویرایش برچسب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrUpdate(TagViewModel viewModel)
         {
             if (ModelState.IsValid)
@@ -114,7 +124,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("ورود به صفحه حذف برچسب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Delete(string tagId)
         {
             if (!tagId.HasValue())
@@ -131,7 +142,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Delete"), DisplayName("حذف برچسب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Tag model)
         {
             if (model.TagId == null)
@@ -153,7 +166,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("DeleteGroup")]
+        [HttpPost, ActionName("DeleteGroup"), DisplayName("حذف گروهی برچسب ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGroupConfirmed(string[] btSelectItem)
         {
             if (btSelectItem.Count() == 0)

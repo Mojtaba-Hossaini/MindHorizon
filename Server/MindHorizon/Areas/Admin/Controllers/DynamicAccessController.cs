@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Services.Contracts;
 using MindHorizon.ViewModels.DynamicAccess;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت سطح دسترسی ها")]
     public class DynamicAccessController : BaseController
     {
         public readonly IApplicationUserManager _userManager;
@@ -18,7 +21,8 @@ namespace MindHorizon.Areas.Admin.Controllers
             _mvcActionsDiscovery = mvcActionsDiscovery;
         }
 
-        [HttpGet]
+        [HttpGet, DisplayName("نمایش سطح دسترسی ها")]
+        //[Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Index(int userId)
         {
             if (userId == 0)
@@ -37,7 +41,8 @@ namespace MindHorizon.Areas.Admin.Controllers
             });
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, DisplayName("ذخیره سطح دسترسی ها")]
+        //[Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Index(DynamicAccessIndexViewModel ViewModel)
         {
             var Result = await _userManager.AddOrUpdateClaimsAsync(ViewModel.UserId, ConstantPolicies.DynamicPermissionClaimType, ViewModel.ActionIds.Split(","));

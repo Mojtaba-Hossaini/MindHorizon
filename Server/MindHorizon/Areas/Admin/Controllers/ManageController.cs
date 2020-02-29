@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -11,10 +13,12 @@ using Microsoft.Extensions.Logging;
 using MindHorizon.Common;
 using MindHorizon.Entities.Identity;
 using MindHorizon.Services.Contracts;
+using MindHorizon.ViewModels.DynamicAccess;
 using MindHorizon.ViewModels.Manage;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت ورود و ثبت نام")]
     public class ManageController : BaseController
     {
         private readonly IApplicationRoleManager _roleManager;
@@ -83,6 +87,8 @@ namespace MindHorizon.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [DisplayName("خروج از سایت")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> SignOut()
         {
             await _signInManager.SignOutAsync();
@@ -90,7 +96,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("ورود به صفحه تغییر رمز عبور")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> ChangePassword()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -103,6 +110,8 @@ namespace MindHorizon.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [DisplayName("تغییر رمز عبور")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel ViewModel)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -123,7 +132,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("نمایش پروفایل کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Profile(int? userId)
         {
             var profileViewModel = new ProfileViewModel();
@@ -144,7 +154,9 @@ namespace MindHorizon.Areas.Admin.Controllers
             return View(profileViewModel);
         }
 
-        [HttpPost]
+        [HttpPost, DisplayName("تغییر پروفایل کاربر")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(ProfileViewModel viewModel)
         {
             if (viewModel.Id == null)
@@ -175,6 +187,11 @@ namespace MindHorizon.Areas.Admin.Controllers
 
                 return View(viewModel);
             }
+        }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }

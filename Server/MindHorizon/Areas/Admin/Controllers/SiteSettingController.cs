@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Services.Contracts;
+using MindHorizon.ViewModels.DynamicAccess;
 using MindHorizon.ViewModels.Settings;
 using MindHorizon.ViewModels.SiteSetting;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت تنظیمات وب سایت")]
     public class SiteSettingController : BaseController
     {
         private readonly IUnitOfWork _uw;
@@ -24,7 +28,8 @@ namespace MindHorizon.Areas.Admin.Controllers
             _env = env;
         }
 
-        [HttpGet]
+        [HttpGet, DisplayName("نمایش تنظیمات سایت")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult Index()
         {
             var settings = new SettingsViewModel()
@@ -43,7 +48,9 @@ namespace MindHorizon.Areas.Admin.Controllers
             return View(settings);
         }
 
-        [HttpPost]
+        [HttpPost, DisplayName("ذخیره تغییرات سایت")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(SettingsViewModel viewModel)
         {
             if (ModelState.IsValid)

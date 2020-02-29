@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common;
 using MindHorizon.Common.Attributes;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
 using MindHorizon.ViewModels.Category;
+using MindHorizon.ViewModels.DynamicAccess;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت دسته بندی ها")]
     public class CategoryController : BaseController
     {
         private readonly IUnitOfWork _uw;
@@ -27,14 +31,16 @@ namespace MindHorizon.Areas.Admin.Controllers
             _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
-        [HttpGet]
+        [HttpGet, DisplayName("نمایش دسته بندی ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult Index()
         {
             return View();
         }
 
-   
-        [HttpGet]
+
+        [HttpGet, DisplayName("دریافت دسته بندی ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> GetCategories(string search, string order, int offset, int limit, string sort)
         {
             List<CategoryViewModel> categories;
@@ -70,7 +76,8 @@ namespace MindHorizon.Areas.Admin.Controllers
             return Json(new { total = total, rows = categories });
         }
 
-        [HttpGet,AjaxOnly]
+        [HttpGet, AjaxOnly, DisplayName("رندر دسته بندی ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> RenderCategory(string categoryId)
         {
             var categoryViewModel = new CategoryViewModel();
@@ -88,7 +95,9 @@ namespace MindHorizon.Areas.Admin.Controllers
             return PartialView("_RenderCategory", categoryViewModel);
         }
 
-        [HttpPost, AjaxOnly]
+        [HttpPost, DisplayName("ایجاد یا ویرایش دسته بندی ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrUpdate(CategoryViewModel viewModel)
         {
             if (ModelState.IsValid)
@@ -143,7 +152,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet, AjaxOnly]
+        [HttpGet, AjaxOnly, DisplayName("ورود به صفحه حذف دسته بندی")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Delete(string categoryId)
         {
             if (!categoryId.HasValue())
@@ -160,7 +170,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("Delete"), AjaxOnly]
+        [HttpPost, ActionName("Delete"), AjaxOnly, DisplayName("حذف دسته بندی")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Category model)
         {
             if (model.CategoryId == null)
@@ -190,7 +202,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("DeleteGroup"), AjaxOnly]
+        [HttpPost, ActionName("DeleteGroup"), AjaxOnly, DisplayName("حذف گروهی دسته بندی ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGroupConfirmed(string[] btSelectItem)
         {
             if (btSelectItem.Count() == 0)

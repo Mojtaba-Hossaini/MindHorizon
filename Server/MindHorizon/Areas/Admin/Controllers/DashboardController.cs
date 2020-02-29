@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MindHorizon.Common;
 using MindHorizon.Data.Contracts;
 using MindHorizon.ViewModels.Dashboard;
+using MindHorizon.ViewModels.DynamicAccess;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت داشبورد")]
     public class DashboardController : BaseController
     {
         private readonly IUnitOfWork _uw;
@@ -17,6 +21,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         {
             _uw = uw;
         }
+
+        [HttpGet, DisplayName("نمایش داشبورد مدیریت")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult Index()
         {
             ViewBag.Posts = _uw.PostRepository.CountPosts();

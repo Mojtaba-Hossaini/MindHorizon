@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,12 @@ using MindHorizon.Common;
 using MindHorizon.Common.Attributes;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
+using MindHorizon.ViewModels.DynamicAccess;
 using MindHorizon.ViewModels.Post;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت مطالب")]
     public class PostController : BaseController
     {
         private readonly IUnitOfWork _uw;
@@ -33,14 +37,16 @@ namespace MindHorizon.Areas.Admin.Controllers
             _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
-        [HttpGet]
+        [HttpGet, DisplayName("مشاهده مطالب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult Index()
         {
             return View();
         }
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("دریافت مطالب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult GetPosts(string search, string order, int offset, int limit, string sort)
         {
             List<PostViewModel> post;
@@ -110,7 +116,8 @@ namespace MindHorizon.Areas.Admin.Controllers
             return Json(new { total = total, rows = post });
         }
 
-        [HttpGet]
+        [HttpGet, DisplayName("ورد به صفحه ایجاد یا تغییر مطلب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> CreateOrUpdate(string postId)
         {
             PostViewModel postViewModel = new PostViewModel();
@@ -156,7 +163,9 @@ namespace MindHorizon.Areas.Admin.Controllers
             return View(postViewModel);
         }
 
-        [HttpPost]
+        [HttpPost, DisplayName("ذخیره ایجاد یا ویرایش مطلب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrUpdate(PostViewModel viewModel,string submitButton)
         {
             viewModel.Url = viewModel.Url.Trim();
@@ -263,7 +272,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet, AjaxOnly]
+        
+        [HttpGet, AjaxOnly, DisplayName("ورود به صفحه حذف مطلب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Delete(string postId)
         {
             if (!postId.HasValue())
@@ -280,7 +291,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("Delete"), AjaxOnly]
+        [HttpPost, ActionName("Delete"), AjaxOnly, DisplayName("حذف مطلب")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Post model)
         {
             if (model.PostId == null)
@@ -303,7 +316,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("DeleteGroup"), AjaxOnly]
+        [HttpPost, ActionName("DeleteGroup"), AjaxOnly, DisplayName("حذف گروهی")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGroupConfirmed(string[] btSelectItem)
         {
             if (btSelectItem.Count() == 0)

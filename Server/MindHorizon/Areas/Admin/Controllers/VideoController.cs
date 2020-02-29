@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using MindHorizon.Common;
 using MindHorizon.Common.Attributes;
 using MindHorizon.Data.Contracts;
 using MindHorizon.Entities;
+using MindHorizon.ViewModels.DynamicAccess;
 using MindHorizon.ViewModels.Video;
 
 namespace MindHorizon.Areas.Admin.Controllers
 {
+    [DisplayName("مدیریت ویدئو ها")]
     public class VideoController : BaseController
     {
         private readonly IUnitOfWork _uw;
@@ -32,13 +36,16 @@ namespace MindHorizon.Areas.Admin.Controllers
             _env.CheckArgumentIsNull(nameof(_env));
         }
 
+        [HttpGet, DisplayName("نمایش ویدئو ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public IActionResult Index()
         {
             return View();
         }
 
 
-        [HttpGet]
+        [HttpGet, DisplayName("دریافت ویدئو ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> GetVideos(string search, string order, int offset, int limit, string sort)
         {
             List<VideoViewModel> videos;
@@ -75,7 +82,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet,AjaxOnly()]
+        [HttpGet, DisplayName("ورود به صفحه ایجاد یا ویرایش ویدئو"), AjaxOnly]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> RenderVideo(string videoId)
         {
             var videoViewModel = new VideoViewModel();
@@ -90,7 +98,9 @@ namespace MindHorizon.Areas.Admin.Controllers
             return PartialView("_RenderVideo", videoViewModel);
         }
 
-        [HttpPost, AjaxOnly()]
+        [HttpPost, AjaxOnly, DisplayName("ذخیره ایجاد یا ویرایش ویدئو")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrUpdate(VideoViewModel viewModel)
         {
             if (viewModel.VideoId.HasValue())
@@ -137,7 +147,8 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpGet, AjaxOnly()]
+        [HttpGet, DisplayName("ورود به بخش حذف ویدئو"), AjaxOnly]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Delete(string videoId)
         {
             if (!videoId.HasValue())
@@ -154,7 +165,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("Delete"), AjaxOnly()]
+        [HttpPost, ActionName("Delete"), AjaxOnly(), DisplayName("حذف ویدئو ")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Video model)
         {
             if (model.VideoId == null)
@@ -177,7 +190,9 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        [HttpPost, ActionName("DeleteGroup"), AjaxOnly()]
+        [HttpPost, ActionName("DeleteGroup"), AjaxOnly, DisplayName("حذف گروهی ویدئو ها")]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGroupConfirmed(string[] btSelectItem)
         {
             if (btSelectItem.Count() == 0)
