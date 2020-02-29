@@ -91,6 +91,14 @@ namespace MindHorizon.Areas.Admin.Controllers
                     post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
             }
 
+            else if (sort == "نظرات")
+            {
+                if (order == "asc")
+                    post = _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().NumberOfComments, item => "", search, null);
+                else
+                    post = _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().NumberOfComments, search, null);
+            }
+
             else
                 post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
 

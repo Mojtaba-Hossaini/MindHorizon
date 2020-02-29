@@ -49,6 +49,7 @@ namespace MindHorizon.Controllers
         public async Task<IActionResult> PostDetails(string postId, string url)
         {
             string ipAddress = _accessor.HttpContext?.Connection?.RemoteIpAddress.ToString();
+            int userId = User.Identity.GetUserId<int>();
             Visit visit = _uw.BaseRepository<Visit>().FindByConditionAsync(n => n.PostId == postId && n.IpAddress == ipAddress).Result.FirstOrDefault();
             if (visit != null && visit.LastVisitDateTime.Date != DateTime.Now.Date)
             {
@@ -63,7 +64,7 @@ namespace MindHorizon.Controllers
                 await _uw.Commit();
             }
 
-            var post = await _uw.PostRepository.GetPostById(postId);
+            var post = await _uw.PostRepository.GetPostById(postId, userId);
             var postComments = await _uw.PostRepository.GetPostCommentsAsync(postId);
             var nextAndPreviousPost = await _uw.PostRepository.GetNextAndPreviousPost(post.PublishDateTime);
             var postRelated = await _uw.PostRepository.GetRelatedPosts(2, post.TagIdsList, postId);
@@ -136,6 +137,51 @@ namespace MindHorizon.Controllers
                 else
                     return View(video);
             }
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> LikeOrDisLike(string postId, bool isLike)
+        {
+            string ipAddress = _accessor.HttpContext?.Connection?.RemoteIpAddress.ToString();
+            Like likeOrDislike = _uw.BaseRepository<Like>().FindByConditionAsync(l => l.PostId == postId && l.IpAddress == ipAddress).Result.FirstOrDefault();
+            if (likeOrDislike == null)
+            {
+                likeOrDislike = new Like { PostId = postId, IpAddress = ipAddress, IsLiked = isLike };
+                await _uw.BaseRepository<Like>().CreateAsync(likeOrDislike);
+            }
+            else
+                likeOrDislike.IsLiked = isLike;
+
+            await _uw.Commit();
+            var likeAndDislike = _uw.PostRepository.NumberOfLikeAndDislike(postId);
+            return Json(new { like = likeAndDislike.NumberOfLike, dislike = likeAndDislike.NumberOfDisLike });
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> BookmarkPost(string postId)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                int userId = User.Identity.GetUserId<int>();
+                Bookmark bookmark = _uw.BaseRepository<Bookmark>().FindByConditionAsync(l => l.PostId == postId && l.UserId == userId).Result.FirstOrDefault();
+                if (bookmark == null)
+                {
+                    bookmark = new Bookmark { PostId = postId, UserId = userId };
+                    await _uw.BaseRepository<Bookmark>().CreateAsync(bookmark);
+                    await _uw.Commit();
+                    return Json(true);
+                }
+                else
+                {
+                    _uw.BaseRepository<Bookmark>().Delete(bookmark);
+                    await _uw.Commit();
+                    return Json(false);
+                }
+            }
+
+            else
+                return PartialView("_SignIn");
         }
 
     }

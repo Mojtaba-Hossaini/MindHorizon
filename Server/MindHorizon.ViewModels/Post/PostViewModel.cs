@@ -92,6 +92,10 @@ namespace MindHorizon.ViewModels.Post
 
         
         [JsonIgnore]
+        public bool IsBookmarked { get; set; }
+
+
+        [JsonIgnore]
         public string[] CategoryIds { get; set; }
 
 

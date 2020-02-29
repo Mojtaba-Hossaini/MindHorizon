@@ -7,6 +7,7 @@ namespace MindHorizon.Data.Contracts
 {
     public interface ICommentRepository
     {
-        List<CommentViewModel> GetPaginateComments(int offset, int limit, Func<CommentViewModel, Object> orderByAscFunc, Func<CommentViewModel, Object> orderByDescFunc, string searchText);
+        int CountUnAnsweredComments();
+        List<CommentViewModel> GetPaginateComments(int offset, int limit, Func<CommentViewModel, Object> orderByAscFunc, Func<CommentViewModel, Object> orderByDescFunc, string searchText, string postId, bool? isConfirmed);
     }
 }

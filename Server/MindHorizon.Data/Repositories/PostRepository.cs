@@ -28,6 +28,10 @@ namespace MindHorizon.Data.Repositories
             _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
+        public int CountPosts() => _context.Post.Count();
+        public int CountFuturePublishedPosts() => _context.Post.Where(n => n.PublishDateTime > DateTime.Now).Count();
+        public int CountPostsPublishedOrDraft(bool? isPublish) => _context.Post.Where(n => isPublish == true ? n.IsPublish == true && n.PublishDateTime <= DateTime.Now : n.IsPublish == false).Count();
+
         public int CountPostsPublished() => _context.Post.Where(n => n.IsPublish == true && n.PublishDateTime <= DateTime.Now).Count();
         public List<PostViewModel> GetPaginatePosts(int offset, int limit, Func<IGrouping<string, PostViewModel>, Object> orderByAscFunc, Func<IGrouping<string, PostViewModel>, Object> orderByDescFunc, string searchText,bool? isPublish)
         {
@@ -206,6 +210,7 @@ namespace MindHorizon.Data.Repositories
 
         public async Task<List<PostViewModel>> MostTalkPosts(int offset, int limit, string duration)
         {
+            List<PostViewModel> postViewModel = new List<PostViewModel>();
             DateTime StartMiladiDate;
             DateTime EndMiladiDate = DateTime.Now;
 
@@ -224,21 +229,40 @@ namespace MindHorizon.Data.Repositories
                 StartMiladiDate = DateTime.Now.AddDays((-1) * (int.Parse(DayOfMonth) - 1)).Date + new TimeSpan(0, 0, 0);
             }
 
-            return await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
+            var postGroup =  await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(c => c.Comments)
                           join c in _context.Comments on n.PostId equals c.PostId
                           where (c.PostageDateTime <= EndMiladiDate && StartMiladiDate <= c.PostageDateTime)
-                          select (new PostViewModel
+                          select (new 
                           {
-                              PostId = n.PostId,
+                              n.PostId,
                               ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
-                              Url = n.Url,
+                              n.Url,
                               NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
                               NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
                               NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
                               NumberOfComments = n.Comments.Count(),
-                              ImageName = n.ImageName,
+                              n.ImageName,
                               PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
-                          })).OrderByDescending(o => o.NumberOfComments).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
+                          })).GroupBy(b => b.PostId).Select(g => new { PostId = g.Key, PostGroup = g }).OrderByDescending(o => o.PostGroup.First().NumberOfComments).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
+
+            foreach (var item in postGroup)
+            {
+                PostViewModel post = new PostViewModel
+                {
+                    PostId = item.PostId,
+                    ShortTitle = item.PostGroup.First().ShortTitle,
+                    Url = item.PostGroup.First().Url,
+                    NumberOfVisit = item.PostGroup.First().NumberOfVisit,
+                    NumberOfLike = item.PostGroup.First().NumberOfLike,
+                    NumberOfDisLike = item.PostGroup.First().NumberOfDisLike,
+                    NumberOfComments = item.PostGroup.First().NumberOfComments,
+                    ImageName = item.PostGroup.First().ImageName,
+                    PublishDateTime = item.PostGroup.First().PublishDateTime
+                };
+                postViewModel.Add(post);
+            }
+
+            return postViewModel;
         }
 
         public async Task<List<PostViewModel>> MostPopularPosts(int offset, int limit)
@@ -261,7 +285,7 @@ namespace MindHorizon.Data.Repositories
 
         }
 
-        public async Task<PostViewModel> GetPostById(string postId)
+        public async Task<PostViewModel> GetPostById(string postId, int userId)
         {
             string NameOfCategories = "";
             var postGroup = await (from n in _context.Post.Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User).Include(c => c.Comments)
@@ -294,6 +318,7 @@ namespace MindHorizon.Data.Repositories
                                  IsPublish = n.IsPublish,
                                  PublishDateTime = n.PublishDateTime == null ? new DateTime(01, 01, 01) : n.PublishDateTime,
                                  PersianPublishDate = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),
+                                 IsBookmarked = n.Bookmarks.Any(b => b.UserId == userId && b.PostId == postId)
                              })).GroupBy(b => b.PostId).Select(g => new { PostId = g.Key, PostGroup = g }).AsNoTracking().ToListAsync();
 
 
@@ -325,6 +350,7 @@ namespace MindHorizon.Data.Repositories
                 AuthorInfo= postGroup.First().PostGroup.First().AuthorInfo,
                 NumberOfComments = postGroup.First().PostGroup.First().NumberOfComments,
                 PublishDateTime = postGroup.First().PostGroup.First().PublishDateTime,
+                IsBookmarked = postGroup.First().PostGroup.First().IsBookmarked
             };
 
             return post;
@@ -474,6 +500,16 @@ namespace MindHorizon.Data.Repositories
                           join n in _context.Post on b.PostId equals n.PostId
                           where (u.Id == userId)
                           select new PostViewModel { PostId = n.PostId, Title = n.Title, PersianPublishDate = n.PublishDateTime.ConvertMiladiToShamsi("dd MMMM yyyy ساعت HH:mm"), Url = n.Url }).ToListAsync();
+
+        }
+
+        
+        public PostViewModel NumberOfLikeAndDislike(string postId)
+        {
+            return (from u in _context.Post.Include(l => l.Likes)
+                    where (u.PostId == postId)
+                    select new PostViewModel { NumberOfLike = u.Likes.Where(l => l.IsLiked == true).Count(), NumberOfDisLike = u.Likes.Where(l => l.IsLiked == false).Count() })
+                    .FirstOrDefault();
 
         }
     }

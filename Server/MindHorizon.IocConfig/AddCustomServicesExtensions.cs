@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MindHorizon.Data.Contracts;
+using MindHorizon.Data.Repositories;
 using MindHorizon.Data.UnitOfWork;
 using MindHorizon.Services;
 using MindHorizon.Services.Contracts;
@@ -15,6 +16,7 @@ namespace MindHorizon.IocConfig
         {
             services.AddScoped<IUnitOfWork,UnitOfWork>();
             services.AddScoped<IEmailSender, EmailSender>();
+            services.AddTransient<ICommentRepository, CommentRepository>();
             return services;
         }
     }

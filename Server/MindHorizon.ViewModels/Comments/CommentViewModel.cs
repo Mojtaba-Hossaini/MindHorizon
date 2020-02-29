@@ -44,7 +44,7 @@ namespace MindHorizon.ViewModels.Comments
         public string PostId { get; set; }
 
         [JsonProperty("IsConfirm")]
-        public bool IsConfirm { get; set; }
+        public bool? IsConfirm { get; set; }
 
         [JsonIgnore]
         public DateTime? PostageDateTime { get; set; }

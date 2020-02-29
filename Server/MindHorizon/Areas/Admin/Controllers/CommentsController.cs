@@ -26,14 +26,14 @@ namespace MindHorizon.Areas.Admin.Controllers
             _mapper.CheckArgumentIsNull(nameof(_mapper));
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string postId, bool? isConfirmed)
         {
-            return View();
+            return View(nameof(Index) , new CommentViewModel { PostId = postId, IsConfirm = isConfirmed});
         }
 
 
         [HttpGet]
-        public IActionResult GetComments(string search, string order, int offset, int limit, string sort)
+        public IActionResult GetComments(string search, string order, int offset, int limit, string sort, string postId, bool? isConfirmed)
         {
             List <CommentViewModel> comments;
             int total = _uw.BaseRepository<Comment>().CountEntities();
@@ -43,33 +43,36 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (limit == 0)
                 limit = total;
 
+            if (!postId.HasValue())
+                postId = "";
+
             if (sort == "نام")
             {
                 if (order == "asc")
-                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit,item=>item.Name , item=>"", search);
+                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit,item=>item.Name , item=>"", search, postId, isConfirmed);
                 else
-                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit, item => "", item => item.Name, search);
+                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit, item => "", item => item.Name, search, postId, isConfirmed);
             }
 
 
             else if (sort == "ایمیل")
             {
                 if (order == "asc")
-                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit, item => item.Email, item=>"", search);
+                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit, item => item.Email, item=>"", search, postId, isConfirmed);
                 else
-                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit,item=>"", item => item.Email, search);
+                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit,item=>"", item => item.Email, search, postId, isConfirmed);
             }
 
             else if (sort == "تاریخ ارسال")
             {
                 if (order == "asc")
-                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit, item => item.PersianPostageDateTime, item => "", search);
+                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit, item => item.PersianPostageDateTime, item => "", search, postId, isConfirmed);
                 else
-                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit, item => "", item => item.PersianPostageDateTime, search);
+                    comments = _uw.CommentRepository.GetPaginateComments(offset, limit, item => "", item => item.PersianPostageDateTime, search, postId, isConfirmed);
             }
 
             else
-                comments = _uw.CommentRepository.GetPaginateComments(offset, limit,item=>"",item=>item.PersianPostageDateTime, search);
+                comments = _uw.CommentRepository.GetPaginateComments(offset, limit,item=>"",item=>item.PersianPostageDateTime, search, postId, isConfirmed);
 
             if (search != "")
                 total = comments.Count();

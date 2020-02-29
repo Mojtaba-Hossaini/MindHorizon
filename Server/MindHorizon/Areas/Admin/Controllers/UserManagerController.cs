@@ -44,7 +44,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
 
-        public async Task<JsonResult> GetUsers(string search, string order, int offset, int limit, string sort)
+        public JsonResult GetUsers(string search, string order, int offset, int limit, string sort)
         {
             List<UsersViewModel> allUsers;
             int total = _userManager.Users.Count();
@@ -58,51 +58,52 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "نام")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, true, null, null, null,null, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.FirstName, item => "", search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, false, null, null, null,null, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.FirstName, search);
             }
 
             else if (sort == "نام خانوادگی")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, true, null, null,null, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.LastName, item => "", search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, false, null, null,null, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.LastName, search);
             }
 
             else if (sort == "ایمیل")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, true, null,null, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.Email, item => "", search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, false, null,null, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.Email, search);
             }
 
             else if (sort == "نام کاربری")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, true,null, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.UserName, item => "", search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, false,null, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.UserName, search);
             }
 
             else if (sort == "تاریخ عضویت")
             {
                 if (order == "asc")
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null,null, true, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.PersianRegisterDateTime, item => "", search);
                 else
-                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null,null, false, search);
+                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.PersianRegisterDateTime, search);
             }
 
             else
-                allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, null, null, null, null,null, search);
+                allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.PersianRegisterDateTime, item => "", search);
 
             if (search != "")
                 total = allUsers.Count();
 
             return Json(new { total = total, rows = allUsers });
         }
+
 
 
 
@@ -244,5 +245,270 @@ namespace MindHorizon.Areas.Admin.Controllers
 
             return PartialView("_DeleteGroup");
         }
+
+        public async Task<IActionResult> Details(int userId)
+        {
+            if (userId == 0)
+                return NotFound();
+            else
+            {
+                var User = await _userManager.FindUserWithRolesByIdAsync(userId);
+                if (User == null)
+                    return NotFound();
+                else
+                    return View(User);
+            }
+        }
+
+
+
+        /// <summary>
+        /// فعال و غیر فعال کردن فقل حساب کاربر
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> ChangeLockOutEnable(int userId)
+        {
+            var User = await _userManager.FindByIdAsync(userId.ToString());
+            string ResultJsonData;
+            if (User == null)
+            {
+                return NotFound();
+            }
+
+            else
+            {
+                if (User.LockoutEnabled)
+                {
+                    User.LockoutEnabled = false;
+                    ResultJsonData = "غیرفعال";
+                }
+
+                else
+                {
+                    User.LockoutEnabled = true;
+                    ResultJsonData = "فعال";
+                }
+
+                await _userManager.UpdateAsync(User);
+                return Json(ResultJsonData);
+            }
+        }
+
+        /// <summary>
+        /// فعال و غیر فعال کردن کاربر
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> InActiveOrActiveUser(int userId)
+        {
+            var User = await _userManager.FindByIdAsync(userId.ToString());
+            string ResultJsonData;
+            if (User == null)
+            {
+                return NotFound();
+            }
+
+            if (User.IsActive)
+            {
+                User.IsActive = false;
+                ResultJsonData = "غیرفعال";
+            }
+
+            else
+            {
+                User.IsActive = true;
+                ResultJsonData = "فعال";
+            }
+
+            await _userManager.UpdateAsync(User);
+            return Json(ResultJsonData);
+        }
+
+        /// <summary>
+        /// فعال و غیر فعال کردن احرازهویت دو مرحله ای
+        /// </summary>
+        /// <param name="UserId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> ChangeTwoFactorEnabled(int userId)
+        {
+            var User = await _userManager.FindByIdAsync(userId.ToString());
+            string ResultJsonData;
+            if (User == null)
+            {
+                return NotFound();
+            }
+
+            if (User.TwoFactorEnabled)
+            {
+                User.TwoFactorEnabled = false;
+                ResultJsonData = "غیرفعال";
+            }
+
+            else
+            {
+                User.TwoFactorEnabled = true;
+                ResultJsonData = "فعال";
+            }
+
+            await _userManager.UpdateAsync(User);
+            return Json(ResultJsonData);
+        }
+
+        /// <summary>
+        /// تایید و عدم تایید وضعیت ایمیل کاربر
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> ChangeEmailConfirmed(int userId)
+        {
+            var User = await _userManager.FindByIdAsync(userId.ToString());
+            string ResultJsonData;
+            if (User == null)
+            {
+                return NotFound();
+            }
+
+            if (User.EmailConfirmed)
+            {
+                ResultJsonData = "تایید نشده";
+                User.EmailConfirmed = false;
+            }
+
+            else
+            {
+                User.EmailConfirmed = true;
+                ResultJsonData = "تایید شده";
+            }
+
+            var Result = await _userManager.UpdateAsync(User);
+            return Json(ResultJsonData);
+        }
+
+        /// <summary>
+        /// تایید و عدم تایید وضعیت شماره موبایل کاربر
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> ChangePhoneNumberConfirmed(int userId)
+        {
+            var User = await _userManager.FindByIdAsync(userId.ToString());
+            string ResultJsonData;
+            if (User == null)
+            {
+                return NotFound();
+            }
+
+            if (User.PhoneNumberConfirmed)
+            {
+                ResultJsonData = "تایید نشده";
+                User.PhoneNumberConfirmed = false;
+            }
+
+            else
+            {
+                ResultJsonData = "تایید شده";
+                User.PhoneNumberConfirmed = true;
+            }
+
+            var Result = await _userManager.UpdateAsync(User);
+            return Json(ResultJsonData);
+        }
+
+        /// <summary>
+        /// قفل و خروج از حالت قفل حساب کاربر
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> LockOrUnLockUserAccount(int userId)
+        {
+            var User = await _userManager.FindByIdAsync(userId.ToString());
+            string ResultJsonData;
+            if (User == null)
+            {
+                return NotFound();
+            }
+
+            if (User.LockoutEnd == null)
+            {
+                ResultJsonData = "قفل شده";
+                User.LockoutEnd = DateTimeOffset.UtcNow.AddMinutes(20);
+            }
+
+            else
+            {
+                if (User.LockoutEnd > DateTime.Now)
+                {
+                    ResultJsonData = "قفل نشده";
+                    User.LockoutEnd = null;
+                }
+                else
+                {
+                    ResultJsonData = "قفل شده";
+                    User.LockoutEnd = DateTimeOffset.UtcNow.AddMinutes(20);
+                }
+            }
+
+            var Result = await _userManager.UpdateAsync(User);
+            return Json(ResultJsonData);
+        }
+
+        /// <summary>
+        /// نمایش صفحه بازنشانی کلمه عبور
+        /// </summary>
+        /// <param name="UserId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(int userId)
+        {
+            var User = await _userManager.FindByIdAsync(userId.ToString());
+            if (User == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new ResetPasswordViewModel
+            {
+                userId = userId,
+                Email = User.Email,
+            };
+
+            return View(viewModel);
+        }
+
+        /// <summary>
+        /// انجام عملیات بازنشانی کلمه عبور
+        /// </summary>
+        /// <param name="ViewModel"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var User = await _userManager.FindByIdAsync(viewModel.userId.ToString());
+                if (User == null)
+                    return NotFound();
+
+                await _userManager.RemovePasswordAsync(User);
+                var result = await _userManager.AddPasswordAsync(User, viewModel.NewPassword);
+                if (result.Succeeded)
+                    ViewBag.AlertSuccess = "بازنشانی کلمه عبور با موفقیت انجام شد.";
+                else
+                    ModelState.AddErrorsFromResult(result);
+
+                viewModel.Email = User.Email;
+            }
+
+            return View(viewModel);
+        }
+
     }
 }
