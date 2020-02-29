@@ -10,6 +10,7 @@ namespace MindHorizon.IocConfig
         public static void AddCustomIdentityServices(this IServiceCollection services)
         {
             services.AddIdentityOptions();
+            services.AddDynamicPersmission();
             services.AddScoped<IApplicationRoleManager, ApplicationRoleManager>();
             services.AddScoped<IApplicationUserManager, ApplicationUserManager>();
             services.AddScoped<IIdentityDbInitializer, IdentityDbInitializer>();

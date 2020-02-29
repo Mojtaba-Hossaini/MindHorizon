@@ -123,6 +123,8 @@ namespace MindHorizon.Services.Contracts
         Task<User> GetUserAsync(ClaimsPrincipal User);
         List<UsersViewModel> GetPaginateUsers(int offset, int limit, Func<UsersViewModel, Object> orderByAscFunc, Func<UsersViewModel, Object> orderByDescFunc, string searchText);
         string CheckAvatarFileName(string fileName);
+        Task<User> FindClaimsInUser(int userId);
+        Task<IdentityResult> AddOrUpdateClaimsAsync(int userId, string userClaimType, IList<string> selectedUserClaimValues);
         #endregion
     }
 }
