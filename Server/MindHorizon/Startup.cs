@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using MindHorizon.Data;
 using MindHorizon.IocConfig;
+using MindHorizon.ViewModels.DynamicAccess;
 using MindHorizon.ViewModels.Settings;
 
 namespace MindHorizon
@@ -30,6 +32,10 @@ namespace MindHorizon
             services.AddCustomIdentityServices();
             services.AddAutoMapper();
             services.ConfigureWritable<SiteSettings>(Configuration.GetSection("SiteSettings"));
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(ConstantPolicies.DynamicPermission, policy => policy.Requirements.Add(new DynamicPermissionRequirement()));
+            });
             services.ConfigureApplicationCookie(options =>
             {
                 //options.LoginPath = "/Account/SignIn";
@@ -39,24 +45,35 @@ namespace MindHorizon
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-            }
+            else
+                app.UseExceptionHandler("/Home/Error");
 
             app.UseStaticFiles();
             app.UseCustomIdentityServices();
-            app.UseMvc(routes =>
+            app.Use(async (context, next) =>
             {
-                routes.MapRoute(
+                await next();
+                if (context.Response.StatusCode == 404)
+                {
+                    context.Request.Path = "/home/error404";
+                    await next();
+                }
+            });
+            app.UseRouting();
+            app.UseAuthorization();
+            app.UseEndpoints(routes =>
+            {
+                routes.MapControllerRoute(
                   name: "areas",
-                  template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+                  pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
                 );
-                routes.MapRoute(
+                routes.MapControllerRoute(
                  name: "default",
-                 template: "{controller=Home}/{action=Index}/{id?}"
+                 pattern: "{controller=Home}/{action=Index}/{id?}"
                );
 
             });

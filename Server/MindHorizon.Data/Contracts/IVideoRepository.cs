@@ -9,6 +9,6 @@ namespace MindHorizon.Data.Contracts
     public interface IVideoRepository
     {
         string CheckVideoFileName(string fileName);
-        List<VideoViewModel> GetPaginateVideos(int offset, int limit, Func<VideoViewModel, Object> orderByAscFunc, Func<VideoViewModel, Object> orderByDescFunc, string searchText);
+        Task<List<VideoViewModel>> GetPaginateVideosAsync(int offset, int limit, string orderBy, string searchText);
     }
 }

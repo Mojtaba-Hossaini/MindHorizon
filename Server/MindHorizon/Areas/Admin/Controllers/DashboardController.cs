@@ -33,20 +33,20 @@ namespace MindHorizon.Areas.Admin.Controllers
 
             var month = StringExtensions.GetMonth();
             int numberOfVisit;
-            var year = ConvertDateTime.ConvertMiladiToShamsi(DateTime.Now, "yyyy");
+            var year = DateTimeExtensions.ConvertMiladiToShamsi(DateTime.Now, "yyyy");
             DateTime StartDateTimeMiladi;
             DateTime EndDateTimeMiladi;
             var numberOfVisitList = new List<NumberOfVisitChartViewModel>();
 
             for (int i = 0; i < month.Length; i++)
             {
-                StartDateTimeMiladi = ConvertDateTime.ConvertShamsiToMiladi($"{year}/{i + 1}/01");
+                StartDateTimeMiladi = DateTimeExtensions.ConvertShamsiToMiladi($"{year}/{i + 1}/01");
                 if (i < 11)
-                    EndDateTimeMiladi = ConvertDateTime.ConvertShamsiToMiladi($"{year}/{i + 2}/01");
+                    EndDateTimeMiladi = DateTimeExtensions.ConvertShamsiToMiladi($"{year}/{i + 2}/01");
                 else
-                    EndDateTimeMiladi = ConvertDateTime.ConvertShamsiToMiladi($"{year}/01/01");
+                    EndDateTimeMiladi = DateTimeExtensions.ConvertShamsiToMiladi($"{year}/01/01");
 
-                numberOfVisit = _uw._Context.Post.Where(n => n.PublishDateTime < EndDateTimeMiladi && StartDateTimeMiladi <= n.PublishDateTime).Include(v => v.Visits).Select(k => k.Visits.Select(v => v.NumberOfVisit).Sum()).Sum();
+                numberOfVisit = _uw._Context.Post.Where(n => n.PublishDateTime < EndDateTimeMiladi && StartDateTimeMiladi <= n.PublishDateTime).Include(v => v.Visits).Select(k => k.Visits.Sum(v => v.NumberOfVisit)).AsEnumerable().Sum();
                 numberOfVisitList.Add(new NumberOfVisitChartViewModel { Name = month[i], Value = numberOfVisit });
             }
 

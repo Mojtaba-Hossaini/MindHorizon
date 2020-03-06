@@ -22,8 +22,8 @@ namespace MindHorizon.Data
             base.OnModelCreating(builder);
             builder.AddCustomIdentityMappings();
             builder.AddCustomMindHorizonMappings();
-            builder.Entity<Video>().Property(b => b.PublishDateTime).HasDefaultValueSql("CONVERT(datetime,GetDate())");
-            builder.Entity<User>().Property(b => b.RegisterDateTime).HasDefaultValueSql("CONVERT(datetime,GetDate())");
+            builder.Entity<Video>().Property(b => b.PublishDateTime).HasDefaultValueSql("CONVERT(DATETIME, CONVERT(VARCHAR(20),GetDate(), 120))");
+            builder.Entity<User>().Property(b => b.RegisterDateTime).HasDefaultValueSql("CONVERT(DATETIME, CONVERT(VARCHAR(20),GetDate(), 120))");
             builder.Entity<User>().Property(b => b.IsActive).HasDefaultValueSql("1");
             }
 

@@ -54,13 +54,13 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "برچسب")
             {
                 if (order == "asc")
-                    tags = await _uw.TagRepository.GetPaginateTagsAsync(offset, limit, true, search);
+                    tags = await _uw.TagRepository.GetPaginateTagsAsync(offset, limit, "TagName", search);
                 else
-                    tags = await _uw.TagRepository.GetPaginateTagsAsync(offset, limit, false, search);
+                    tags = await _uw.TagRepository.GetPaginateTagsAsync(offset, limit, "TagName desc", search);
             }
 
             else
-                tags = await _uw.TagRepository.GetPaginateTagsAsync(offset, limit,null,search);
+                tags = await _uw.TagRepository.GetPaginateTagsAsync(offset, limit, "TagName", search);
 
             if (search != "")
                 total = tags.Count();

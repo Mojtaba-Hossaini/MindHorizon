@@ -21,11 +21,11 @@ namespace MindHorizon.Areas.Admin.Controllers
     public class PostController : BaseController
     {
         private readonly IUnitOfWork _uw;
-        private readonly IHostingEnvironment _env;
+        private readonly IWebHostEnvironment _env;
         private const string PostNotFound = "مطلب یافت نشد.";
         private readonly IMapper _mapper;
 
-        public PostController(IUnitOfWork uw, IMapper mapper, IHostingEnvironment env)
+        public PostController(IUnitOfWork uw, IMapper mapper, IWebHostEnvironment env)
         {
             _uw = uw;
             _uw.CheckArgumentIsNull(nameof(_uw));
@@ -47,9 +47,9 @@ namespace MindHorizon.Areas.Admin.Controllers
 
         [HttpGet, DisplayName("دریافت مطالب")]
         [Authorize(Policy = ConstantPolicies.DynamicPermission)]
-        public IActionResult GetPosts(string search, string order, int offset, int limit, string sort)
+        public async Task<IActionResult> GetPosts(string search, string order, int offset, int limit, string sort)
         {
-            List<PostViewModel> post;
+            List<PostViewModel> posts;
             int total = _uw.BaseRepository<Post>().CountEntities();
             if (!search.HasValue())
                 search = "";
@@ -60,61 +60,62 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "ShortTitle")
             {
                 if (order == "asc")
-                    post = _uw.PostRepository.GetPaginatePosts(offset, limit,item=>item.First().Title,item=>"", search,null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "ShortTitle", search, null);
                 else
-                    post = _uw.PostRepository.GetPaginatePosts(offset, limit,item=>"", item => item.First().Title, search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "ShortTitle desc", search, null);
             }
 
             else if (sort == "بازدید")
             {
                 if (order == "asc")
-                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().NumberOfVisit, item => "", search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "NumberOfVisit", search, null);
                 else
-                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().NumberOfVisit, search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "NumberOfVisit desc", search, null);
             }
 
             else if (sort == "لایک")
             {
                 if (order == "asc")
-                    post = _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().NumberOfLike, item => "", search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "NumberOfLike", search, null);
                 else
-                    post = _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().NumberOfLike, search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "NumberOfLike desc", search, null);
             }
 
             else if (sort == "دیس لایک")
             {
                 if (order == "asc")
-                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().NumberOfDisLike, item => "", search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "NumberOfDisLike", search, null);
                 else
-                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().NumberOfDisLike, search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "NumberOfDisLike desc", search, null);
             }
 
             else if (sort == "تاریخ انتشار")
             {
                 if (order == "asc")
-                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().PersianPublishDate, item => "", search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "PublishDateTime", search, null);
                 else
-                    post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "PublishDateTime desc", search, null);
             }
 
             else if (sort == "نظرات")
             {
                 if (order == "asc")
-                    post = _uw.PostRepository.GetPaginatePosts(offset, limit, item => item.First().NumberOfComments, item => "", search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "NumberOfComments", search, null);
                 else
-                    post = _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().NumberOfComments, search, null);
+                    posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "NumberOfComments desc", search, null);
             }
 
             else
-                post =  _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().PersianPublishDate, search, null);
+                posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "PublishDateTime desc", search, null);
 
 
 
             if (search != "")
-                total = post.Count();
+                total = posts.Count();
 
-            return Json(new { total = total, rows = post });
+            return Json(new { total = total, rows = posts });
         }
+
 
         [HttpGet, DisplayName("ورد به صفحه ایجاد یا تغییر مطلب")]
         [Authorize(Policy = ConstantPolicies.DynamicPermission)]
@@ -125,39 +126,40 @@ namespace MindHorizon.Areas.Admin.Controllers
             postViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), null);
             if (postId.HasValue())
             {
-                var post = await (from n in _uw._Context.Post.Include(c => c.PostCategories)
-                            join w in _uw._Context.PostTags on n.PostId equals w.PostId into bc
-                            from bct in bc.DefaultIfEmpty()
-                            join t in _uw._Context.Tags on bct.TagId equals t.TagId into cg
-                            from cog in cg.DefaultIfEmpty()
-                            where (n.PostId == postId)
-                            select new PostViewModel
-                            {
-                                PostId = n.PostId,
-                                Title = n.Title,
-                                Abstract=n.Abstract,
-                                Description = n.Description,
-                                PublishDateTime = n.PublishDateTime,
-                                IsPublish = n.IsPublish,
-                                ImageName = n.ImageName,
-                                PostCategories = n.PostCategories,
-                                Url = n.Url,
-                                NameOfTags = cog!=null? cog.TagName:"",
-                            }).ToListAsync();
+                var posts = await (from n in _uw._Context.Post
+                                  join e in _uw._Context.PostCategories on n.PostId equals e.PostId into nc
+                                  from nct in nc.DefaultIfEmpty()
+                                  join w in _uw._Context.PostTags on n.PostId equals w.PostId into bc
+                                  from bct in bc.DefaultIfEmpty()
+                                  join t in _uw._Context.Tags on bct.TagId equals t.TagId into cg
+                                  from cog in cg.DefaultIfEmpty()
+                                  where (n.PostId == postId)
+                                  select new PostViewModel
+                                  {
+                                      PostId = n.PostId,
+                                      Title = n.Title,
+                                      Abstract = n.Abstract,
+                                      Description = n.Description,
+                                      PublishDateTime = n.PublishDateTime,
+                                      IsPublish = n.IsPublish,
+                                      ImageName = n.ImageName,
+                                      IdOfCategories = nct != null ? nct.CategoryId : "",
+                                      Url = n.Url,
+                                      NameOfTags = cog != null ? cog.TagName : "",
+                                  }).ToListAsync();
 
-                if (post != null)
+                if (posts != null)
                 {
-                    postViewModel = _mapper.Map<PostViewModel>(post.FirstOrDefault());
-                    if (post.FirstOrDefault().PublishDateTime > DateTime.Now)
+                    postViewModel = _mapper.Map<PostViewModel>(posts.FirstOrDefault());
+                    if (posts.FirstOrDefault().PublishDateTime > DateTime.Now)
                     {
                         postViewModel.FuturePublish = true;
-                        postViewModel.PersianPublishDate = post.FirstOrDefault().PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd");
-                        postViewModel.PersianPublishTime = post.FirstOrDefault().PublishDateTime.Value.TimeOfDay.ToString();
+                        postViewModel.PersianPublishDate = posts.FirstOrDefault().PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd");
+                        postViewModel.PersianPublishTime = posts.FirstOrDefault().PublishDateTime.Value.TimeOfDay.ToString();
                     }
-                    postViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), post.FirstOrDefault().PostCategories.Select(n=>n.CategoryId).ToArray());
-                    postViewModel.NameOfTags = post.Select(t => t.NameOfTags).ToArray().CombineWith(',');
+                    postViewModel.PostCategoriesViewModel = new PostCategoriesViewModel(await _uw.CategoryRepository.GetAllCategoriesAsync(), posts.Select(n => n.IdOfCategories).Distinct().ToArray());
+                    postViewModel.NameOfTags = posts.Select(t => t.NameOfTags).Distinct().ToArray().CombineWith(',');
                 }
-
             }
 
             return View(postViewModel);
@@ -195,7 +197,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                     else
                     {
                         if (viewModel.IsPublish && post.IsPublish == false)
-                            viewModel.PublishDateTime = DateTime.Now;
+                            viewModel.PublishDateTime = DateTimeExtensions.DateTimeWithOutMilliSecends(DateTime.Now);
 
                         if (viewModel.IsPublish && post.IsPublish == true)
                         {
@@ -244,7 +246,7 @@ namespace MindHorizon.Areas.Admin.Controllers
                     if (viewModel.IsPublish)
                     {
                         if (!viewModel.PersianPublishDate.HasValue())
-                            viewModel.PublishDateTime = DateTime.Now;
+                            viewModel.PublishDateTime = DateTimeExtensions.DateTimeWithOutMilliSecends(DateTime.Now);
                         else
                         {
                             var persianTimeArray = viewModel.PersianPublishTime.Split(':');

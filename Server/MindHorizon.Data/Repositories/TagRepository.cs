@@ -6,7 +6,7 @@ using MindHorizon.ViewModels.Tag;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 
 namespace MindHorizon.Data.Repositories
@@ -20,14 +20,12 @@ namespace MindHorizon.Data.Repositories
         }
 
 
-        public async Task<List<TagViewModel>> GetPaginateTagsAsync(int offset, int limit, bool? tagNameSortAsc, string searchText)
+        public async Task<List<TagViewModel>> GetPaginateTagsAsync(int offset, int limit, string Orderby, string searchText)
         {
             List<TagViewModel> tags = await _context.Tags.Where(c => c.TagName.Contains(searchText))
-                                   .Select(t => new TagViewModel {TagId=t.TagId,TagName=t.TagName}).Skip(offset).Take(limit).AsNoTracking().ToListAsync();
-
-            if (tagNameSortAsc != null)
-                tags = tags.OrderBy(c => (tagNameSortAsc == true && tagNameSortAsc != null) ? c.TagName : "").OrderByDescending(c => (tagNameSortAsc == false && tagNameSortAsc != null) ? c.TagName : "").ToList();
-
+                                   .OrderBy(Orderby)
+                                   .Skip(offset).Take(limit)
+                                   .Select(t => new TagViewModel { TagId = t.TagId, TagName = t.TagName }).AsNoTracking().ToListAsync();
             foreach (var item in tags)
                 item.Row = ++offset;
 
@@ -54,7 +52,7 @@ namespace MindHorizon.Data.Repositories
         }
 
 
-        public async Task<List<PostTag>> InsertPostTags(string[] tags,string postId=null)
+        public async Task<List<PostTag>> InsertPostTags(string[] tags, string postId = null)
         {
             string tagId;
             List<PostTag> postTags = new List<PostTag>();
@@ -65,7 +63,7 @@ namespace MindHorizon.Data.Repositories
             {
                 tagId = StringExtensions.GenerateId(10);
                 _context.Tags.Add(new Tag { TagName = item, TagId = tagId });
-                postTags.Add(new PostTag { TagId = tagId,PostId= postId });
+                postTags.Add(new PostTag { TagId = tagId, PostId = postId });
             }
             await _context.SaveChangesAsync();
             return postTags;

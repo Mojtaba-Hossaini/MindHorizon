@@ -25,7 +25,7 @@ namespace MindHorizon.Controllers
         {
             var isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             if (isAjax && TypeOfPosts == "MostViewedPosts")
-                return PartialView("_MostViewedPosts", await _uw.PostRepository.MostViewedPosts(0, 3, duration));
+                return PartialView("_MostViewedPosts", await _uw.PostRepository.MostViewedPostsAsync(0, 3, duration));
 
 
             else if (isAjax && TypeOfPosts == "MostTalkPosts")
@@ -34,11 +34,11 @@ namespace MindHorizon.Controllers
             else
             {
                 int countPostsPublished = _uw.PostRepository.CountPostsPublished();
-                var post = _uw.PostRepository.GetPaginatePosts(0, 10, item => "", item => item.First().PersianPublishDate, "", true );
-                var mostViewedPosts = await _uw.PostRepository.MostViewedPosts(0, 3, "day");
+                var post = await _uw.PostRepository.GetPaginatePostsAsync(0, 10, "PublishDateTime desc", "", true);
+                var mostViewedPosts = await _uw.PostRepository.MostViewedPostsAsync(0, 3, "day");
                 var mostTalkPosts = await _uw.PostRepository.MostTalkPosts(0, 5, "day");
                 var mostPopulerPosts = await _uw.PostRepository.MostPopularPosts(0, 5);
-                var videos = _uw.VideoRepository.GetPaginateVideos(0, 10,item=>"",item=>item.PersianPublishDateTime, "");
+                var videos = await _uw.VideoRepository.GetPaginateVideosAsync(0, 10, "PublishDateTime desc", "");
                 var homePageViewModel = new HomePageViewModel(post, mostViewedPosts,mostTalkPosts,mostPopulerPosts, videos, countPostsPublished);
                 return View(homePageViewModel);
             }
@@ -64,20 +64,20 @@ namespace MindHorizon.Controllers
                 await _uw.Commit();
             }
 
-            var post = await _uw.PostRepository.GetPostById(postId, userId);
+            var post = await _uw.PostRepository.GetPostByIdAsync(postId, userId);
             var postComments = await _uw.PostRepository.GetPostCommentsAsync(postId);
             var nextAndPreviousPost = await _uw.PostRepository.GetNextAndPreviousPost(post.PublishDateTime);
-            var postRelated = await _uw.PostRepository.GetRelatedPosts(2, post.TagIdsList, postId);
+            var postRelated = await _uw.PostRepository.GetRelatedPostsAsync(2, post.TagIdsList, postId);
             var postDetailsViewModel = new PostDetailsViewModel(post, postComments, postRelated, nextAndPreviousPost);
             return View(postDetailsViewModel);
         }
 
 
         [HttpGet]
-        public IActionResult GetPostsPaginate(int limit, int offset)
+        public async Task<IActionResult> GetPostsPaginate(int limit, int offset)
         {
             int countPostsPublished = _uw.PostRepository.CountPostsPublished();
-            var posts = _uw.PostRepository.GetPaginatePosts(offset, limit, item => "", item => item.First().PersianPublishDate, "", true);
+            var posts = await _uw.PostRepository.GetPaginatePostsAsync(offset, limit, "PublishDateTime desc", "", true);
             return PartialView("_PostsPaginate", new PostPaginateViewModel(countPostsPublished, posts));
         }
 
@@ -102,10 +102,13 @@ namespace MindHorizon.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetPostsInCategoryAndTag(int pageIndex, int pageSize, string categoryId)
+        public async Task<ActionResult> GetPostsInCategoryAndTag(int pageIndex, int pageSize, string categoryId, string tagId)
         {
-            //System.Threading.Thread.Sleep(4000);
-            return Json(await _uw.PostRepository.GetPostsInCategoryAndTag(categoryId, "", pageIndex, pageSize));
+            if (categoryId.HasValue())
+                return Json(await _uw.PostRepository.GetPostsInCategoryAsync(categoryId, pageIndex, pageSize));
+
+            else
+                return Json(await _uw.PostRepository.GetPostsInCategoryAsync(tagId, pageIndex, pageSize));
         }
 
         [Route("Tag/{tagId}")]
@@ -119,10 +122,8 @@ namespace MindHorizon.Controllers
                 if (tag == null)
                     return NotFound();
                 else
-                {
-                    ViewBag.Tag = tag.TagName;
-                    return View("PostsInCategoryAndTag", await _uw.PostRepository.GetPostsInCategoryAndTag("", tagId, 0, 100));
-                }
+                    return View("PostsInCategoryAndTag", new CategoryOrTagInfoViewModel { Id = tag.TagId, Title = tag.TagName, IsCategory = false });
+
             }
         }
 
@@ -195,6 +196,19 @@ namespace MindHorizon.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Search(string searchText) => View(await _uw.PostRepository.SearchInPosts(searchText));
+
+        [HttpGet]
+        public IActionResult Error()
+        {
+            return View();
+        }
+
+
+        [HttpGet]
+        public IActionResult Error404()
+        {
+            return View();
+        }
 
     }
 }

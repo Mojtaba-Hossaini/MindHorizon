@@ -1,13 +1,12 @@
 ﻿using MindHorizon.ViewModels.Comments;
-using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace MindHorizon.Data.Contracts
 {
     public interface ICommentRepository
     {
         int CountUnAnsweredComments();
-        List<CommentViewModel> GetPaginateComments(int offset, int limit, Func<CommentViewModel, Object> orderByAscFunc, Func<CommentViewModel, Object> orderByDescFunc, string searchText, string postId, bool? isConfirmed);
+        Task<List<CommentViewModel>> GetPaginateCommentsAsync(int offset, int limit, string orderBy, string searchText, string postId, bool? isConfirm);
     }
 }

@@ -23,10 +23,10 @@ namespace MindHorizon.Areas.Admin.Controllers
         private readonly IApplicationUserManager _userManager;
         private readonly IApplicationRoleManager _roleManager;
         private readonly IMapper _mapper;
-        private readonly IHostingEnvironment _env;
+        private readonly IWebHostEnvironment _env;
         private readonly IUnitOfWork _uw;
         private const string UserNotFound = "کاربر یافت نشد.";
-        public UserManagerController(IApplicationUserManager userManager, IMapper mapper, IApplicationRoleManager roleManager, IHostingEnvironment env)
+        public UserManagerController(IApplicationUserManager userManager, IMapper mapper, IApplicationRoleManager roleManager, IWebHostEnvironment env)
         {
             _userManager = userManager;
             _userManager.CheckArgumentIsNull(nameof(_userManager));
@@ -51,7 +51,7 @@ namespace MindHorizon.Areas.Admin.Controllers
 
         [HttpGet, DisplayName("دریافت کاربران")]
         [Authorize(Policy = ConstantPolicies.DynamicPermission)]
-        public JsonResult GetUsers(string search, string order, int offset, int limit, string sort)
+        public async Task<JsonResult> GetUsers(string search, string order, int offset, int limit, string sort)
         {
             List<UsersViewModel> allUsers;
             int total = _userManager.Users.Count();
@@ -65,51 +65,52 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "نام")
             {
                 if (order == "asc")
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.FirstName, item => "", search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "FirstName", search);
                 else
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.FirstName, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "FirstName desc", search);
             }
 
             else if (sort == "نام خانوادگی")
             {
                 if (order == "asc")
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.LastName, item => "", search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "LastName", search);
                 else
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.LastName, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "LastName desc", search);
             }
 
             else if (sort == "ایمیل")
             {
                 if (order == "asc")
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.Email, item => "", search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "Email", search);
                 else
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.Email, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "Email desc", search);
             }
 
             else if (sort == "نام کاربری")
             {
                 if (order == "asc")
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.UserName, item => "", search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "UserName", search);
                 else
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.UserName, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "UserName desc", search);
             }
 
             else if (sort == "تاریخ عضویت")
             {
                 if (order == "asc")
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.PersianRegisterDateTime, item => "", search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "RegisterDateTime", search);
                 else
-                    allUsers = _userManager.GetPaginateUsers(offset, limit, item => "", item => item.PersianRegisterDateTime, search);
+                    allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "RegisterDateTime desc", search);
             }
 
             else
-                allUsers = _userManager.GetPaginateUsers(offset, limit, item => item.PersianRegisterDateTime, item => "", search);
+                allUsers = await _userManager.GetPaginateUsersAsync(offset, limit, "RegisterDateTime desc", search);
 
             if (search != "")
                 total = allUsers.Count();
 
             return Json(new { total = total, rows = allUsers });
         }
+
 
 
 

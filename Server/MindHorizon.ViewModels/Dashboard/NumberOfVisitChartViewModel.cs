@@ -1,16 +1,13 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text.Json.Serialization;
 
 namespace MindHorizon.ViewModels.Dashboard
 {
     public class NumberOfVisitChartViewModel
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("y")]
+        [JsonPropertyName("y")]
         public int Value { get; set; }
     }
 }

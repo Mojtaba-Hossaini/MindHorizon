@@ -15,18 +15,19 @@ namespace MindHorizon.Data.Contracts
         string CheckPostFileName(string fileName);
         int CountPosts();
         int CountFuturePublishedPosts();
-        int CountPostsPublishedOrDraft(bool? isPublish);
+        public int CountPostsPublishedOrDraft(bool isPublish);
         int CountPostsPublished();
-        List<PostViewModel> GetPaginatePosts(int offset, int limit, Func<IGrouping<string, PostViewModel>, Object> orderByAscFunc, Func<IGrouping<string, PostViewModel>, Object> orderByDescFunc, string searchText, bool? isPublish);
-        Task<List<PostViewModel>> MostViewedPosts(int offset, int limit, string duration);
+        Task<List<PostViewModel>> GetPaginatePostsAsync(int offset, int limit, string orderBy, string searchText, bool? isPublish);
+        Task<List<PostViewModel>> MostViewedPostsAsync(int offset, int limit, string duration);
         Task<List<PostViewModel>> MostTalkPosts(int offset, int limit, string duration);
         Task<List<PostViewModel>> MostPopularPosts(int offset, int limit);
-        Task<PostViewModel> GetPostById(string postId, int userId);
+        Task<PostViewModel> GetPostByIdAsync(string postId, int userId);
         Task<List<Comment>> GetPostCommentsAsync(string postId);
         Task BindSubComments(Comment comment);
         Task<List<PostViewModel>> GetNextAndPreviousPost(DateTime? PublishDateTime);
-        Task<List<PostViewModel>> GetRelatedPosts(int number, List<string> tagIdList, string postId);
-        Task<List<PostsInCategoriesAndTagsViewModel>> GetPostsInCategoryAndTag(string categoryId, string TagId, int pageIndex, int pageSize)
+        Task<List<PostViewModel>> GetRelatedPostsAsync(int number, List<string> tagIdList, string postId);
+        Task<List<PostsInCategoriesAndTagsViewModel>> GetPostsInCategoryAsync(string categoryId, int pageIndex, int pageSize);
+        Task<List<PostsInCategoriesAndTagsViewModel>> GetPostsInTagAsync(string TagId, int pageIndex, int pageSize);
         Task<List<PostViewModel>> GetUserBookmarksAsync(int userId);
         Task<List<PostViewModel>> SearchInPosts(string textSearch);
         PostViewModel NumberOfLikeAndDislike(string postId);

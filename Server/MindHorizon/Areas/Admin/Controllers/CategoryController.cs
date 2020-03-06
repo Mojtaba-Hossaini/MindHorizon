@@ -54,21 +54,21 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "دسته")
             {
                 if (order == "asc")
-                    categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, true, null, search);
+                    categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, "CategoryInfo.CategoryName", search);
                 else
-                    categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, false, null, search);
+                    categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, "CategoryInfo.CategoryName desc", search);
             }
 
             else if (sort == "دسته پدر")
             {
                 if (order == "asc")
-                    categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, null, true, search);
+                    categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, "ParentInfo.CategoryName", search);
                 else
-                    categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, null, false, search);
+                    categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, "ParentInfo.CategoryName desc", search);
             }
 
             else
-                categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, null, null, search);
+                categories = await _uw.CategoryRepository.GetPaginateCategoriesAsync(offset, limit, "CategoryInfo.CategoryName", search);
 
             if (search != "")
                 total = categories.Count();

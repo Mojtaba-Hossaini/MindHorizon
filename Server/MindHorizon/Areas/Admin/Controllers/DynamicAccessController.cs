@@ -22,7 +22,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
         [HttpGet, DisplayName("نمایش سطح دسترسی ها")]
-        //[Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Index(int userId)
         {
             if (userId == 0)
@@ -42,7 +42,7 @@ namespace MindHorizon.Areas.Admin.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken, DisplayName("ذخیره سطح دسترسی ها")]
-        //[Authorize(Policy = ConstantPolicies.DynamicPermission)]
+        [Authorize(Policy = ConstantPolicies.DynamicPermission)]
         public async Task<IActionResult> Index(DynamicAccessIndexViewModel ViewModel)
         {
             var Result = await _userManager.AddOrUpdateClaimsAsync(ViewModel.UserId, ConstantPolicies.DynamicPermissionClaimType, ViewModel.ActionIds.Split(","));

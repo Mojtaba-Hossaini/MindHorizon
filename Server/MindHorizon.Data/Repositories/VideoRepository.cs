@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,13 +21,13 @@ namespace MindHorizon.Data.Repositories
         }
 
 
-        public List<VideoViewModel> GetPaginateVideos(int offset, int limit, Func<VideoViewModel, Object> orderByAscFunc, Func<VideoViewModel, Object> orderByDescFunc, string searchText)
+        public async Task<List<VideoViewModel>> GetPaginateVideosAsync(int offset, int limit, string orderBy, string searchText)
         {
-            List<VideoViewModel> videos= _context.Videos.Where(c => c.Title.Contains(searchText))
-                                    .Select(c => new VideoViewModel { VideoId = c.VideoId, Title = c.Title, Url = c.Url, Poster=c.Poster,PersianPublishDateTime=c.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"),PublishDateTime=c.PublishDateTime})
-                                    .OrderBy(orderByAscFunc).OrderByDescending(orderByDescFunc).Skip(offset).Take(limit).ToList();
+            var getDateTimesForSearch = searchText.GetDateTimeForSearch();
+            List<VideoViewModel> videos = await _context.Videos.Where(c => c.Title.Contains(searchText) || (c.PublishDateTime >= getDateTimesForSearch.First() && c.PublishDateTime <= getDateTimesForSearch.Last()))
+                                    .OrderBy(orderBy).Skip(offset).Take(limit)
+                                    .Select(c => new VideoViewModel { VideoId = c.VideoId, Title = c.Title, Url = c.Url, Poster = c.Poster, PersianPublishDateTime = c.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss"), PublishDateTime = c.PublishDateTime }).AsNoTracking().ToListAsync();
 
-          
             foreach (var item in videos)
                 item.Row = ++offset;
 

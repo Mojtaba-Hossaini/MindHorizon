@@ -78,7 +78,7 @@
         $.ajax({
             type: 'GET',
             url: '/Home/GetPostsInCategoryAndTag',
-            data:{"pageindex":pageIndex,"pagesize":pageSize,"categoryId":'@Model.Id'},
+            data:{"pageindex":pageIndex,"pagesize":pageSize,"categoryId":'@(Model.IsCategory ? Model.Id : "")', "TagId": '@(Model.IsCategory ? "" : Model.Id)'},
             dataType: 'json',
             success: function (data) {
                 if (data != null) {

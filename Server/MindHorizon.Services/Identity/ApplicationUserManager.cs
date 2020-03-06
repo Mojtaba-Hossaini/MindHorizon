@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using System.IO;
 using MindHorizon.Common;
 using AutoMapper;
+using System.Linq.Dynamic.Core;
 using AutoMapper.QueryableExtensions;
 
 namespace MindHorizon.Services.Identity
@@ -111,9 +112,13 @@ namespace MindHorizon.Services.Identity
         }
 
 
-        public List<UsersViewModel> GetPaginateUsers(int offset, int limit, Func<UsersViewModel, Object> orderByAscFunc, Func<UsersViewModel, Object> orderByDescFunc, string searchText)
+        public async Task<List<UsersViewModel>> GetPaginateUsersAsync(int offset, int limit, string orderBy, string searchText)
         {
-            var users = Users.Include(u => u.Roles).Where(t => t.FirstName.Contains(searchText) || t.LastName.Contains(searchText) || t.Email.Contains(searchText) || t.UserName.Contains(searchText) || t.RegisterDateTime.ConvertMiladiToShamsi("yyyy/MM/dd ساعت HH:mm:ss").Contains(searchText))
+            var getDateTimesForSearch = searchText.GetDateTimeForSearch();
+            var users = await Users.Include(u => u.Roles)
+                  .Where(t => t.FirstName.Contains(searchText) || t.LastName.Contains(searchText) || t.Email.Contains(searchText) || t.UserName.Contains(searchText) || (t.RegisterDateTime >= getDateTimesForSearch.First() && t.RegisterDateTime <= getDateTimesForSearch.Last()))
+                  .OrderBy(orderBy)
+                  .Skip(offset).Take(limit)
                   .Select(user => new UsersViewModel
                   {
                       Id = user.Id,
@@ -130,7 +135,7 @@ namespace MindHorizon.Services.Identity
                       GenderName = user.Gender == GenderType.Male ? "مرد" : "زن",
                       RoleId = user.Roles.Select(r => r.Role.Id).FirstOrDefault(),
                       RoleName = user.Roles.Select(r => r.Role.Name).FirstOrDefault()
-                  }).OrderBy(orderByAscFunc).OrderByDescending(orderByDescFunc).Skip(offset).Take(limit).ToList();
+                  }).AsNoTracking().ToListAsync();
 
             foreach (var item in users)
                 item.Row = ++offset;

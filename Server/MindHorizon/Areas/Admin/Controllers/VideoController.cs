@@ -21,10 +21,10 @@ namespace MindHorizon.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork _uw;
         private readonly IMapper _mapper;
-        private readonly IHostingEnvironment _env;
+        private readonly IWebHostEnvironment _env;
         private const string VideoNotFound = "ویدیو درخواستی یافت نشد.";
 
-        public VideoController(IUnitOfWork uw, IMapper mapper,IHostingEnvironment env)
+        public VideoController(IUnitOfWork uw, IMapper mapper, IWebHostEnvironment env)
         {
             _uw = uw;
             _uw.CheckArgumentIsNull(nameof(_uw));
@@ -59,21 +59,21 @@ namespace MindHorizon.Areas.Admin.Controllers
             if (sort == "عنوان ویدیو")
             {
                 if (order == "asc")
-                    videos = _uw.VideoRepository.GetPaginateVideos(offset, limit,item=>item.Title,item=>"", search);
+                    videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit,"Title", search);
                 else
-                    videos = _uw.VideoRepository.GetPaginateVideos(offset, limit, item => "", item => item.Title, search);
+                    videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit,  "Title desc", search);
             }
 
             else if (sort == "تاریخ انتشار")
             {
                 if (order == "asc")
-                    videos = _uw.VideoRepository.GetPaginateVideos(offset, limit,item=>item.PersianPublishDateTime, item => "", search);
+                    videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit, "PublishDateTime", search);
                 else
-                    videos = _uw.VideoRepository.GetPaginateVideos(offset, limit, item => "", item => item.PersianPublishDateTime, search);
+                    videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit, "PublishDateTime desc", search);
             }
 
             else
-                videos = _uw.VideoRepository.GetPaginateVideos(offset, limit, item => "", item => item.PersianPublishDateTime, search);
+                videos = await _uw.VideoRepository.GetPaginateVideosAsync(offset, limit, "PublishDateTime desc", search);
 
             if (search != "")
                 total = videos.Count();

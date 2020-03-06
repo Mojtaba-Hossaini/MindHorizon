@@ -39,7 +39,8 @@ namespace MindHorizon.Services.Contracts
         Task<User> FindByIdAsync(string userId);
         Task<User> FindByNameAsync(string userName);
         Task<IdentityResult> CreateAsync(User user, string password);
-        string NormalizeKey(string key);
+        string NormalizeName(string name);
+        string NormalizeEmail(string email);
         Task UpdateNormalizedUserNameAsync(User user);
         Task<string> GetUserNameAsync(User user);
         Task<IdentityResult> SetUserNameAsync(User user, string userName);
@@ -121,7 +122,7 @@ namespace MindHorizon.Services.Contracts
         Task<UsersViewModel> FindUserWithRolesByIdAsync(int UserId);
         Task<string> GetFullName(ClaimsPrincipal User);
         Task<User> GetUserAsync(ClaimsPrincipal User);
-        List<UsersViewModel> GetPaginateUsers(int offset, int limit, Func<UsersViewModel, Object> orderByAscFunc, Func<UsersViewModel, Object> orderByDescFunc, string searchText);
+        Task<List<UsersViewModel>> GetPaginateUsersAsync(int offset, int limit, string orderBy, string searchText);
         string CheckAvatarFileName(string fileName);
         Task<User> FindClaimsInUser(int userId);
         Task<IdentityResult> AddOrUpdateClaimsAsync(int userId, string userClaimType, IList<string> selectedUserClaimValues);

@@ -12,6 +12,6 @@ namespace MindHorizon.Data.Contracts
         Category FindByCategoryName(string categoryName);
         Task<List<TreeViewCategory>> GetAllCategoriesAsync();
         bool IsExistCategory(string categoryName, string recentCategoryId = null);
-        Task<List<CategoryViewModel>> GetPaginateCategoriesAsync(int offset, int limit, bool? categoryNameSortAsc, bool? parentCategoryNameSortAsc, string searchText);
+        Task<List<CategoryViewModel>> GetPaginateCategoriesAsync(int offset, int limit, string orderBy, string searchText);
     }
 }

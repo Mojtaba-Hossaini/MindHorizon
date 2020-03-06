@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using MindHorizon.Entities;
-using System.Text;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MindHorizon.ViewModels.Comments
 {
@@ -20,36 +18,36 @@ namespace MindHorizon.ViewModels.Comments
             PostId = postId;
         }
 
-        [JsonProperty("Id")]
+        [JsonPropertyName("Id")]
         public string CommentId { get; set; }
 
-        [JsonProperty("ردیف")]
+        [JsonPropertyName("ردیف")]
         public int Row { get; set; }
 
-        [JsonProperty("نام"),Display(Name="نام")]
+        [JsonPropertyName("نام"), Display(Name = "نام")]
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
         public string Name { get; set; }
 
 
-        [JsonProperty("ایمیل"),Display(Name = "ایمیل")]
+        [JsonPropertyName("ایمیل"), Display(Name = "ایمیل")]
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
-        [EmailAddress(ErrorMessage ="ایمیل وارد شده معتبر نمی باشد.")]
+        [EmailAddress(ErrorMessage = "ایمیل وارد شده معتبر نمی باشد.")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "وارد نمودن {0} الزامی است.")]
-        [JsonProperty("دیدگاه") , Display(Name = "دیدگاه")]
+        [JsonPropertyName("دیدگاه"), Display(Name = "دیدگاه")]
         public string Desription { get; set; }
 
         [JsonIgnore]
         public string PostId { get; set; }
 
-        [JsonProperty("IsConfirm")]
+        [JsonPropertyName("IsConfirm")]
         public bool? IsConfirm { get; set; }
 
         [JsonIgnore]
         public DateTime? PostageDateTime { get; set; }
 
-        [JsonProperty("تاریخ ارسال")]
+        [JsonPropertyName("تاریخ ارسال")]
         public string PersianPostageDateTime { get; set; }
 
         [JsonIgnore]
