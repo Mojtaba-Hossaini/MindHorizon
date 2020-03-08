@@ -631,34 +631,33 @@ namespace MindHorizon.Data.Repositories
         {
             string NameOfCategories = "";
             List<PostViewModel> postViewModel = new List<PostViewModel>();
-            var postGroup = await (from n in _context.Post.Where(n => n.Title.Contains(textSearch) || n.Description.Contains(textSearch)).Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User).Include(c => c.Comments)
-                                   join e in _context.PostCategories on n.PostId equals e.PostId into bc
-                                   from bct in bc.DefaultIfEmpty()
-                                   join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
-                                   from cog in cg.DefaultIfEmpty()
-                                   join a in _context.PostTags on n.PostId equals a.PostId into ac
-                                   from act in ac.DefaultIfEmpty()
-                                   join t in _context.Tags on act.TagId equals t.TagId into tg
-                                   from tog in tg.DefaultIfEmpty()
-                                   select (new PostViewModel
-                                   {
-                                       PostId = n.PostId,
-                                       Title = n.Title,
-                                       Abstract = n.Abstract,
-                                       ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
-                                       Url = n.Url,
-                                       ImageName = n.ImageName,
-                                       NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
-                                       NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
-                                       NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
-                                       NumberOfComments = n.Comments.Where(c => c.IsConfirm == true).Count(),
-                                       NameOfCategories = cog != null ? cog.CategoryName : "",
-                                       AuthorName = n.User.FirstName + " " + n.User.LastName,
-                                       PersianPublishTime = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("HH:mm"),
-                                       PersianPublishDate = n.PublishDateTime == null ? "-" : n.PublishDateTime.ConvertMiladiToShamsi("yyyy/MM/dd"),
-                                   })).GroupBy(b => b.PostId).Select(g => new { PostId = g.Key, PostGroup = g }).AsNoTracking().ToListAsync();
+            var allPosts = await (from n in _context.Post.Where(n => (n.Title.Contains(textSearch) || n.Description.Contains(textSearch)) && n.IsPublish == true && n.PublishDateTime <= DateTime.Now).Include(v => v.Visits).Include(l => l.Likes).Include(u => u.User).Include(c => c.Comments)
+                                 join e in _context.PostCategories on n.PostId equals e.PostId into bc
+                                 from bct in bc.DefaultIfEmpty()
+                                 join c in _context.Categories on bct.CategoryId equals c.CategoryId into cg
+                                 from cog in cg.DefaultIfEmpty()
+                                 select (new PostViewModel
+                                 {
+                                     PostId = n.PostId,
+                                     Title = n.Title,
+                                     Abstract = n.Abstract,
+                                     ShortTitle = n.Title.Length > 50 ? n.Title.Substring(0, 50) + "..." : n.Title,
+                                     Url = n.Url,
+                                     ImageName = n.ImageName,
+                                     Description = n.Description,
+                                     NumberOfVisit = n.Visits.Select(v => v.NumberOfVisit).Sum(),
+                                     NumberOfLike = n.Likes.Where(l => l.IsLiked == true).Count(),
+                                     NumberOfDisLike = n.Likes.Where(l => l.IsLiked == false).Count(),
+                                     NumberOfComments = n.Comments.Count(),
+                                     AuthorName = n.User.FirstName + " " + n.User.LastName,
+                                     IsPublish = n.IsPublish,
+                                     PublishDateTime = n.PublishDateTime,
+                                     NameOfCategories = cog != null ? cog.CategoryName : "",
+                                 })).AsNoTracking().ToListAsync();
 
 
+
+            var postGroup = allPosts.GroupBy(g => g.PostId).Select(g => new { PostId = g.Key, PostGroup = g });
             foreach (var item in postGroup)
             {
                 NameOfCategories = "";
